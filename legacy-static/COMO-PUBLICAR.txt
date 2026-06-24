@@ -1,0 +1,43 @@
+# Como publicar no seu domínio
+
+## Opção 1 — Hospedagem simples (cPanel / FTP)
+
+1. Acesse o painel da sua hospedagem (Hostinger, Locaweb, etc.)
+2. Abra o **Gerenciador de Arquivos** ou conecte via **FTP**
+3. Envie **todos os arquivos** desta pasta para `public_html` (ou a pasta do seu domínio)
+4. Acesse `https://seudominio.com.br` — pronto!
+
+## Opção 2 — Netlify / Vercel (grátis)
+
+1. Crie conta em [netlify.com](https://netlify.com) ou [vercel.com](https://vercel.com)
+2. Arraste a pasta do projeto ou conecte ao GitHub
+3. Configure seu domínio personalizado nas configurações
+
+## Testar localmente
+
+Abra o arquivo `index.html` no navegador, ou use a extensão **Live Server** no VS Code.
+
+## Conta demo (oficina)
+
+- **E-mail:** contato@aguryauto.com.br
+- **Senha:** demo123
+
+## Próximos passos (quando escalar)
+
+- [ ] Backend com banco de dados real (Node.js + PostgreSQL ou PHP + MySQL)
+- [ ] Envio de e-mail automático quando chegar orçamento
+- [ ] Pagamento online (Mercado Pago / Stripe)
+- [ ] Painel administrativo
+
+## Estrutura
+
+```
+index.html          → Página inicial
+orcamento.html      → Formulário de orçamento
+como-funciona.html  → Explicação do sistema
+login.html          → Login cliente/oficina
+cadastro/           → Cadastros
+dashboard/          → Painéis
+css/main.css        → Estilos
+js/                 → Lógica (localStorage por enquanto)
+```

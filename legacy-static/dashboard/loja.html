@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Painel da Oficina — Agury Auto</title>
+  <link rel="stylesheet" href="../css/main.css">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🚗</text></svg>">
+</head>
+<body>
+  <div class="bg-grid"></div>
+  <div class="page-wrap">
+    <nav class="navbar scrolled">
+      <div class="container nav-inner">
+        <a href="../index.html" class="logo"><span class="logo-icon">A</span> Agury Auto</a>
+        <div class="nav-actions"></div>
+      </div>
+    </nav>
+
+    <main class="dashboard">
+      <div class="container">
+        <div class="dashboard-header">
+          <div>
+            <h1 id="store-name">Painel da Oficina</h1>
+            <p style="color:var(--text-muted);" id="store-info"></p>
+          </div>
+        </div>
+
+        <div class="dashboard-tabs">
+          <button class="tab-btn active" data-tab="pending">Solicitações</button>
+          <button class="tab-btn" data-tab="answered">Respondidas</button>
+        </div>
+
+        <div id="alert-box"></div>
+        <div class="tab-panel active" id="panel-pending"></div>
+        <div class="tab-panel" id="panel-answered"></div>
+      </div>
+    </main>
+  </div>
+
+  <!-- Modal resposta -->
+  <div id="response-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.7);z-index:200;place-items:center;padding:1rem;">
+    <div class="form-card" style="width:min(100%,480px);margin:0;">
+      <h2 style="margin-bottom:1rem;">Enviar Proposta</h2>
+      <form id="response-form">
+        <input type="hidden" id="response-quote-id">
+        <div class="form-group">
+          <label>Valor do orçamento (R$) <span class="required">*</span></label>
+          <input type="number" id="response-price" step="0.01" min="0" required placeholder="0,00">
+        </div>
+        <div class="form-group">
+          <label>Prazo estimado</label>
+          <input type="text" id="response-deadline" placeholder="Ex: 3 dias úteis">
+        </div>
+        <div class="form-group">
+          <label>Observações</label>
+          <textarea id="response-message" placeholder="Detalhes da proposta, garantia, formas de pagamento..."></textarea>
+        </div>
+        <div style="display:flex;gap:0.75rem;margin-top:1rem;">
+          <button type="button" class="btn btn-secondary" id="cancel-response">Cancelar</button>
+          <button type="submit" class="btn btn-primary" style="flex:1;">Enviar Proposta</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <script src="../js/db.js"></script>
+  <script src="../js/app.js"></script>
+  <script src="../js/dashboard-loja.js"></script>
+</body>
+</html>

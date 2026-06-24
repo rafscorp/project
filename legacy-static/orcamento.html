@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Solicite orçamento grátis de estética e mecânica automotiva. Compare propostas de oficinas parceiras.">
+  <title>Solicitar Orçamento — Agury Auto</title>
+  <link rel="stylesheet" href="css/main.css">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🚗</text></svg>">
+</head>
+<body>
+  <div class="bg-grid"></div>
+  <div class="bg-glow bg-glow--gold"></div>
+
+  <div class="page-wrap">
+    <nav class="navbar scrolled">
+      <div class="container nav-inner">
+        <a href="index.html" class="logo"><span class="logo-icon">A</span> Agury Auto</a>
+        <ul class="nav-links">
+          <li><a href="index.html">Início</a></li>
+          <li><a href="como-funciona.html">Como Funciona</a></li>
+          <li><a href="orcamento.html">Solicitar Orçamento</a></li>
+          <li><a href="cadastro/loja.html">Seja Parceiro</a></li>
+        </ul>
+        <div class="nav-actions">
+          <a href="login.html" class="btn btn-secondary btn-sm">Entrar</a>
+        </div>
+        <button class="menu-toggle" aria-label="Menu">☰</button>
+      </div>
+    </nav>
+
+    <main class="form-page">
+      <div class="container form-layout">
+        <div class="form-card">
+          <div id="alert-box"></div>
+          <h1>Solicite seu Orçamento</h1>
+          <p class="subtitle">Descreva o serviço que precisa. Sua solicitação será enviada para oficinas parceiras.</p>
+
+          <form id="quote-form" novalidate>
+            <div class="form-section-title">Dados do Veículo</div>
+
+            <div class="form-row">
+              <div class="form-group">
+                <label>Marca / Fabricante <span class="required">*</span></label>
+                <select id="vehicleBrand" required></select>
+              </div>
+              <div class="form-group">
+                <label>Modelo do Veículo <span class="required">*</span></label>
+                <input type="text" id="vehicleModel" placeholder="Ex: Gol, Civic, HB20..." required>
+              </div>
+            </div>
+
+            <div class="form-row">
+              <div class="form-group">
+                <label>Ano do Veículo <span class="required">*</span></label>
+                <input type="number" id="vehicleYear" min="1980" max="2027" placeholder="Ex: 2020" required>
+              </div>
+              <div class="form-group">
+                <label>Tipo Principal de Serviço <span class="required">*</span></label>
+                <select id="serviceType" required></select>
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label>Serviços Adicionais (opcional)</label>
+              <div class="checkbox-group" id="serviceTypes"></div>
+            </div>
+
+            <div class="form-section-title">Descrição do Serviço</div>
+
+            <div class="form-group">
+              <label>Informações detalhadas <span class="required">*</span></label>
+              <textarea id="description" maxlength="1000" placeholder="Descreva o problema, serviço desejado, peças necessárias ou qualquer detalhe que ajude a oficina a orçar..." required></textarea>
+              <div class="char-count" id="char-count">1000 caracteres restantes</div>
+            </div>
+
+            <div class="form-group">
+              <label>Enviar fotos (opcional)</label>
+              <label class="file-upload" for="photos">
+                <input type="file" id="photos" accept="image/*" multiple>
+                <div>📷 Clique para adicionar fotos</div>
+                <small style="color:var(--text-muted);margin-top:0.5rem;display:block;">Máx. 3 fotos · 5MB cada</small>
+              </label>
+              <div class="file-preview" id="photo-preview"></div>
+            </div>
+
+            <div class="form-section-title">Seus Dados</div>
+
+            <div class="form-row">
+              <div class="form-group">
+                <label>Nome <span class="required">*</span></label>
+                <input type="text" id="customerName" required>
+              </div>
+              <div class="form-group">
+                <label>E-mail <span class="required">*</span></label>
+                <input type="email" id="customerEmail" required>
+              </div>
+            </div>
+
+            <div class="form-row">
+              <div class="form-group">
+                <label>Telefone / WhatsApp <span class="required">*</span></label>
+                <input type="tel" id="customerPhone" placeholder="(11) 99999-9999" required>
+              </div>
+              <div class="form-group">
+                <label>Estado</label>
+                <select id="customerState"></select>
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label>Cidade</label>
+              <input type="text" id="customerCity" placeholder="Sua cidade">
+            </div>
+
+            <label class="form-check">
+              <input type="checkbox" id="acceptTerms" required>
+              <span>Li e aceito os <a href="termos.html" target="_blank">Termos de Uso</a> do serviço <span class="required">*</span></span>
+            </label>
+
+            <button type="submit" class="btn btn-primary btn-lg btn-block" id="submit-btn">
+              Enviar Solicitação de Orçamento
+            </button>
+          </form>
+        </div>
+
+        <aside class="form-sidebar">
+          <div class="sidebar-card">
+            <h3>Como funciona</h3>
+            <ul class="sidebar-list">
+              <li><span>1</span><span>Preencha o formulário com os dados do veículo e serviço desejado.</span></li>
+              <li><span>2</span><span>Sua solicitação é enviada para oficinas parceiras especializadas.</span></li>
+              <li><span>3</span><span>Receba orçamentos no seu painel ou e-mail e escolha o melhor!</span></li>
+            </ul>
+          </div>
+          <div class="sidebar-card" style="margin-top:1.5rem;">
+            <h3>💡 Dica</h3>
+            <p style="color:var(--text-muted);font-size:0.9rem;">Quanto mais detalhes e fotos você enviar, mais precisos serão os orçamentos das oficinas.</p>
+          </div>
+          <div class="sidebar-card" style="margin-top:1.5rem;border-color:rgba(245,185,66,0.2);">
+            <h3>Já tem conta?</h3>
+            <p style="color:var(--text-muted);font-size:0.9rem;margin-bottom:1rem;">Faça login para acompanhar seus orçamentos em tempo real.</p>
+            <a href="login.html" class="btn btn-secondary btn-block">Entrar na Minha Conta</a>
+          </div>
+        </aside>
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="container footer-bottom" style="border:none;padding-top:0;">
+        <span>© 2026 Agury Auto</span>
+        <a href="termos.html" style="color:var(--text-muted);">Termos de Uso</a>
+      </div>
+    </footer>
+  </div>
+
+  <script src="js/db.js"></script>
+  <script src="js/app.js"></script>
+  <script src="js/orcamento.js"></script>
+</body>
+</html>

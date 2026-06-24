@@ -1,0 +1,592 @@
+// =============================================================================
+// Agury Platform — Schema do Banco de Dados (PostgreSQL)
+// Modelo SaaS B2B: empresas pagam assinatura → loja online → clientes compram e retiram
+// =============================================================================
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// -----------------------------------------------------------------------------
+// Enums
+// -----------------------------------------------------------------------------
+
+enum UserRole {
+  PLATFORM_ADMIN // Administrador da plataforma Agury
+  STORE_OWNER    // Dono da empresa/loja (paga assinatura)
+  STORE_STAFF    // Funcionário da loja
+  CUSTOMER       // Cliente final que compra na loja
+}
+
+enum SubscriptionStatus {
+  TRIAL
+  ACTIVE
+  PAST_DUE
+  CANCELLED
+  EXPIRED
+}
+
+enum OrderStatus {
+  PENDING           // Aguardando confirmação da loja
+  CONFIRMED         // Loja confirmou o pedido
+  PREPARING         // Separando produtos
+  READY_FOR_PICKUP  // Pronto para retirada
+  PICKED_UP         // Cliente retirou
+  CANCELLED
+}
+
+enum PaymentStatus {
+  PENDING
+  PAID
+  FAILED
+  REFUNDED
+}
+
+enum CouponType {
+  PERCENTAGE // Desconto percentual
+  FIXED      // Desconto fixo em R$
+}
+
+enum CouponScope {
+  SUBSCRIPTION // Aplicável a assinaturas
+  PRODUCT      // Aplicável a produtos
+  ALL          // Ambos
+}
+
+enum AffiliateStatus {
+  PENDING   // Aguardando aprovação
+  APPROVED  // Afiliado ativo
+  REJECTED  // Rejeitado
+  SUSPENDED // Suspenso
+}
+
+enum AffiliatePaymentStatus {
+  PENDING
+  PROCESSING
+  PAID
+  FAILED
+}
+
+enum NotificationType {
+  INFO
+  SUCCESS
+  WARNING
+  ERROR
+  ORDER
+  PAYMENT
+  SYSTEM
+}
+
+enum AuditAction {
+  LOGIN
+  LOGIN_FAILED
+  LOGOUT
+  REGISTER
+  PASSWORD_CHANGE
+  PASSWORD_RESET_REQUEST
+  PASSWORD_RESET_COMPLETE
+  PROFILE_UPDATE
+  STORE_CREATE
+  STORE_UPDATE
+  STORE_DELETE
+  PRODUCT_CREATE
+  PRODUCT_UPDATE
+  PRODUCT_DELETE
+  ORDER_CREATE
+  ORDER_STATUS_CHANGE
+  PAYMENT_CREATE
+  PAYMENT_REFUND
+  SUBSCRIPTION_CREATE
+  SUBSCRIPTION_CANCEL
+  SUBSCRIPTION_UPGRADE
+  COUPON_CREATE
+  COUPON_USE
+  AFFILIATE_APPLY
+  AFFILIATE_APPROVE
+  AFFILIATE_REJECT
+  AFFILIATE_PAYOUT
+  SESSION_REVOKE
+  ADMIN_ACTION
+}
+
+// -----------------------------------------------------------------------------
+// Autenticação e Usuários
+// -----------------------------------------------------------------------------
+
+model User {
+  id           String    @id @default(cuid())
+  email        String    @unique
+  username     String    @unique
+  passwordHash String
+  name         String
+  phone        String?
+  avatarUrl    String?
+  loginCode    String?
+  loginCodeExpiresAt DateTime?
+  role         UserRole  @default(CUSTOMER)
+  active       Boolean   @default(true)
+  deletedAt    DateTime? // Soft delete
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+
+  // Relações
+  ownedStores        Store[]              @relation("StoreOwner")
+  storeMembers       StoreMember[]
+  orders             Order[]
+  sessions           UserSession[]
+  notifications      Notification[]
+  passwordResetTokens PasswordResetToken[]
+  auditLogs          AuditLog[]           @relation("AuditUser")
+  affiliate          Affiliate?
+  couponUsages       CouponUsage[]
+
+  @@index([email])
+  @@index([username])
+  @@index([role])
+  @@index([deletedAt])
+  @@map("users")
+}
+
+/// Sessões de login com device tracking e refresh token
+model UserSession {
+  id           String   @id @default(cuid())
+  userId       String
+  token        String   @unique
+  refreshToken String?  @unique
+  ipAddress    String?
+  userAgent    String?
+  deviceName   String?
+  rememberMe   Boolean  @default(false)
+  lastActiveAt DateTime @default(now())
+  expiresAt    DateTime
+  revokedAt    DateTime?
+  createdAt    DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([token])
+  @@index([refreshToken])
+  @@index([expiresAt])
+  @@map("user_sessions")
+}
+
+/// Tokens de redefinição de senha (hash armazenado, uso único)
+model PasswordResetToken {
+  id        String    @id @default(cuid())
+  userId    String
+  tokenHash String    @unique // SHA-256 hash do token real
+  expiresAt DateTime
+  usedAt    DateTime?
+  createdAt DateTime  @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([tokenHash])
+  @@index([expiresAt])
+  @@map("password_reset_tokens")
+}
+
+// -----------------------------------------------------------------------------
+// Planos e Assinaturas (empresas pagam à Agury)
+// -----------------------------------------------------------------------------
+
+model SubscriptionPlan {
+  id            String   @id @default(cuid())
+  name          String
+  slug          String   @unique
+  description   String?
+  priceMonthly  Float    // Valor mensal em BRL
+  maxProducts   Int      @default(100)
+  maxStaff      Int      @default(3)
+  features      Json     @default("[]") // Array de features
+  active        Boolean  @default(true)
+  sortOrder     Int      @default(0)
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  subscriptions Subscription[]
+
+  @@map("subscription_plans")
+}
+
+model Subscription {
+  id               String             @id @default(cuid())
+  storeId          String             @unique
+  planId           String
+  status           SubscriptionStatus @default(TRIAL)
+  trialEndsAt      DateTime?
+  currentPeriodEnd DateTime?
+  cancelledAt      DateTime?
+  // Payment gateway references
+  stripeSubscriptionId    String?
+  mercadoPagoSubscriptionId String?
+  createdAt        DateTime           @default(now())
+  updatedAt        DateTime           @updatedAt
+
+  store    Store            @relation(fields: [storeId], references: [id], onDelete: Cascade)
+  plan     SubscriptionPlan @relation(fields: [planId], references: [id])
+  payments Payment[]
+
+  @@index([status])
+  @@index([planId])
+  @@map("subscriptions")
+}
+
+// -----------------------------------------------------------------------------
+// Lojas (Tenants — cada empresa cliente da Agury)
+// -----------------------------------------------------------------------------
+
+model Store {
+  id          String    @id @default(cuid())
+  slug        String    @unique // URL: /loja/minha-oficina
+  name        String
+  legalName   String?   // Razão social
+  cnpj        String?
+  description String?
+  logoUrl     String?
+  bannerUrl   String?
+  latitude    Float?
+  longitude   Float?
+  phone       String
+  email       String
+  address     String
+  city        String
+  state       String
+  zipCode     String?
+  active      Boolean   @default(true)
+  deletedAt   DateTime? // Soft delete
+  ownerId     String
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  owner        User           @relation("StoreOwner", fields: [ownerId], references: [id])
+  members      StoreMember[]
+  subscription Subscription?
+  categories   Category[]
+  products     Product[]
+  orders       Order[]
+
+  @@index([ownerId])
+  @@index([slug])
+  @@index([active, deletedAt])
+  @@map("stores")
+}
+
+/// Funcionários vinculados à loja
+model StoreMember {
+  id        String   @id @default(cuid())
+  storeId   String
+  userId    String
+  role      String   @default("staff") // owner | manager | staff
+  createdAt DateTime @default(now())
+
+  store Store @relation(fields: [storeId], references: [id], onDelete: Cascade)
+  user  User  @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([storeId, userId])
+  @@map("store_members")
+}
+
+// -----------------------------------------------------------------------------
+// Catálogo de Produtos (por loja)
+// -----------------------------------------------------------------------------
+
+model Category {
+  id        String   @id @default(cuid())
+  storeId   String
+  name      String
+  slug      String
+  sortOrder Int      @default(0)
+  active    Boolean  @default(true)
+  createdAt DateTime @default(now())
+
+  store    Store     @relation(fields: [storeId], references: [id], onDelete: Cascade)
+  products Product[]
+
+  @@unique([storeId, slug])
+  @@index([storeId, active])
+  @@map("categories")
+}
+
+model Product {
+  id           String    @id @default(cuid())
+  storeId      String
+  categoryId   String?
+  name         String
+  slug         String
+  sku          String?
+  description  String?
+  price        Float
+  comparePrice Float?    // Preço "de" para promoção
+  stock        Int       @default(0)
+  imageUrl     String?
+  active       Boolean   @default(true)
+  featured     Boolean   @default(false)
+  deletedAt    DateTime? // Soft delete
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+
+  store      Store       @relation(fields: [storeId], references: [id], onDelete: Cascade)
+  category   Category?   @relation(fields: [categoryId], references: [id], onDelete: SetNull)
+  orderItems OrderItem[]
+
+  @@unique([storeId, slug])
+  @@index([storeId, active, deletedAt])
+  @@index([storeId, featured])
+  @@index([storeId, categoryId])
+  @@map("products")
+}
+
+// -----------------------------------------------------------------------------
+// Pedidos (cliente compra → retira na loja)
+// -----------------------------------------------------------------------------
+
+model Order {
+  id            String        @id @default(cuid())
+  orderNumber   String        @unique // Ex: AGU-20260323-001
+  storeId       String
+  customerId    String?       // User logado (opcional)
+  customerName  String
+  customerEmail String
+  customerPhone String
+  status        OrderStatus   @default(PENDING)
+  paymentStatus PaymentStatus @default(PENDING)
+  subtotal      Float
+  discount      Float         @default(0)
+  total         Float
+  pickupCode    String        @unique // Código para retirada na loja
+  notes         String?
+  couponId      String?       // Cupom aplicado
+  deletedAt     DateTime?     // Soft delete
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @updatedAt
+
+  store    Store       @relation(fields: [storeId], references: [id], onDelete: Cascade)
+  customer User?       @relation(fields: [customerId], references: [id], onDelete: SetNull)
+  coupon   Coupon?     @relation(fields: [couponId], references: [id], onDelete: SetNull)
+  items    OrderItem[]
+
+  @@index([storeId, status])
+  @@index([storeId, createdAt])
+  @@index([customerId])
+  @@index([pickupCode])
+  @@index([couponId])
+  @@map("orders")
+}
+
+model OrderItem {
+  id        String @id @default(cuid())
+  orderId   String
+  productId String
+  quantity  Int
+  unitPrice Float
+  total     Float
+
+  order   Order   @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  product Product @relation(fields: [productId], references: [id])
+
+  @@index([orderId])
+  @@index([productId])
+  @@map("order_items")
+}
+
+// -----------------------------------------------------------------------------
+// Pagamentos
+// -----------------------------------------------------------------------------
+
+model Payment {
+  id              String        @id @default(cuid())
+  subscriptionId  String?
+  amount          Float
+  currency        String        @default("BRL")
+  status          PaymentStatus @default(PENDING)
+  gateway         String        // "stripe" | "mercadopago"
+  gatewayPaymentId String?      // ID no gateway
+  gatewayResponse Json?         // Response raw do gateway
+  idempotencyKey  String?       @unique // Anti-duplicação
+  description     String?
+  failedReason    String?
+  paidAt          DateTime?
+  refundedAt      DateTime?
+  createdAt       DateTime      @default(now())
+  updatedAt       DateTime      @updatedAt
+
+  subscription Subscription? @relation(fields: [subscriptionId], references: [id], onDelete: SetNull)
+
+  @@index([subscriptionId])
+  @@index([gateway, gatewayPaymentId])
+  @@index([status])
+  @@index([idempotencyKey])
+  @@map("payments")
+}
+
+// -----------------------------------------------------------------------------
+// Cupons
+// -----------------------------------------------------------------------------
+
+model Coupon {
+  id            String      @id @default(cuid())
+  code          String      @unique // Código do cupom (ex: WELCOME10)
+  description   String?
+  type          CouponType  // PERCENTAGE ou FIXED
+  scope         CouponScope @default(ALL) // Onde pode ser usado
+  value         Float       // Valor do desconto (% ou R$)
+  minOrderValue Float?      // Valor mínimo para aplicar
+  maxDiscount   Float?      // Teto de desconto (para %)
+  maxUses       Int?        // Limite total de usos (null = ilimitado)
+  maxUsesPerUser Int?       // Limite por usuário (null = ilimitado)
+  usedCount     Int         @default(0)
+  active        Boolean     @default(true)
+  startsAt      DateTime    @default(now())
+  expiresAt     DateTime?
+  // Afiliado (cupom pode ser vinculado a um afiliado)
+  affiliateId   String?
+  createdAt     DateTime    @default(now())
+  updatedAt     DateTime    @updatedAt
+
+  affiliate  Affiliate?    @relation(fields: [affiliateId], references: [id], onDelete: SetNull)
+  usages     CouponUsage[]
+  orders     Order[]
+
+  @@index([code])
+  @@index([active, startsAt, expiresAt])
+  @@index([affiliateId])
+  @@map("coupons")
+}
+
+model CouponUsage {
+  id        String   @id @default(cuid())
+  couponId  String
+  userId    String?
+  orderId   String?
+  discount  Float    // Desconto efetivo aplicado
+  createdAt DateTime @default(now())
+
+  coupon Coupon @relation(fields: [couponId], references: [id], onDelete: Cascade)
+  user   User?  @relation(fields: [userId], references: [id], onDelete: SetNull)
+
+  @@index([couponId])
+  @@index([userId])
+  @@map("coupon_usages")
+}
+
+// -----------------------------------------------------------------------------
+// Afiliados
+// -----------------------------------------------------------------------------
+
+model Affiliate {
+  id             String          @id @default(cuid())
+  userId         String          @unique
+  code           String          @unique // Código único do afiliado (ex: REF-JOAO123)
+  status         AffiliateStatus @default(PENDING)
+  commissionRate Float           @default(10) // Percentual de comissão
+  totalEarnings  Float           @default(0)
+  totalPaid      Float           @default(0)
+  totalClicks    Int             @default(0)
+  bio            String?
+  pixKey         String?         // Chave PIX para pagamento
+  approvedAt     DateTime?
+  rejectedAt     DateTime?
+  createdAt      DateTime        @default(now())
+  updatedAt      DateTime        @updatedAt
+
+  user      User                @relation(fields: [userId], references: [id], onDelete: Cascade)
+  referrals AffiliateReferral[]
+  payments  AffiliatePayment[]
+  coupons   Coupon[]
+
+  @@index([code])
+  @@index([status])
+  @@index([userId])
+  @@map("affiliates")
+}
+
+model AffiliateReferral {
+  id            String   @id @default(cuid())
+  affiliateId   String
+  referredEmail String?  // Email do usuário/loja indicada
+  referredStoreId String? // ID da loja indicada (se converteu)
+  ipAddress     String?
+  userAgent     String?
+  converted     Boolean  @default(false)
+  commission    Float    @default(0) // Comissão ganha
+  createdAt     DateTime @default(now())
+
+  affiliate Affiliate @relation(fields: [affiliateId], references: [id], onDelete: Cascade)
+
+  @@index([affiliateId])
+  @@index([converted])
+  @@index([referredStoreId])
+  @@map("affiliate_referrals")
+}
+
+model AffiliatePayment {
+  id          String                 @id @default(cuid())
+  affiliateId String
+  amount      Float
+  status      AffiliatePaymentStatus @default(PENDING)
+  pixKey      String?
+  paidAt      DateTime?
+  notes       String?
+  createdAt   DateTime               @default(now())
+  updatedAt   DateTime               @updatedAt
+
+  affiliate Affiliate @relation(fields: [affiliateId], references: [id], onDelete: Cascade)
+
+  @@index([affiliateId])
+  @@index([status])
+  @@map("affiliate_payments")
+}
+
+// -----------------------------------------------------------------------------
+// Notificações
+// -----------------------------------------------------------------------------
+
+model Notification {
+  id        String           @id @default(cuid())
+  userId    String
+  type      NotificationType @default(INFO)
+  title     String
+  message   String
+  link      String?          // Link para ação
+  read      Boolean          @default(false)
+  readAt    DateTime?
+  createdAt DateTime         @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, read])
+  @@index([userId, createdAt])
+  @@map("notifications")
+}
+
+// -----------------------------------------------------------------------------
+// Auditoria
+// -----------------------------------------------------------------------------
+
+model AuditLog {
+  id        String      @id @default(cuid())
+  userId    String?
+  action    AuditAction
+  entity    String?     // Entidade afetada (ex: "User", "Store", "Order")
+  entityId  String?     // ID da entidade
+  metadata  Json?       // Dados extras (changes, old values, etc.)
+  ipAddress String?
+  userAgent String?
+  createdAt DateTime    @default(now())
+
+  user User? @relation("AuditUser", fields: [userId], references: [id], onDelete: SetNull)
+
+  @@index([userId])
+  @@index([action])
+  @@index([entity, entityId])
+  @@index([createdAt])
+  @@map("audit_logs")
+}

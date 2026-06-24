@@ -1,0 +1,63 @@
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: agury-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${DB_USER:-agury}
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-agury123}
+      POSTGRES_DB: ${DB_NAME:-agury_platform}
+    ports:
+      - "5432:5432"
+    volumes:
+      - agury_pg_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USER:-agury} -d ${DB_NAME:-agury_platform}"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    networks:
+      - agury-network
+
+  web:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        NODE_ENV: production
+    container_name: agury-web
+    restart: unless-stopped
+    ports:
+      - "3000:3000"
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      DATABASE_URL: postgresql://${DB_USER:-agury}:${DB_PASSWORD:-agury123}@postgres:5432/${DB_NAME:-agury_platform}?schema=public
+      JWT_SECRET: ${JWT_SECRET:-agury-dev-secret-change-in-production-min-32-chars}
+      SESSION_SECRET: ${SESSION_SECRET:-agury-session-dev-secret-change-in-production-32c}
+      NEXT_PUBLIC_APP_URL: ${APP_URL:-http://localhost:3000}
+      NEXT_PUBLIC_APP_NAME: Agury Auto
+      NODE_ENV: production
+      EMAIL_FROM: ${EMAIL_FROM:-noreply@agury.com.br}
+      AFFILIATE_DEFAULT_COMMISSION: ${AFFILIATE_COMMISSION:-10}
+      AFFILIATE_COOKIE_DAYS: ${AFFILIATE_COOKIE_DAYS:-30}
+    healthcheck:
+      test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost:3000"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 15s
+    networks:
+      - agury-network
+    volumes:
+      - ./src:/app/src:ro
+      - ./prisma:/app/prisma:ro
+
+volumes:
+  agury_pg_data:
+    driver: local
+
+networks:
+  agury-network:
+    driver: bridge

@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Cadastro de Oficina — Agury Auto</title>
+  <link rel="stylesheet" href="../css/main.css">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🚗</text></svg>">
+</head>
+<body>
+  <div class="bg-grid"></div>
+  <div class="bg-glow bg-glow--gold"></div>
+  <div class="page-wrap">
+    <nav class="navbar scrolled">
+      <div class="container nav-inner">
+        <a href="../index.html" class="logo"><span class="logo-icon">A</span> Agury Auto</a>
+        <ul class="nav-links">
+          <li><a href="../index.html">Início</a></li>
+          <li><a href="../como-funciona.html">Como Funciona</a></li>
+        </ul>
+        <div class="nav-actions">
+          <a href="../login.html" class="btn btn-secondary btn-sm">Entrar</a>
+        </div>
+        <button class="menu-toggle" aria-label="Menu">☰</button>
+      </div>
+    </nav>
+
+    <main class="form-page">
+      <div class="container" style="max-width:720px;">
+        <div class="form-card">
+          <div id="alert-box"></div>
+          <h1>Cadastre sua Oficina</h1>
+          <p class="subtitle">Receba solicitações de orçamento de clientes da sua região. Cadastro gratuito.</p>
+
+          <form id="register-form">
+            <div class="form-section-title">Dados da Empresa</div>
+            <div class="form-group">
+              <label>Nome da Empresa / Oficina <span class="required">*</span></label>
+              <input type="text" id="companyName" required>
+            </div>
+            <div class="form-row">
+              <div class="form-group">
+                <label>CNPJ <span class="required">*</span></label>
+                <input type="text" id="cnpj" placeholder="00.000.000/0001-00" required>
+              </div>
+              <div class="form-group">
+                <label>Responsável <span class="required">*</span></label>
+                <input type="text" id="owner" required>
+              </div>
+            </div>
+
+            <div class="form-section-title">Contato</div>
+            <div class="form-row">
+              <div class="form-group">
+                <label>E-mail <span class="required">*</span></label>
+                <input type="email" id="email" required>
+              </div>
+              <div class="form-group">
+                <label>Telefone <span class="required">*</span></label>
+                <input type="tel" id="phone" required>
+              </div>
+            </div>
+            <div class="form-group">
+              <label>Endereço</label>
+              <input type="text" id="address">
+            </div>
+            <div class="form-row">
+              <div class="form-group">
+                <label>Estado <span class="required">*</span></label>
+                <select id="state" required></select>
+              </div>
+              <div class="form-group">
+                <label>Cidade <span class="required">*</span></label>
+                <input type="text" id="city" required>
+              </div>
+            </div>
+
+            <div class="form-section-title">Serviços Oferecidos</div>
+            <div class="checkbox-group" id="services"></div>
+
+            <div class="form-section-title">Acesso</div>
+            <div class="form-row">
+              <div class="form-group">
+                <label>Senha <span class="required">*</span></label>
+                <input type="password" id="password" minlength="6" required>
+              </div>
+              <div class="form-group">
+                <label>Confirmar senha <span class="required">*</span></label>
+                <input type="password" id="passwordConfirm" minlength="6" required>
+              </div>
+            </div>
+
+            <label class="form-check">
+              <input type="checkbox" id="acceptTerms" required>
+              <span>Aceito os <a href="../termos.html" target="_blank">Termos de Uso</a></span>
+            </label>
+
+            <button type="submit" class="btn btn-primary btn-lg btn-block">Cadastrar Oficina</button>
+          </form>
+
+          <div class="auth-links">
+            Já cadastrado? <a href="../login.html">Entrar como oficina</a>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+  <script src="../js/db.js"></script>
+  <script src="../js/app.js"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      AguryUI.populateSelect(document.getElementById('state'), AguryUI.STATES, '-- Selecione --');
+      const servicesEl = document.getElementById('services');
+      AguryUI.SERVICE_TYPES.forEach(s => {
+        servicesEl.innerHTML += `
+          <label class="checkbox-item">
+            <input type="checkbox" name="services" value="${s.id}"> ${s.label}
+          </label>
+        `;
+      });
+
+      document.getElementById('register-form').addEventListener('submit', (e) => {
+        e.preventDefault();
+        const alertBox = document.getElementById('alert-box');
+        const password = document.getElementById('password').value;
+        if (password !== document.getElementById('passwordConfirm').value) {
+          AguryUI.showAlert(alertBox, 'As senhas não coincidem.', 'error');
+          return;
+        }
+        const services = [...document.querySelectorAll('input[name="services"]:checked')].map(c => c.value);
+        if (services.length === 0) {
+          AguryUI.showAlert(alertBox, 'Selecione pelo menos um serviço oferecido.', 'error');
+          return;
+        }
+        try {
+          const store = AguryDB.registerStore({
+            companyName: document.getElementById('companyName').value.trim(),
+            cnpj: document.getElementById('cnpj').value.trim(),
+            owner: document.getElementById('owner').value.trim(),
+            email: document.getElementById('email').value.trim().toLowerCase(),
+            phone: document.getElementById('phone').value.trim(),
+            address: document.getElementById('address').value.trim(),
+            city: document.getElementById('city').value.trim(),
+            state: document.getElementById('state').value,
+            services,
+            password,
+          });
+          AguryDB.setSession(store, 'store');
+          AguryUI.showAlert(alertBox, 'Oficina cadastrada! Redirecionando para o painel...', 'success');
+          setTimeout(() => location.href = '../dashboard/loja.html', 1500);
+        } catch (err) {
+          AguryUI.showAlert(alertBox, err.message, 'error');
+        }
+      });
+    });
+  </script>
+</body>
+</html>
