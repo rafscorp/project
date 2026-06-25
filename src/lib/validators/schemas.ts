@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { ProductCondition } from "@prisma/client";
 
 export const loginSchema = z.object({
   email: z.string().email("E-mail inválido"),
@@ -41,6 +42,8 @@ export const productSchema = z.object({
   price: z.number().positive(),
   comparePrice: z.number().positive().optional(),
   stock: z.number().int().min(0),
+  imageUrl: z.string().url().optional(),
+  condition: z.nativeEnum(ProductCondition).default(ProductCondition.NEW),
   categoryId: z.string().optional(),
   active: z.boolean().default(true),
   featured: z.boolean().default(false),
@@ -57,8 +60,23 @@ export const checkoutSchema = z.object({
   })).min(1),
 });
 
+export const forgotPasswordSchema = z.object({
+  email: z.string().email("E-mail inválido"),
+});
+
+export const resetPasswordSchema = z.object({
+  token: z.string().min(1, "Token é obrigatório"),
+  password: z.string().min(6, "Senha deve ter no mínimo 6 caracteres"),
+  confirmPassword: z.string().min(1, "Confirme sua senha"),
+}).refine((data) => data.password === data.confirmPassword, {
+  message: "As senhas não coincidem",
+  path: ["confirmPassword"],
+});
+
 export type LoginInput = z.infer<typeof loginSchema>;
 export type RegisterCustomerInput = z.infer<typeof registerCustomerSchema>;
 export type RegisterStoreInput = z.infer<typeof registerStoreSchema>;
 export type ProductInput = z.infer<typeof productSchema>;
 export type CheckoutInput = z.infer<typeof checkoutSchema>;
+export type ForgotPasswordInput = z.infer<typeof forgotPasswordSchema>;
+export type ResetPasswordInput = z.infer<typeof resetPasswordSchema>;

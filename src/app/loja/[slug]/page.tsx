@@ -2,8 +2,11 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { StoreService } from "@/services/store.service";
 import { ProductService } from "@/services/product.service";
+import { getSession } from "@/lib/auth/session";
 import { StoreHeader } from "@/components/store/StoreHeader";
 import { StoreProductGrid } from "@/components/store/StoreProductGrid";
+import { CustomPartRequest } from "@/components/store/CustomPartRequest";
+import { StoreReviews } from "@/components/store/StoreReviews";
 import { Footer } from "@/components/layout/Footer";
 
 interface Props {
@@ -20,6 +23,7 @@ export default async function StorePage({ params }: Props) {
   }
 
   const products = await ProductService.listByStore(store.id);
+  const session = await getSession();
 
   return (
     <div className="min-h-screen bg-zinc-950">
@@ -40,6 +44,14 @@ export default async function StorePage({ params }: Props) {
 
         <StoreProductGrid storeSlug={slug} products={products} />
 
+        {/* Pedido de Peça Sob Encomenda (Motor de Orçamentos) */}
+        <CustomPartRequest 
+          storeId={store.id} 
+          storeName={store.name} 
+          isCustomer={!!session && session.role === "CUSTOMER"} 
+          storeSlug={store.slug}
+        />
+
         <div className="mt-12 rounded-2xl border border-zinc-800 bg-zinc-900/50 p-6">
           <h3 className="font-display font-bold text-white">📍 Retirada na loja</h3>
           <p className="mt-2 text-sm text-zinc-400">
@@ -56,6 +68,16 @@ export default async function StorePage({ params }: Props) {
             </div>
           )}
         </div>
+
+        {/* Avaliações da Loja */}
+        <StoreReviews 
+          storeId={store.id}
+          storeSlug={store.slug}
+          reviews={store.reviews} 
+          averageRating={store.averageRating} 
+          totalReviews={store.totalReviews} 
+          hasSession={!!session}
+        />
       </main>
       <Footer />
     </div>

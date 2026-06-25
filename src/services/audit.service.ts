@@ -27,7 +27,7 @@ export class AuditService {
           action: options.action,
           entity: options.entity,
           entityId: options.entityId,
-          metadata: options.metadata ? JSON.stringify(options.metadata) : null,
+          metadata: options.metadata ? (options.metadata as any) : undefined,
           ipAddress: options.ipAddress,
           userAgent: options.userAgent,
         },

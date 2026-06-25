@@ -1,6 +1,3 @@
-// Force dynamic rendering globally during Docker builds to avoid database dependency
-export const dynamic = 'force-dynamic';
-
 import type { Metadata } from "next";
 import { Outfit, DM_Sans } from "next/font/google";
 import "./globals.css";
@@ -24,6 +21,9 @@ export const metadata: Metadata = {
   },
   description:
     "Plataforma SaaS estilo Trinks para estética e mecânica automotiva. Sua loja online, pedidos com retirada na loja, assinatura mensal.",
+  icons: {
+    icon: "/favicon.svg",
+  },
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {

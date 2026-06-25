@@ -91,25 +91,46 @@ export function checkRateLimit(
 
 // Pre-configured rate limits
 export const RATE_LIMITS = {
-  /** Login: 5 attempts per 15 minutes, block 30 min */
+  /** Login: 5 tentativas por 15 min, bloqueia por 30 min */
   login: { maxRequests: 5, windowSeconds: 900, blockSeconds: 1800 } as RateLimitConfig,
-  /** Registration: 3 per hour */
+  /** Registro: 3 por hora */
   register: { maxRequests: 3, windowSeconds: 3600 } as RateLimitConfig,
-  /** Password reset: 3 per hour */
+  /** Reset de senha: 3 por hora */
   passwordReset: { maxRequests: 3, windowSeconds: 3600 } as RateLimitConfig,
-  /** General API: 100 per minute */
-  api: { maxRequests: 100, windowSeconds: 60 } as RateLimitConfig,
-  /** Webhook: 200 per minute */
+  /** API Geral: 60 por minuto (reduzido de 100) */
+  api: { maxRequests: 60, windowSeconds: 60, blockSeconds: 120 } as RateLimitConfig,
+  /** Webhook: 200 por minuto */
   webhook: { maxRequests: 200, windowSeconds: 60 } as RateLimitConfig,
+  /** Consulta de Placa: 10 por hora por IP — protege créditos da API paga */
+  placa: { maxRequests: 10, windowSeconds: 3600, blockSeconds: 3600 } as RateLimitConfig,
+  /** Orçamentos: 5 por minuto por usuário */
+  quotes: { maxRequests: 5, windowSeconds: 60, blockSeconds: 300 } as RateLimitConfig,
+  /** Upload de arquivos: 20 por hora por IP */
+  upload: { maxRequests: 20, windowSeconds: 3600, blockSeconds: 1800 } as RateLimitConfig,
+  /** Chat: 30 mensagens por minuto */
+  chat: { maxRequests: 30, windowSeconds: 60, blockSeconds: 60 } as RateLimitConfig,
 } as const;
 
 /**
- * Get client IP from request headers
+ * Get client IP from request headers securely
+ * Order of trust:
+ * 1. cf-connecting-ip (Cloudflare)
+ * 2. x-vercel-proxied-for (Vercel)
+ * 3. x-real-ip (Standard reverse proxy)
+ * 4. x-forwarded-for (Fallback)
  */
 export function getClientIp(headers: Headers): string {
-  return (
-    headers.get("x-forwarded-for")?.split(",")[0]?.trim() ||
-    headers.get("x-real-ip") ||
-    "unknown"
-  );
+  const cfConnectingIp = headers.get("cf-connecting-ip");
+  if (cfConnectingIp) return cfConnectingIp.trim();
+
+  const vercelIp = headers.get("x-vercel-proxied-for")?.split(",")[0];
+  if (vercelIp) return vercelIp.trim();
+
+  const realIp = headers.get("x-real-ip");
+  if (realIp) return realIp.trim();
+
+  const forwardedFor = headers.get("x-forwarded-for")?.split(",")[0];
+  if (forwardedFor) return forwardedFor.trim();
+
+  return "unknown";
 }

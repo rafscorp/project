@@ -54,7 +54,7 @@ export default async function AdminCuponsPage() {
                 }
               </TableCell>
               <TableCell>
-                <Badge variant="outline">
+                <Badge variant="info">
                   {coupon.scope === "ALL" ? "Geral" : coupon.scope === "SUBSCRIPTION" ? "Assinatura" : "Produto"}
                 </Badge>
               </TableCell>

@@ -22,7 +22,18 @@ export default async function PlanosPage() {
         </div>
         <div className="mt-12 grid gap-6 lg:grid-cols-3">
           {plans.map((plan, i) => {
-            const features: string[] = JSON.parse(plan.features || "[]");
+            let features: string[] = [];
+            if (typeof plan.features === "string") {
+              try {
+                features = JSON.parse(plan.features || "[]");
+              } catch (e) {
+                features = [];
+              }
+            } else if (Array.isArray(plan.features)) {
+              features = plan.features as string[];
+            } else {
+              features = [];
+            }
             return (
               <div key={plan.id} className={`rounded-2xl border p-8 ${i === 1 ? "border-amber-400/50 bg-amber-400/5 scale-105" : "border-zinc-800 bg-zinc-900/50"}`}>
                 <h2 className="font-display text-xl font-bold text-white">{plan.name}</h2>

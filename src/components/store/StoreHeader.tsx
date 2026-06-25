@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { MapPin, Phone, ShoppingCart } from "lucide-react";
+import { MapPin, Phone, CalendarCheck } from "lucide-react";
 import { useCart } from "@/hooks/useCart";
 
 interface StoreHeaderProps {
@@ -37,9 +37,9 @@ export function StoreHeader({ store }: StoreHeaderProps) {
             </div>
           </div>
         </div>
-        <Link href={`/loja/${store.slug}/carrinho`} className="relative flex items-center gap-2 rounded-xl bg-amber-400 px-4 py-2 text-sm font-semibold text-zinc-950">
-          <ShoppingCart className="h-4 w-4" />
-          Carrinho
+        <Link href={`/loja/${store.slug}/carrinho`} className="relative flex items-center gap-2 rounded-xl bg-amber-400 px-4 py-2 text-sm font-semibold text-zinc-950 hover:bg-amber-300 transition-colors shadow-[0_0_15px_rgba(245,158,11,0.2)]">
+          <CalendarCheck className="h-4 w-4" />
+          Agenda
           {count > 0 && (
             <span className="absolute -right-2 -top-2 flex h-5 w-5 items-center justify-center rounded-full bg-white text-xs font-bold text-zinc-950">
               {count}

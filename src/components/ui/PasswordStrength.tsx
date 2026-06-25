@@ -6,7 +6,7 @@ export function PasswordStrength({ password }: { password: string }) {
 
   const { score, label, suggestions } = checkPasswordStrength(password);
 
-  const colors = {
+  const colors: Record<number, string> = {
     0: "bg-red-500",
     1: "bg-orange-500",
     2: "bg-amber-400",
@@ -14,7 +14,7 @@ export function PasswordStrength({ password }: { password: string }) {
     4: "bg-emerald-500",
   };
 
-  const textColors = {
+  const textColors: Record<number, string> = {
     0: "text-red-400",
     1: "text-orange-400",
     2: "text-amber-400",
@@ -22,7 +22,7 @@ export function PasswordStrength({ password }: { password: string }) {
     4: "text-emerald-500",
   };
 
-  const labels = {
+  const labels: Record<number, string> = {
     0: "Muito Fraca",
     1: "Fraca",
     2: "Razoável",

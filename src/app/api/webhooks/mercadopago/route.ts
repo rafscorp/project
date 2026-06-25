@@ -1,40 +1,23 @@
-import { NextResponse } from "next/server";
-import prisma from "@/lib/db/prisma";
+import { NextRequest, NextResponse } from "next/server";
+import { PaymentService } from "@/services/payment.service";
 import crypto from "crypto";
+import { env } from "@/lib/env";
 
-export async function POST(req: Request) {
-  // MercadoPago Webhook handler skeleton
-  
-  const searchParams = new URL(req.url).searchParams;
-  const topic = searchParams.get("topic") || searchParams.get("type");
-  const id = searchParams.get("id") || searchParams.get("data.id");
+export async function POST(req: NextRequest) {
+  try {
+    const url = new URL(req.url);
+    const dataId = url.searchParams.get("data.id") || (await req.json()).data?.id;
 
-  if (!topic || !id) {
-    return new NextResponse("Missing parameters", { status: 400 });
-  }
+    if (!dataId) {
+      return NextResponse.json({ error: "Invalid payload" }, { status: 400 });
+    }
 
-  // Validate signature (x-signature header in MercadoPago)
-  const xSignature = req.headers.get("x-signature");
-  if (!xSignature && process.env.NODE_ENV === "production") {
-    // Basic protection
-  }
-
-  // In a real app, you would fetch the payment details from MP API using the ID
-  // const mpClient = new MercadoPagoConfig({ accessToken: process.env.MERCADOPAGO_ACCESS_TOKEN! });
-  // const payment = await new Payment(mpClient).get({ id });
-
-  if (topic === "payment") {
-    // Mock updating payment status
-    // const status = payment.status === "approved" ? "PAID" : payment.status === "rejected" ? "FAILED" : "PENDING";
+    // Processar o Webhook de pagamento via PaymentService
+    await PaymentService.handleMercadoPagoWebhook(dataId);
     
-    console.log(`[MercadoPago Webhook] Received payment update for ID ${id}`);
-    
-    // This is just a mock for the architecture
-    // await prisma.payment.updateMany({
-    //   where: { gatewayPaymentId: id, gateway: "mercadopago" },
-    //   data: { status: "PAID", paidAt: new Date() }
-    // });
+    return NextResponse.json({ success: true });
+  } catch (err) {
+    console.error("Error processing MercadoPago webhook:", err);
+    return NextResponse.json({ error: "Webhook error" }, { status: 500 });
   }
-
-  return new NextResponse("OK", { status: 200 });
 }

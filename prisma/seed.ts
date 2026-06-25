@@ -17,6 +17,7 @@ async function main() {
     where: { email: "admin@agury.com.br" },
     update: {},
     create: {
+      username: "admin_agury",
       email: "admin@agury.com.br",
       passwordHash,
       name: "Administrador Agury",
@@ -77,6 +78,7 @@ async function main() {
     where: { email: "loja@agurydemo.com.br" },
     update: {},
     create: {
+      username: "loja_demo",
       email: "loja@agurydemo.com.br",
       passwordHash: storeOwnerHash,
       name: "Carlos Mecânica",
@@ -165,6 +167,7 @@ async function main() {
     where: { email: "cliente@email.com" },
     update: {},
     create: {
+      username: "cliente_demo",
       email: "cliente@email.com",
       passwordHash: customerHash,
       name: "João Silva",

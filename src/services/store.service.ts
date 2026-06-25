@@ -8,6 +8,10 @@ export class StoreService {
       include: {
         subscription: { include: { plan: true } },
         categories: { where: { active: true }, orderBy: { sortOrder: "asc" } },
+        reviews: {
+          include: { user: { select: { name: true, avatarUrl: true } } },
+          orderBy: { createdAt: "desc" },
+        },
       },
     });
   }
@@ -56,10 +60,39 @@ export class StoreService {
     return prisma.store.update({ where: { id: storeId }, data });
   }
 
-  /** Verifica se loja tem assinatura ativa ou em trial */
-  static isSubscriptionActive(store: { subscription?: { status: string } | null }) {
+  /** Verifica se loja deve estar visível publicamente (Active ou Soft Lock) */
+  static isSubscriptionActive(store: { subscription?: { status: string, currentPeriodEnd?: Date | null } | null }) {
+    const status = this.getFomoStatus(store);
+    return status === "ACTIVE" || status === "SOFT_LOCK";
+  }
+
+  /** Retorna o status psicológico da assinatura para travar o painel */
+  static getFomoStatus(store: { subscription?: { status: string, currentPeriodEnd?: Date | null } | null }): "ACTIVE" | "SOFT_LOCK" | "HARD_LOCK" {
     const sub = store.subscription;
-    if (!sub) return false;
-    return ["TRIAL", "ACTIVE"].includes(sub.status);
+    if (!sub) return "HARD_LOCK";
+    
+    if (["TRIAL", "ACTIVE"].includes(sub.status)) {
+      if (sub.currentPeriodEnd) {
+        const now = new Date();
+        if (now > sub.currentPeriodEnd) {
+          const daysPastDue = Math.floor((now.getTime() - sub.currentPeriodEnd.getTime()) / (1000 * 3600 * 24));
+          if (daysPastDue >= 5) return "HARD_LOCK";
+          return "SOFT_LOCK";
+        }
+      }
+      return "ACTIVE";
+    }
+    
+    if (sub.status === "PAST_DUE") {
+      if (sub.currentPeriodEnd) {
+        const now = new Date();
+        const daysPastDue = Math.floor((now.getTime() - sub.currentPeriodEnd.getTime()) / (1000 * 3600 * 24));
+        if (daysPastDue >= 5) return "HARD_LOCK";
+        return "SOFT_LOCK";
+      }
+      return "SOFT_LOCK"; // Fallback se não tiver data mas tá PAST_DUE
+    }
+
+    return "HARD_LOCK";
   }
 }

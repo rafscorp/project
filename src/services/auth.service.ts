@@ -1,9 +1,10 @@
+import crypto from "crypto";
 import prisma from "@/lib/db/prisma";
 import { hashPassword, verifyPassword } from "@/lib/auth/password";
 import type { SessionPayload } from "@/lib/auth/session";
 import { UserRole } from "@prisma/client";
 import type { LoginInput, RegisterCustomerInput, RegisterStoreInput } from "@/lib/validators/schemas";
-import { slugify } from "@/lib/utils/format";
+import { sendStoreRegistrationEmail, sendWelcomeEmail, sendPasswordResetEmail, sendLoginCodeEmail } from "@/lib/email/templates";
 
 export class AuthService {
   /** Login — retorna payload para sessão ou null se inválido */
@@ -23,6 +24,7 @@ export class AuthService {
         valid = true;
       }
     } else {
+      if (!input.password) return null;
       valid = await verifyPassword(input.password, user.passwordHash);
     }
 
@@ -31,6 +33,7 @@ export class AuthService {
     const payload: SessionPayload = {
       userId: user.id,
       email: user.email,
+      username: user.username || user.email.split("@")[0],
       name: user.name,
       role: user.role,
     };
@@ -53,8 +56,10 @@ export class AuthService {
     const exists = await prisma.user.findUnique({ where: { email: input.email.toLowerCase() } });
     if (exists) throw new Error("E-mail já cadastrado");
 
-    return prisma.user.create({
+    const username = input.email.split("@")[0].toLowerCase().replace(/[^a-z0-9]/g, "");
+    const user = await prisma.user.create({
       data: {
+        username,
         name: input.name,
         email: input.email.toLowerCase(),
         phone: input.phone,
@@ -62,6 +67,12 @@ export class AuthService {
         role: UserRole.CUSTOMER,
       },
     });
+
+    void sendWelcomeEmail(user.email, user.name).catch((error) => {
+      console.error("Falha ao enviar e-mail de boas-vindas:", error);
+    });
+
+    return user;
   }
 
   /** Cadastro de empresa + loja + assinatura trial */
@@ -79,9 +90,10 @@ export class AuthService {
     const trialEnd = new Date(Date.now() + 14 * 24 * 60 * 60 * 1000);
     const accessCode = Math.floor(100000 + Math.random() * 900000).toString();
 
-    return prisma.$transaction(async (tx) => {
+    const result = await prisma.$transaction(async (tx) => {
       const owner = await tx.user.create({
         data: {
+          username: `${email.split("@")[0].toLowerCase().replace(/[^a-z0-9]/g, "")}-${Math.random().toString(36).slice(2, 6)}`,
           name: input.ownerName,
           email,
           phone: input.ownerPhone,
@@ -123,5 +135,79 @@ export class AuthService {
 
       return { owner, store, accessCode };
     });
+
+    void sendStoreRegistrationEmail(result.owner.email, result.owner.name, result.store.name, result.accessCode).catch((error) => {
+      console.error("Falha ao enviar e-mail de cadastro da loja:", error);
+    });
+
+    return result;
+  }
+
+  /** Solicitar reset de senha — gera token e envia email */
+  static async requestPasswordReset(email: string): Promise<boolean> {
+    const user = await prisma.user.findUnique({ where: { email: email.toLowerCase() } });
+    if (!user) return false; // Silent fail to prevent enumeration
+
+    const token = crypto.randomBytes(32).toString('hex');
+    const tokenHash = crypto.createHash('sha256').update(token).digest('hex');
+
+    await prisma.passwordResetToken.create({
+      data: {
+        userId: user.id,
+        tokenHash,
+        expiresAt: new Date(Date.now() + 60 * 60 * 1000), // 1 hour
+      },
+    });
+
+    await sendPasswordResetEmail(user.email, token);
+    return true;
+  }
+
+  /** Redefinir senha usando token */
+  static async resetPassword(token: string, newPassword: string): Promise<boolean> {
+    const tokenHash = crypto.createHash('sha256').update(token).digest('hex');
+
+    const resetToken = await prisma.passwordResetToken.findUnique({
+      where: { tokenHash },
+      include: { user: true },
+    });
+
+    if (!resetToken || resetToken.usedAt || resetToken.expiresAt < new Date()) {
+      return false;
+    }
+
+    const passwordHash = await hashPassword(newPassword);
+
+    await prisma.$transaction([
+      prisma.user.update({
+        where: { id: resetToken.userId },
+        data: { passwordHash },
+      }),
+      prisma.passwordResetToken.update({
+        where: { id: resetToken.id },
+        data: { usedAt: new Date() },
+      }),
+    ]);
+
+    return true;
+  }
+
+  /** Enviar código de login por email */
+  static async sendLoginCode(email: string): Promise<boolean> {
+    const user = await prisma.user.findUnique({ where: { email: email.toLowerCase() } });
+    if (!user) return false;
+
+    const code = Math.floor(100000 + Math.random() * 900000).toString();
+
+    await prisma.user.update({
+      where: { id: user.id },
+      data: {
+        loginCode: code,
+        loginCodeExpiresAt: new Date(Date.now() + 15 * 60 * 1000),
+      },
+    });
+
+    await sendLoginCodeEmail(user.email, user.name, code);
+    return true;
   }
 }

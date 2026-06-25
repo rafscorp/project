@@ -1,20 +1,25 @@
 import Link from "next/link";
 import { getSession } from "@/lib/auth/session";
 import { Button } from "@/components/ui/Button";
-import { Car, Menu } from "lucide-react";
+import { Car, Menu, Sparkles } from "lucide-react";
 
 /** Navbar principal da plataforma */
 export async function Navbar() {
   const session = await getSession();
 
   return (
-    <header className="fixed inset-x-0 top-0 z-50 border-b border-zinc-800/60 bg-zinc-950/80 backdrop-blur-xl">
+    <header className="fixed inset-x-0 top-0 z-50 border-b border-slate-200 bg-white/80 backdrop-blur-xl">
       <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-4 sm:px-6">
-        <Link href="/" className="flex items-center gap-2.5 font-display text-lg font-bold text-white">
-          <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-amber-400 text-zinc-950">
+        <Link href="/" className="flex items-center gap-2.5 font-display text-lg font-bold text-slate-900">
+          <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-blue-600 text-white shadow-lg shadow-blue-600/20">
             <Car className="h-5 w-5" />
           </span>
-          Agury Auto
+          <span className="flex items-center gap-2">
+            Agury Auto
+            <span className="rounded-full border border-blue-200 bg-blue-50 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-[0.2em] text-blue-700">
+              Premium
+            </span>
+          </span>
         </Link>
 
         <nav className="hidden items-center gap-1 md:flex">
@@ -37,11 +42,13 @@ export async function Navbar() {
                 <Button variant="ghost" size="sm">Entrar</Button>
               </Link>
               <Link href="/cadastro/empresa">
-                <Button size="sm">Começar Grátis</Button>
+                <Button size="sm" className="gap-2">
+                  <Sparkles className="h-4 w-4" /> Começar Grátis
+                </Button>
               </Link>
             </>
           )}
-          <button className="rounded-lg p-2 text-zinc-400 md:hidden" aria-label="Menu">
+          <button className="rounded-lg p-2 text-slate-500 md:hidden" aria-label="Menu">
             <Menu className="h-5 w-5" />
           </button>
         </div>
@@ -52,7 +59,7 @@ export async function Navbar() {
 
 function NavLink({ href, children }: { href: string; children: React.ReactNode }) {
   return (
-    <Link href={href} className="rounded-lg px-4 py-2 text-sm font-medium text-zinc-400 transition hover:bg-zinc-800/50 hover:text-white">
+    <Link href={href} className="rounded-lg px-4 py-2 text-sm font-medium text-slate-600 transition hover:bg-slate-100 hover:text-slate-900">
       {children}
     </Link>
   );
@@ -61,7 +68,7 @@ function NavLink({ href, children }: { href: string; children: React.ReactNode }
 function DashboardLink({ role }: { role: string }) {
   const href =
     role === "PLATFORM_ADMIN" ? "/admin" :
-    role === "STORE_OWNER" || role === "STORE_STAFF" ? "/app" :
+    role === "STORE_OWNER" || role === "STORE_STAFF" ? "/loja/painel" :
     "/conta";
 
   const label =

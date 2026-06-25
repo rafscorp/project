@@ -1,58 +1,157 @@
 "use client";
 
-import { useState } from "react";
-import { useRouter } from "next/navigation";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { useState } from "react";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
 
+type AlertState = { type: "error" | "success"; message: string } | null;
+
 export function LoginForm() {
   const router = useRouter();
+  const [step, setStep] = useState<1 | 2>(1);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [code, setCode] = useState("");
-  const [error, setError] = useState("");
+  const [alert, setAlert] = useState<AlertState>(null);
   const [loading, setLoading] = useState(false);
+  const [errors, setErrors] = useState({ email: "", password: "" });
+  const [touched, setTouched] = useState({ email: false, password: false });
+
+  function validateField(field: "email" | "password", value: string) {
+    if (field === "email") {
+      if (!value.trim()) return "Informe seu e-mail.";
+      if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value)) return "O e-mail precisa ser válido.";
+      return "";
+    }
+
+    if (!value.trim()) return "Informe sua senha para entrar.";
+    if (value.length < 6) return "A senha precisa ter ao menos 6 caracteres.";
+    return "";
+  }
+
+  function updateField(field: "email" | "password", value: string) {
+    if (field === "email") setEmail(value);
+    if (field === "password") setPassword(value);
+    setErrors((prev) => ({ ...prev, [field]: validateField(field, value) }));
+    if (alert) setAlert(null);
+  }
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
-    setLoading(true);
-    setError("");
+    setAlert(null);
 
-    const res = await fetch("/api/auth/login", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ email, password: password || undefined, code: code || undefined }),
-    });
+    if (step === 1) {
+      const nextErrors = {
+        email: validateField("email", email),
+        password: validateField("password", password),
+      };
+      setErrors(nextErrors);
+      setTouched({ email: true, password: true });
 
-    const json = await res.json();
-    setLoading(false);
+      if (nextErrors.email || nextErrors.password) {
+        setAlert({ type: "error", message: "Preencha os campos corretamente para entrar." });
+        return;
+      }
 
-    if (!json.success) {
-      setError(json.error || "Erro ao entrar");
+      setLoading(true);
+      const res = await fetch("/api/auth/verify-credentials", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email, password }),
+      });
+
+      const json = await res.json();
+      setLoading(false);
+
+      if (!json.success) {
+        setAlert({ type: "error", message: json.error || "E-mail ou senha incorretos." });
+        return;
+      }
+
+      // Sucesso na verificação -> Vai pro Passo 2
+      setAlert({ type: "success", message: "Código enviado para o seu e-mail!" });
+      setStep(2);
       return;
     }
 
-    router.push(json.data.redirect);
-    router.refresh();
+    // Passo 2: Validar Código
+    if (step === 2) {
+      if (code.length !== 6) {
+        setAlert({ type: "error", message: "O código deve ter 6 dígitos." });
+        return;
+      }
+
+      setLoading(true);
+      const res = await fetch("/api/auth/login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email, code }),
+      });
+
+      const json = await res.json();
+      setLoading(false);
+
+      if (!json.success) {
+        setAlert({ type: "error", message: json.error || "Código inválido." });
+        return;
+      }
+
+      setAlert({ type: "success", message: "Entrando..." });
+      router.push(json.data.redirect);
+      router.refresh();
+    }
   }
 
   return (
     <>
-      {error && (
-        <div className="mb-4 rounded-xl border border-red-500/30 bg-red-500/10 p-3 text-sm text-red-400">{error}</div>
+      {alert && (
+        <div className={`mb-4 rounded-2xl border p-3 text-sm ${alert.type === "error" ? "border-red-500/30 bg-red-500/10 text-red-300" : "border-emerald-500/30 bg-emerald-500/10 text-emerald-300"}`}>
+          <p className="font-semibold">{alert.type === "error" ? "Ops, algo faltou" : "Tudo certo"}</p>
+          <p className="mt-1">{alert.message}</p>
+        </div>
       )}
-      <form onSubmit={handleSubmit} className="space-y-4">
-        <Input label="E-mail" type="email" value={email} onChange={(e) => setEmail(e.target.value)} required />
-        <Input label="Senha" type="password" value={password} onChange={(e) => setPassword(e.target.value)} />
-        <Input label="Código de acesso" value={code} onChange={(e) => setCode(e.target.value)} maxLength={6} placeholder="123456" />
-        <p className="text-xs text-zinc-500">Se você acabou de criar a loja, use o código recebido no cadastro.</p>
-        <Button type="submit" className="w-full" loading={loading}>Entrar</Button>
+      <form onSubmit={handleSubmit} className="space-y-4" noValidate>
+        {step === 1 && (
+          <div className="space-y-4 animate-in fade-in slide-in-from-bottom-2 duration-300">
+            <Input label="E-mail" type="email" value={email} onChange={(e) => updateField("email", e.target.value)} onBlur={() => setTouched((prev) => ({ ...prev, email: true }))} error={touched.email ? errors.email : undefined} successMessage={touched.email && !errors.email && email ? "E-mail válido" : undefined} required />
+            <Input label="Senha" type="password" value={password} onChange={(e) => updateField("password", e.target.value)} onBlur={() => setTouched((prev) => ({ ...prev, password: true }))} error={touched.password ? errors.password : undefined} successMessage={touched.password && !errors.password && password ? "Senha ok" : undefined} required />
+            <Button type="submit" className="w-full h-12 text-base font-bold bg-violet-600 hover:bg-violet-500 shadow-[0_0_20px_rgba(139,92,246,0.3)] btn-shimmer" loading={loading}>
+              Continuar
+            </Button>
+            
+            <div className="mt-4 text-center">
+              <Link href="/esqueci-senha" className="text-sm text-blue-400 hover:text-blue-300 transition-colors font-bold tracking-wide">
+                Esqueci minha senha
+              </Link>
+            </div>
+          </div>
+        )}
+
+        {step === 2 && (
+          <div className="space-y-4 animate-in fade-in slide-in-from-right-4 duration-300">
+            <div className="text-center mb-6">
+              <div className="mx-auto w-12 h-12 bg-emerald-500/10 rounded-full flex items-center justify-center mb-3 ring-1 ring-emerald-500/30">
+                <span className="text-2xl">✉️</span>
+              </div>
+              <p className="text-sm text-zinc-300">Digite o código de 6 dígitos que acabamos de enviar para <strong>{email}</strong>.</p>
+            </div>
+            
+            <Input label="Código de Acesso" value={code} onChange={(e) => setCode(e.target.value)} maxLength={6} placeholder="123456" autoFocus className="text-center text-2xl tracking-[0.5em] font-mono h-14" />
+            
+            <Button type="submit" className="w-full h-12 text-base font-bold bg-emerald-600 hover:bg-emerald-500 shadow-[0_0_20px_rgba(16,185,129,0.3)] btn-shimmer" loading={loading}>
+              Verificar e Entrar
+            </Button>
+
+            <div className="mt-4 text-center">
+              <button type="button" onClick={() => { setStep(1); setCode(""); setAlert(null); }} className="text-sm text-zinc-500 hover:text-white transition-colors font-medium">
+                Voltar e alterar e-mail
+              </button>
+            </div>
+          </div>
+        )}
       </form>
-      <div className="mt-6 space-y-2 text-center text-sm text-zinc-500">
-        <p><Link href="/cadastro/empresa" className="text-amber-400 hover:underline">Cadastrar minha empresa</Link></p>
-        <p><Link href="/cadastro/cliente" className="text-amber-400 hover:underline">Criar conta de cliente</Link></p>
-      </div>
     </>
   );
 }

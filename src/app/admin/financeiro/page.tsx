@@ -17,13 +17,7 @@ export default async function AdminFinanceiroPage() {
     where: { status: "PAID" }
   });
 
-  const mrr = await prisma.subscription.aggregate({
-    _sum: {
-      // In a real app, you'd calculate this by joining the plan price, but Prisma doesn't support sum over relations directly in aggregate yet.
-      // So we'd calculate this in JS or write a raw query.
-    },
-    where: { status: "ACTIVE" }
-  });
+
 
   // Since prisma aggregate sum on relations is tricky, let's fetch active subs and calculate MRR
   const activeSubs = await prisma.subscription.findMany({

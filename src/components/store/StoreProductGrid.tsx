@@ -14,6 +14,8 @@ interface Props {
     comparePrice?: number | null;
     stock: number;
     featured?: boolean;
+    condition?: string;
+    imageUrl?: string | null;
   }[];
 }
 

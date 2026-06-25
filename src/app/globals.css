@@ -3,13 +3,17 @@
 @theme {
   --font-display: "Outfit", ui-sans-serif, system-ui, sans-serif;
   --font-body: "DM Sans", ui-sans-serif, system-ui, sans-serif;
-  --color-brand: #f5b942;
-  --color-brand-dark: #d49a1a;
+  
+  --color-brand: #8b5cf6; /* Violet 500 */
+  --color-brand-dark: #6d28d9; /* Violet 700 */
+  --color-brand-light: #c4b5fd; /* Violet 300 */
 }
 
 @layer base {
   html {
     scroll-behavior: smooth;
+    /* Força Dark Mode */
+    color-scheme: dark;
   }
 
   body {
@@ -19,36 +23,135 @@
 
   h1, h2, h3, h4, h5, h6 {
     font-family: var(--font-display);
+    letter-spacing: -0.02em;
   }
 }
 
-/* Grid de fundo sutil */
-.bg-mesh {
-  background-image:
-    linear-gradient(rgba(255,255,255,0.02) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(255,255,255,0.02) 1px, transparent 1px);
-  background-size: 64px 64px;
+/* Utilitários Premium (Nível Nubank / Vercel) */
+.glass-panel {
+  @apply bg-zinc-900/40 backdrop-blur-xl border border-white/10 shadow-[0_8px_32px_rgba(0,0,0,0.4)];
 }
 
-.glow-amber {
-  background: radial-gradient(ellipse at top right, rgba(245, 185, 66, 0.12), transparent 60%);
+.glass-panel-hover {
+  @apply hover:bg-zinc-900/60 hover:border-white/20 transition-all duration-300;
+}
+
+.text-gradient {
+  @apply text-transparent bg-clip-text bg-gradient-to-r from-violet-400 via-fuchsia-300 to-indigo-400;
+}
+
+.bg-mesh-dark {
+  background-image:
+    radial-gradient(at 0% 0%, rgba(139, 92, 246, 0.15) 0px, transparent 50%),
+    radial-gradient(at 100% 0%, rgba(79, 70, 229, 0.15) 0px, transparent 50%),
+    radial-gradient(at 100% 100%, rgba(139, 92, 246, 0.1) 0px, transparent 50%),
+    radial-gradient(at 0% 100%, rgba(79, 70, 229, 0.1) 0px, transparent 50%);
+  background-attachment: fixed;
+}
+
+.bg-grid-dark {
+  background-image:
+    linear-gradient(rgba(255,255,255,0.03) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255,255,255,0.03) 1px, transparent 1px);
+  background-size: 80px 80px;
+  background-attachment: fixed;
+}
+
+/* Glow Elements */
+.glow-button {
+  box-shadow: 0 0 20px rgba(139, 92, 246, 0.4), inset 0 0 10px rgba(255, 255, 255, 0.2);
+}
+
+.glow-card:hover {
+  box-shadow: 0 0 40px rgba(139, 92, 246, 0.15);
+  border-color: rgba(139, 92, 246, 0.4);
 }
 
 .font-display {
   font-family: var(--font-display);
 }
 
-/* Scrollbar Customizada */
+/* Efeito Shimmer Duplo Premium (Luz + Cor do Card) */
+@keyframes shimmer {
+  0% {
+    transform: translateX(-150%) skewX(-15deg);
+  }
+  100% {
+    transform: translateX(250%) skewX(-15deg);
+  }
+}
+
+.btn-shimmer {
+  position: relative;
+  overflow: hidden;
+}
+
+.btn-shimmer::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 50%;
+  height: 100%;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(255, 255, 255, 0.4),
+    transparent
+  );
+  animation: shimmer 3s infinite;
+  z-index: 10;
+  pointer-events: none;
+}
+
+.btn-shimmer::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 50%;
+  height: 100%;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(139, 92, 246, 0.6), /* Cor secundária pra dar o efeito "cor do card" */
+    transparent
+  );
+  animation: shimmer 3s infinite;
+  animation-delay: 0.3s;
+  z-index: 10;
+  pointer-events: none;
+}
+
+.btn-shimmer-amber::before {
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(245, 158, 11, 0.6),
+    transparent
+  );
+}
+
+.btn-shimmer-blue::before {
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(59, 130, 246, 0.6),
+    transparent
+  );
+}
+
+/* Scrollbar Customizada Premium */
 ::-webkit-scrollbar {
-  width: 8px;
-  height: 8px;
+  width: 6px;
+  height: 6px;
 }
 ::-webkit-scrollbar-track {
   background: theme('colors.zinc.950');
 }
 ::-webkit-scrollbar-thumb {
   background: theme('colors.zinc.800');
-  border-radius: 4px;
+  border-radius: 99px;
 }
 ::-webkit-scrollbar-thumb:hover {
   background: theme('colors.zinc.700');
@@ -56,34 +159,6 @@
 
 /* Selection Color */
 ::selection {
-  background: rgba(245, 185, 66, 0.3); /* Amber 400 */
-  color: theme('colors.white');
-}
-
-/* Animações CSS (Smooth UI sem dependências pesadas) */
-@keyframes fadeIn {
-  from { opacity: 0; }
-  to { opacity: 1; }
-}
-
-@keyframes slideUp {
-  from { opacity: 0; transform: translateY(10px); }
-  to { opacity: 1; transform: translateY(0); }
-}
-
-@keyframes scaleIn {
-  from { opacity: 0; transform: scale(0.95); }
-  to { opacity: 1; transform: scale(1); }
-}
-
-.animate-fade-in {
-  animation: fadeIn 0.3s ease-out forwards;
-}
-
-.animate-slide-up {
-  animation: slideUp 0.4s ease-out forwards;
-}
-
-.animate-scale-in {
-  animation: scaleIn 0.3s ease-out forwards;
+  background: rgba(139, 92, 246, 0.3); /* Violet */
+  color: #ffffff;
 }

@@ -1,24 +1,30 @@
-import { Navbar } from "@/components/layout/Navbar";
-import { Footer } from "@/components/layout/Footer";
-import { Card, CardBody } from "@/components/ui/Card";
-import { RegisterCustomerForm } from "@/components/auth/RegisterCustomerForm";
+import Link from "next/link";
+import { CarFront } from "lucide-react";
+import { MultiStepCustomerRegister } from "@/components/auth/MultiStepCustomerRegister";
+
+export const dynamic = 'force-dynamic';
 
 export default function RegisterCustomerPage() {
   return (
-    <div className="bg-mesh min-h-screen">
-      <Navbar />
-      <div className="flex min-h-[70vh] items-center justify-center px-4 pt-24 pb-12">
-        <Card className="w-full max-w-md">
-          <CardBody>
-            <h1 className="font-display text-2xl font-bold text-white">Criar conta de cliente</h1>
-            <p className="mt-1 text-sm text-zinc-400">Compre nas lojas parceiras e acompanhe seus pedidos</p>
-            <div className="mt-6">
-              <RegisterCustomerForm />
-            </div>
-          </CardBody>
-        </Card>
-      </div>
-      <Footer />
+    <div className="flex min-h-screen flex-col bg-zinc-950 selection:bg-blue-600/30">
+      <div className="fixed inset-0 z-0 bg-grid-dark opacity-20 pointer-events-none" />
+      
+      {/* Simple Header */}
+      <header className="relative z-10 p-6 flex justify-between items-center max-w-7xl mx-auto w-full">
+        <Link href="/" className="flex items-center gap-2">
+          <CarFront className="h-8 w-8 text-blue-500" />
+          <span className="font-display font-bold text-2xl tracking-tight text-white">Agury Clientes</span>
+        </Link>
+        <Link href="/login" className="text-zinc-400 hover:text-white transition-colors font-medium">
+          Já tem conta? <span className="text-blue-400">Entrar</span>
+        </Link>
+      </header>
+
+      {/* Main Wizard Area */}
+      <main className="relative z-10 flex-1 flex flex-col items-center justify-center p-4">
+        <MultiStepCustomerRegister />
+      </main>
+      
     </div>
   );
 }

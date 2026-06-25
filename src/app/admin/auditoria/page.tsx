@@ -50,7 +50,7 @@ export default async function AdminAuditoriaPage() {
                 )}
               </TableCell>
               <TableCell>
-                <Badge variant="outline" className="text-xs font-mono">
+                <Badge variant="info" className="text-xs font-mono">
                   {log.action}
                 </Badge>
               </TableCell>
