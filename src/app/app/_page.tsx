@@ -33,8 +33,8 @@ export default async function StoreDashboardPage() {
     <div>
       <div className="mb-8 flex flex-wrap items-start justify-between gap-4">
         <div>
-          <h1 className="font-display text-2xl font-bold text-white">{store.name}</h1>
-          <p className="text-sm text-zinc-400">Painel da loja</p>
+          <h1 className="font-display text-2xl font-bold text-foreground">{store.name}</h1>
+          <p className="text-sm text-muted-foreground">Painel da loja</p>
         </div>
         <Link href={`/loja/${store.slug}`} target="_blank">
           <Button variant="outline" size="sm">
@@ -57,8 +57,8 @@ export default async function StoreDashboardPage() {
                 <Icon className="h-5 w-5" />
               </div>
               <div>
-                <p className="text-xs text-zinc-500">{label}</p>
-                <p className="font-display text-xl font-bold text-white">{value}</p>
+                <p className="text-xs text-muted-foreground">{label}</p>
+                <p className="font-display text-xl font-bold text-foreground">{value}</p>
               </div>
             </CardBody>
           </Card>
@@ -71,8 +71,8 @@ export default async function StoreDashboardPage() {
           <CardBody>
             <div className="flex flex-wrap items-center justify-between gap-4">
               <div>
-                <p className="text-sm text-zinc-400">Assinatura</p>
-                <p className="font-display text-lg font-bold text-white">
+                <p className="text-sm text-muted-foreground">Assinatura</p>
+                <p className="font-display text-lg font-bold text-foreground">
                   {subscription.plan.name} — {formatCurrency(subscription.plan.priceMonthly)}/mês
                 </p>
               </div>
@@ -87,28 +87,28 @@ export default async function StoreDashboardPage() {
       {/* Pedidos recentes */}
       <div className="mt-8">
         <div className="mb-4 flex items-center justify-between">
-          <h2 className="font-display text-lg font-bold text-white">Pedidos recentes</h2>
+          <h2 className="font-display text-lg font-bold text-foreground">Pedidos recentes</h2>
           <Link href="/app/pedidos"><Button variant="ghost" size="sm">Ver todos</Button></Link>
         </div>
         {orders.slice(0, 5).map((order) => (
           <Card key={order.id} className="mb-3">
             <CardBody className="flex flex-wrap items-center justify-between gap-4">
               <div>
-                <p className="font-semibold text-white">{order.orderNumber}</p>
-                <p className="text-sm text-zinc-400">{order.customerName} · {formatDate(order.createdAt)}</p>
+                <p className="font-semibold text-foreground">{order.orderNumber}</p>
+                <p className="text-sm text-muted-foreground">{order.customerName} · {formatDate(order.createdAt)}</p>
               </div>
               <div className="flex items-center gap-3">
                 <Badge variant={order.status === "PENDING" ? "warning" : "success"}>
                   {ORDER_STATUS_LABELS[order.status]}
                 </Badge>
                 <span className="font-bold text-amber-400">{formatCurrency(order.total)}</span>
-                <code className="rounded bg-zinc-800 px-2 py-1 text-xs text-zinc-400">{order.pickupCode}</code>
+                <code className="rounded bg-zinc-800 px-2 py-1 text-xs text-muted-foreground">{order.pickupCode}</code>
               </div>
             </CardBody>
           </Card>
         ))}
         {orders.length === 0 && (
-          <p className="rounded-2xl border border-zinc-800 p-8 text-center text-zinc-500">Nenhum pedido ainda</p>
+          <p className="rounded-2xl border border-border-subtle p-8 text-center text-muted-foreground">Nenhum pedido ainda</p>
         )}
       </div>
     </div>

@@ -24,7 +24,7 @@ export function StoreProductGrid({ storeSlug, products }: Props) {
 
   if (products.length === 0) {
     return (
-      <div className="rounded-2xl border border-zinc-800 p-12 text-center text-zinc-500">
+      <div className="rounded-2xl border border-border-subtle p-12 text-center text-muted-foreground">
         Nenhum produto disponível no momento.
       </div>
     );

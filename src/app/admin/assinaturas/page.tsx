@@ -5,6 +5,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Badge } from "@/components/ui/Badge";
 import { formatCurrency } from "@/lib/utils/format";
 import { Button } from "@/components/ui/Button";
+import { EditSubscriptionPriceModal } from "./EditSubscriptionPriceModal";
 
 export default async function AdminAssinaturasPage() {
   const session = await getSession();
@@ -22,8 +23,8 @@ export default async function AdminAssinaturasPage() {
     <div className="space-y-6 animate-fade-in">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="font-display text-2xl font-bold text-white">Assinaturas</h1>
-          <p className="text-zinc-400">Gerencie as assinaturas B2B</p>
+          <h1 className="font-display text-2xl font-bold text-foreground">Assinaturas</h1>
+          <p className="text-muted-foreground">Gerencie as assinaturas B2B</p>
         </div>
         <Button>Novo Plano</Button>
       </div>
@@ -44,7 +45,18 @@ export default async function AdminAssinaturasPage() {
             <TableRow key={sub.id}>
               <TableCell className="font-medium">{sub.store.name}</TableCell>
               <TableCell>{sub.plan.name}</TableCell>
-              <TableCell>{formatCurrency(sub.plan.priceMonthly)}</TableCell>
+              <TableCell>
+                {sub.customPrice ? (
+                  <span className="text-green-500 font-bold">{formatCurrency(sub.customPrice)}</span>
+                ) : sub.discountPercentage ? (
+                  <span className="text-green-500 font-bold">
+                    {formatCurrency(sub.plan.priceMonthly * (1 - sub.discountPercentage / 100))}
+                    <span className="text-xs ml-1 text-muted-foreground">(-{sub.discountPercentage}%)</span>
+                  </span>
+                ) : (
+                  <span>{formatCurrency(sub.plan.priceMonthly)}</span>
+                )}
+              </TableCell>
               <TableCell>
                 <Badge variant={sub.status === "ACTIVE" ? "success" : "warning"}>
                   {sub.status}
@@ -57,7 +69,7 @@ export default async function AdminAssinaturasPage() {
                 }
               </TableCell>
               <TableCell className="text-right">
-                <Button variant="outline" size="sm">Gerenciar</Button>
+                <EditSubscriptionPriceModal subscription={sub} />
               </TableCell>
             </TableRow>
           ))}

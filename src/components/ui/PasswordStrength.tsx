@@ -33,7 +33,7 @@ export function PasswordStrength({ password }: { password: string }) {
   return (
     <div className="mt-2 space-y-2 animate-fade-in">
       <div className="flex items-center justify-between text-xs">
-        <span className="text-zinc-400">Força da senha:</span>
+        <span className="text-muted-foreground">Força da senha:</span>
         <span className={cn("font-medium", textColors[score])}>{labels[score]}</span>
       </div>
       <div className="flex gap-1 h-1.5">
@@ -48,7 +48,7 @@ export function PasswordStrength({ password }: { password: string }) {
         ))}
       </div>
       {suggestions.length > 0 && (
-        <ul className="text-xs text-zinc-500 list-disc list-inside mt-2">
+        <ul className="text-xs text-muted-foreground list-disc list-inside mt-2">
           {suggestions.map((s, i) => <li key={i}>{s}</li>)}
         </ul>
       )}

@@ -26,18 +26,18 @@ export default async function StorePage({ params }: Props) {
   const session = await getSession();
 
   return (
-    <div className="min-h-screen bg-zinc-950">
+    <div className="min-h-screen bg-background">
       <StoreHeader store={store} />
       {store.bannerUrl && <img src={store.bannerUrl} alt={store.name} className="h-56 w-full object-cover" />}
       <main className="mx-auto max-w-7xl px-4 py-10 sm:px-6">
         {store.description && (
-          <p className="mb-8 max-w-2xl text-zinc-400">{store.description}</p>
+          <p className="mb-8 max-w-2xl text-muted-foreground">{store.description}</p>
         )}
 
         {store.categories.length > 0 && (
           <div className="mb-6 flex flex-wrap gap-2">
             {store.categories.map((cat) => (
-              <span key={cat.id} className="rounded-lg bg-zinc-800 px-3 py-1 text-sm text-zinc-300">{cat.name}</span>
+              <span key={cat.id} className="rounded-lg bg-zinc-800 px-3 py-1 text-sm text-foreground/80">{cat.name}</span>
             ))}
           </div>
         )}
@@ -52,14 +52,14 @@ export default async function StorePage({ params }: Props) {
           storeSlug={store.slug}
         />
 
-        <div className="mt-12 rounded-2xl border border-zinc-800 bg-zinc-900/50 p-6">
-          <h3 className="font-display font-bold text-white">📍 Retirada na loja</h3>
-          <p className="mt-2 text-sm text-zinc-400">
+        <div className="mt-12 rounded-2xl border border-border-subtle bg-panel/50 p-6">
+          <h3 className="font-display font-bold text-foreground">📍 Retirada na loja</h3>
+          <p className="mt-2 text-sm text-muted-foreground">
             {store.address} — {store.city}/{store.state}
           </p>
-          <p className="mt-1 text-sm text-zinc-500">Telefone: {store.phone}</p>
+          <p className="mt-1 text-sm text-muted-foreground">Telefone: {store.phone}</p>
           {store.latitude && store.longitude && (
-            <div className="mt-4 overflow-hidden rounded-xl border border-zinc-800">
+            <div className="mt-4 overflow-hidden rounded-xl border border-border-subtle">
               <iframe
                 title={`Mapa de ${store.name}`}
                 src={`https://www.google.com/maps?q=${store.latitude},${store.longitude}&z=15&output=embed`}

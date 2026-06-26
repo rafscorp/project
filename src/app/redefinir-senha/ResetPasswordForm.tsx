@@ -17,12 +17,12 @@ export function ResetPasswordForm({ token }: { token?: string }) {
 
   if (!token) {
     return (
-      <div className="min-h-screen bg-zinc-950 flex flex-col items-center justify-center p-4 text-center">
+      <div className="min-h-screen bg-background flex flex-col items-center justify-center p-4 text-center">
         <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-red-500/10 mb-4">
           <AlertTriangle className="h-8 w-8 text-red-400" />
         </div>
-        <h2 className="text-xl text-white font-bold mb-2">Token Inválido</h2>
-        <p className="text-zinc-400 mb-6">O link de redefinição de senha é inválido ou expirou.</p>
+        <h2 className="text-xl text-foreground font-bold mb-2">Token Inválido</h2>
+        <p className="text-muted-foreground mb-6">O link de redefinição de senha é inválido ou expirou.</p>
         <Link href="/esqueci-senha">
           <Button>Solicitar Novo Link</Button>
         </Link>
@@ -71,14 +71,14 @@ export function ResetPasswordForm({ token }: { token?: string }) {
 
   if (success) {
     return (
-      <div className="min-h-screen bg-zinc-950 flex flex-col items-center justify-center p-4 text-center">
+      <div className="min-h-screen bg-background flex flex-col items-center justify-center p-4 text-center">
         <div className="sm:mx-auto sm:w-full sm:max-w-md">
-          <div className="bg-zinc-900/50 backdrop-blur-xl py-8 px-4 shadow-2xl sm:rounded-2xl sm:px-10 border border-zinc-800/50 animate-scale-in">
+          <div className="bg-panel/50 backdrop-blur-xl py-8 px-4 shadow-2xl sm:rounded-2xl sm:px-10 border border-border-subtle/50 animate-scale-in">
             <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-full bg-emerald-500/10 mb-4">
               <CheckCircle2 className="h-7 w-7 text-emerald-400" />
             </div>
-            <h3 className="text-lg font-semibold text-white">Senha redefinida!</h3>
-            <p className="mt-2 text-sm text-zinc-400">
+            <h3 className="text-lg font-semibold text-foreground">Senha redefinida!</h3>
+            <p className="mt-2 text-sm text-muted-foreground">
               Sua senha foi alterada com sucesso. Agora você pode fazer login com a nova senha.
             </p>
             <Link href="/login">
@@ -93,25 +93,25 @@ export function ResetPasswordForm({ token }: { token?: string }) {
   }
 
   return (
-    <div className="min-h-screen bg-zinc-950 flex flex-col justify-center py-12 sm:px-6 lg:px-8">
+    <div className="min-h-screen bg-background flex flex-col justify-center py-12 sm:px-6 lg:px-8">
       <div className="sm:mx-auto sm:w-full sm:max-w-md animate-slide-up">
         <div className="flex justify-center mb-6">
           <Link href="/" className="flex items-center gap-2 group">
             <div className="bg-amber-400/10 p-2 rounded-xl group-hover:bg-amber-400/20 transition-colors">
               <Car className="h-8 w-8 text-amber-400" />
             </div>
-            <span className="font-display text-2xl font-bold tracking-tight text-white">
+            <span className="font-display text-2xl font-bold tracking-tight text-foreground">
               Agury<span className="text-amber-400">.</span>
             </span>
           </Link>
         </div>
-        <h2 className="mt-6 text-center font-display text-3xl font-bold tracking-tight text-white">
+        <h2 className="mt-6 text-center font-display text-3xl font-bold tracking-tight text-foreground">
           Criar nova senha
         </h2>
       </div>
 
       <div className="mt-8 sm:mx-auto sm:w-full sm:max-w-md">
-        <div className="bg-zinc-900/50 backdrop-blur-xl py-8 px-4 shadow-2xl sm:rounded-2xl sm:px-10 border border-zinc-800/50 animate-scale-in">
+        <div className="bg-panel/50 backdrop-blur-xl py-8 px-4 shadow-2xl sm:rounded-2xl sm:px-10 border border-border-subtle/50 animate-scale-in">
           {error && (
             <div className="mb-4 rounded-2xl border border-red-500/30 bg-red-500/10 p-3 text-sm text-red-300">
               <p className="font-semibold">Ops, algo deu errado</p>

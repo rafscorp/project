@@ -29,8 +29,8 @@ export default async function AdminAfiliadosPage() {
     <div className="space-y-6 animate-fade-in">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="font-display text-2xl font-bold text-white">Afiliados</h1>
-          <p className="text-zinc-400">Gerencie parceiros e comissões</p>
+          <h1 className="font-display text-2xl font-bold text-foreground">Afiliados</h1>
+          <p className="text-muted-foreground">Gerencie parceiros e comissões</p>
         </div>
       </div>
 
@@ -51,7 +51,7 @@ export default async function AdminAfiliadosPage() {
             <TableRow key={affiliate.id}>
               <TableCell className="font-medium">
                 {affiliate.user.name}
-                <div className="text-xs text-zinc-500">{affiliate.user.email}</div>
+                <div className="text-xs text-muted-foreground">{affiliate.user.email}</div>
               </TableCell>
               <TableCell className="font-mono text-sm">{affiliate.code}</TableCell>
               <TableCell>{affiliate._count.referrals}</TableCell>

@@ -1,76 +1,81 @@
 import Link from "next/link";
-import { redirect } from "next/navigation";
-import { getSession } from "@/lib/auth/session";
-import {
-  LayoutDashboard,
-  Store,
-  Users,
-  ShoppingBag,
-  CreditCard,
-  Ticket,
-  Network,
-  DollarSign,
-  ShieldAlert,
-  Settings,
-  LogOut,
-  Car,
+import { 
+  LayoutDashboard, 
+  Store, 
+  CreditCard, 
+  Settings, 
+  LogOut, 
+  ShieldCheck,
+  Users
 } from "lucide-react";
+import { getSession } from "@/lib/auth/session";
+import { redirect } from "next/navigation";
+import { ThemeToggle } from "@/components/ThemeToggle";
 
-const nav = [
-  { href: "/admin", label: "Dashboard", icon: LayoutDashboard },
-  { href: "/admin/lojas", label: "Lojas", icon: Store },
-  { href: "/admin/usuarios", label: "Usuários", icon: Users },
-  { href: "/admin/pedidos", label: "Pedidos", icon: ShoppingBag },
-  { href: "/admin/assinaturas", label: "Assinaturas", icon: CreditCard },
-  { href: "/admin/cupons", label: "Cupons", icon: Ticket },
-  { href: "/admin/afiliados", label: "Afiliados", icon: Network },
-  { href: "/admin/financeiro", label: "Financeiro", icon: DollarSign },
-  { href: "/admin/auditoria", label: "Auditoria", icon: ShieldAlert },
-  { href: "/admin/configuracoes", label: "Configurações", icon: Settings },
-];
-
-export default async function AdminLayout({ children }: { children: React.ReactNode }) {
+export default async function AdminLayout({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
   const session = await getSession();
-  if (!session || session.role !== "PLATFORM_ADMIN") redirect("/login");
+  
+  if (!session || session.role !== "PLATFORM_ADMIN") {
+    redirect("/login");
+  }
 
   return (
-    <div className="flex min-h-screen bg-zinc-950">
-      <aside className="relative hidden min-h-screen w-64 shrink-0 border-r border-zinc-800 bg-zinc-900/50 lg:block flex-col">
-        <div className="flex h-16 items-center gap-2 border-b border-zinc-800 px-6">
-          <Car className="h-6 w-6 text-amber-400" />
-          <span className="font-display font-bold text-white">Agury Admin</span>
+    <div className="min-h-screen bg-background text-zinc-100 flex">
+      {/* Sidebar Administrativa */}
+      <aside className="w-64 bg-panel border-r border-border-subtle flex flex-col shrink-0 sticky top-0 h-screen">
+        <div className="p-6 border-b border-border-subtle flex items-center justify-between">
+          <Link href="/admin" className="flex items-center gap-2 text-foreground">
+            <ShieldCheck className="h-6 w-6 text-emerald-500" />
+            <span className="font-display font-black text-xl tracking-tight">Agury <span className="text-emerald-500">Admin</span></span>
+          </Link>
         </div>
-        <nav className="p-4 space-y-1 flex-1 overflow-y-auto">
-          {nav.map(({ href, label, icon: Icon }) => (
-            <Link
-              key={href}
-              href={href}
-              className="flex items-center gap-3 rounded-xl px-4 py-2.5 text-sm font-medium text-zinc-400 transition hover:bg-zinc-800/50 hover:text-white"
-            >
-              <Icon className="h-4 w-4" /> {label}
-            </Link>
-          ))}
+        
+        <nav className="flex-1 p-4 space-y-2">
+          <Link href="/admin" className="flex items-center gap-3 px-4 py-3 rounded-xl text-muted-foreground hover:text-white hover:bg-zinc-800 transition-colors font-medium">
+            <LayoutDashboard className="h-5 w-5" /> Visão Geral
+          </Link>
+          <Link href="/admin/lojas" className="flex items-center gap-3 px-4 py-3 rounded-xl text-muted-foreground hover:text-white hover:bg-zinc-800 transition-colors font-medium">
+            <Store className="h-5 w-5" /> Gestão de Lojas
+          </Link>
+          <Link href="/admin/planos" className="flex items-center gap-3 px-4 py-3 rounded-xl text-muted-foreground hover:text-white hover:bg-zinc-800 transition-colors font-medium">
+            <CreditCard className="h-5 w-5" /> Planos Financeiros
+          </Link>
+          <Link href="/admin/juridico" className="flex items-center gap-3 px-4 py-3 rounded-xl text-muted-foreground hover:text-white hover:bg-zinc-800 transition-colors font-medium">
+            <ShieldCheck className="h-5 w-5" /> Documentos Legais
+          </Link>
         </nav>
-        <div className="border-t border-zinc-800 p-4">
-          <div className="mb-4 px-2">
-            <p className="text-sm font-semibold text-white">{session.name}</p>
-            <p className="text-xs text-zinc-500">{session.email}</p>
-          </div>
-          <form action="/api/auth/logout" method="POST">
-            <button type="submit" className="flex w-full items-center gap-2 rounded-xl px-4 py-2 text-sm text-zinc-500 hover:bg-red-500/10 hover:text-red-400 transition-colors">
-              <LogOut className="h-4 w-4" /> Sair do Painel
-            </button>
-          </form>
+
+        <div className="p-4 border-t border-border-subtle space-y-2">
+          <Link href="/api/auth/logout" className="flex items-center gap-3 px-4 py-3 rounded-xl text-red-400 hover:bg-red-500/10 hover:border-red-500/20 transition-colors font-bold">
+            <LogOut className="h-5 w-5" /> Sair do Painel
+          </Link>
         </div>
       </aside>
-      <main className="flex-1 flex flex-col overflow-hidden h-screen">
-        <div className="border-b border-zinc-800 px-6 py-4 lg:hidden">
-          <p className="font-display font-bold text-white">Agury Admin</p>
-        </div>
-        <div className="flex-1 overflow-y-auto p-6 lg:p-8">
-          <div className="mx-auto max-w-6xl">
-            {children}
+
+      {/* Conteúdo Principal */}
+      <main className="flex-1 flex flex-col min-w-0">
+        <header className="h-20 bg-background/50 backdrop-blur-xl border-b border-border-subtle flex items-center justify-between px-8 sticky top-0 z-10">
+          <div className="font-medium text-muted-foreground">
+            Control Center — Agury Platform
           </div>
+          <div className="flex items-center gap-4">
+            <ThemeToggle />
+            <div className="text-right hidden md:block">
+              <p className="text-sm font-bold text-foreground leading-tight">{session.name}</p>
+              <p className="text-xs text-emerald-400 font-medium">Platform Admin</p>
+            </div>
+            <div className="w-10 h-10 rounded-full bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center font-bold text-emerald-400 overflow-hidden">
+              {session.name.substring(0, 2).toUpperCase()}
+            </div>
+          </div>
+        </header>
+
+        <div className="p-8">
+          {children}
         </div>
       </main>
     </div>

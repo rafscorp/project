@@ -32,8 +32,8 @@ export default async function SettingsPage() {
   return (
     <div className="space-y-8 max-w-4xl">
       <div>
-        <h1 className="text-3xl font-display font-black text-white">Configurações da Oficina</h1>
-        <p className="text-zinc-400 mt-1">Personalize sua vitrine, adicione sua logo e atualize seus dados de contato.</p>
+        <h1 className="text-3xl font-display font-black text-foreground">Configurações da Oficina</h1>
+        <p className="text-muted-foreground mt-1">Personalize sua vitrine, adicione sua logo e atualize seus dados de contato.</p>
       </div>
 
       <SettingsForm initialStore={{

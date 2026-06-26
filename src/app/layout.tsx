@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Outfit, DM_Sans } from "next/font/google";
+import { ThemeProvider } from "@/components/theme-provider";
 import "./globals.css";
 
 const outfit = Outfit({
@@ -16,20 +17,24 @@ const dmSans = DM_Sans({
 
 export const metadata: Metadata = {
   title: {
-    default: "Agury Auto — Plataforma para Oficinas e Lojas Automotivas",
-    template: "%s | Agury Auto",
+    default: "ConectaParts — Plataforma para Lojas de Autopeças",
+    template: "%s | ConectaParts",
   },
   description:
-    "Plataforma SaaS estilo Trinks para estética e mecânica automotiva. Sua loja online, pedidos com retirada na loja, assinatura mensal.",
+    "Plataforma SaaS para lojas de peças e componentes automotivos. O melhor ambiente para organizar seus clientes com privacidade e segurança.",
   icons: {
-    icon: "/favicon.svg",
+    icon: "/images/icon-conectaparts-transparent.png",
   },
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="pt-BR" className={`${outfit.variable} ${dmSans.variable}`}>
-      <body className="min-h-screen">{children}</body>
+    <html lang="pt-BR" className={`${outfit.variable} ${dmSans.variable}`} data-scroll-behavior="smooth" suppressHydrationWarning>
+      <body className="min-h-screen bg-background text-foreground transition-colors duration-300">
+        <ThemeProvider attribute="class" defaultTheme="dark" enableSystem disableTransitionOnChange>
+          {children}
+        </ThemeProvider>
+      </body>
     </html>
   );
 }

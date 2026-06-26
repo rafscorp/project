@@ -55,7 +55,7 @@ export function ProductsManager({ initialProducts }: { initialProducts: Product[
   return (
     <div>
       <div className="mb-6 flex justify-between">
-        <p className="text-sm text-zinc-400">{products.length} produtos cadastrados</p>
+        <p className="text-sm text-muted-foreground">{products.length} produtos cadastrados</p>
         <Button size="sm" onClick={() => setShowForm(!showForm)}>
           {showForm ? "Cancelar" : "+ Novo produto"}
         </Button>
@@ -70,8 +70,8 @@ export function ProductsManager({ initialProducts }: { initialProducts: Product[
               <Input label="Estoque" type="number" value={form.stock} onChange={(e) => setForm({ ...form, stock: e.target.value })} required />
               <Input label="SKU" value={form.sku} onChange={(e) => setForm({ ...form, sku: e.target.value })} />
               <div className="sm:col-span-2">
-                <label className="mb-1.5 block text-sm text-zinc-300">Descrição</label>
-                <textarea className="w-full rounded-xl border border-zinc-700 bg-zinc-900/80 px-4 py-3 text-white" rows={2}
+                <label className="mb-1.5 block text-sm text-foreground/80">Descrição</label>
+                <textarea className="w-full rounded-xl border border-zinc-700 bg-panel/80 px-4 py-3 text-foreground" rows={2}
                   value={form.description} onChange={(e) => setForm({ ...form, description: e.target.value })} />
               </div>
               <Button type="submit" loading={loading}>Salvar produto</Button>
@@ -85,12 +85,12 @@ export function ProductsManager({ initialProducts }: { initialProducts: Product[
           <Card key={p.id}>
             <CardBody className="flex flex-wrap items-center justify-between gap-4">
               <div>
-                <p className="font-semibold text-white">{p.name}</p>
-                <p className="text-sm text-zinc-500">{p.sku || p.slug}</p>
+                <p className="font-semibold text-foreground">{p.name}</p>
+                <p className="text-sm text-muted-foreground">{p.sku || p.slug}</p>
               </div>
               <div className="flex items-center gap-4">
                 <span className="font-bold text-amber-400">{formatCurrency(p.price)}</span>
-                <span className="text-sm text-zinc-400">Est: {p.stock}</span>
+                <span className="text-sm text-muted-foreground">Est: {p.stock}</span>
                 <Badge variant={p.active ? "success" : "default"}>{p.active ? "Ativo" : "Inativo"}</Badge>
               </div>
             </CardBody>

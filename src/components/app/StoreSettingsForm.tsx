@@ -127,11 +127,11 @@ export function StoreSettingsForm({ store }: StoreSettingsFormProps) {
 
         <Card>
           <CardBody className="space-y-3 text-sm">
-            <div><span className="text-zinc-500">Slug:</span> <span className="text-amber-400">/loja/{store.slug}</span></div>
-            <div><span className="text-zinc-500">Endereço:</span> <span className="text-white">{form.address}, {form.city}/{form.state}</span></div>
-            <div><span className="text-zinc-500">Mapa:</span> <span className="text-white">{form.latitude && form.longitude ? "Localização salva" : "Adicione latitude/longitude para exibir no mapa"}</span></div>
+            <div><span className="text-muted-foreground">Slug:</span> <span className="text-amber-400">/loja/{store.slug}</span></div>
+            <div><span className="text-muted-foreground">Endereço:</span> <span className="text-foreground">{form.address}, {form.city}/{form.state}</span></div>
+            <div><span className="text-muted-foreground">Mapa:</span> <span className="text-foreground">{form.latitude && form.longitude ? "Localização salva" : "Adicione latitude/longitude para exibir no mapa"}</span></div>
             {form.latitude && form.longitude && (
-              <div className="mt-3 overflow-hidden rounded-xl border border-zinc-800">
+              <div className="mt-3 overflow-hidden rounded-xl border border-border-subtle">
                 <iframe
                   title="Mapa da loja"
                   src={`https://www.google.com/maps?q=${form.latitude},${form.longitude}&z=15&output=embed`}

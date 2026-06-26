@@ -19,8 +19,8 @@ export default async function AdminPedidosPage() {
     <div className="space-y-6 animate-fade-in">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="font-display text-2xl font-bold text-white">Pedidos da Plataforma</h1>
-          <p className="text-zinc-400">Últimos pedidos de todas as lojas</p>
+          <h1 className="font-display text-2xl font-bold text-foreground">Pedidos da Plataforma</h1>
+          <p className="text-muted-foreground">Últimos pedidos de todas as lojas</p>
         </div>
       </div>
 

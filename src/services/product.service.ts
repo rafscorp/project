@@ -33,12 +33,36 @@ export class ProductService {
   }
 
   static async create(storeId: string, input: ProductInput) {
-    const slug = input.slug || slugify(input.name);
+    const slug = input.slug || slugify(input.name) + "-" + Math.random().toString(36).substring(2, 8);
     
-    // Sanitização rigorosa contra injeções de HTML/Script
     const name = sanitizeHtml(stripHtml(input.name.trim()));
     const sku = input.sku ? sanitizeHtml(stripHtml(input.sku.trim())) : "";
     const description = input.description ? sanitizeHtml(stripHtml(input.description.trim())) : null;
+
+    // Strict Limit Enforcement
+    const store = await prisma.store.findUnique({
+      where: { id: storeId },
+      include: { 
+        subscription: { include: { plan: true } },
+        owner: true
+      }
+    });
+
+    if (store && store.subscription?.plan) {
+      const maxProducts = store.subscription.plan.maxProducts;
+      const currentProductsCount = await prisma.product.count({
+        where: { storeId, deletedAt: null }
+      });
+
+      if (currentProductsCount >= maxProducts) {
+        // Send email and create notification asynchronously
+        import("@/lib/email/templates").then(({ sendLimitExceededEmail }) => {
+          sendLimitExceededEmail(store.owner.email, store.owner.name, store.name).catch(console.error);
+        });
+
+        throw new Error(\`Limite excedido: Seu plano permite no máximo \${maxProducts} peças. Faça o upgrade para continuar cadastrando!\`);
+      }
+    }
 
     return prisma.product.create({
       data: {
@@ -56,6 +80,63 @@ export class ProductService {
         active: input.active ?? true,
         featured: input.featured ?? false,
       },
+    });
+  }
+
+  static async bulkCreate(storeId: string, products: ProductInput[]) {
+    const data = products.map((input) => {
+      const name = sanitizeHtml(stripHtml(input.name.trim()));
+      const sku = input.sku ? sanitizeHtml(stripHtml(input.sku.trim())) : "";
+      const description = input.description ? sanitizeHtml(stripHtml(input.description.trim())) : null;
+      
+      // Prevent slug conflicts during mass import by appending random strings
+      const slug = (input.slug || slugify(name)) + "-" + Math.random().toString(36).substring(2, 8);
+      
+      return {
+        storeId,
+        name,
+        slug,
+        sku,
+        description,
+        price: input.price,
+        comparePrice: input.comparePrice,
+        stock: input.stock ?? 1,
+        imageUrl: input.imageUrl,
+        categoryId: input.categoryId || null,
+        condition: input.condition || "NEW",
+        active: input.active ?? true,
+        featured: input.featured ?? false,
+      };
+    });
+
+    // Strict Limit Enforcement for Bulk Import
+    const store = await prisma.store.findUnique({
+      where: { id: storeId },
+      include: { 
+        subscription: { include: { plan: true } },
+        owner: true
+      }
+    });
+
+    if (store && store.subscription?.plan) {
+      const maxProducts = store.subscription.plan.maxProducts;
+      const currentProductsCount = await prisma.product.count({
+        where: { storeId, deletedAt: null }
+      });
+
+      if (currentProductsCount + data.length > maxProducts) {
+        // Send email and create notification asynchronously
+        import("@/lib/email/templates").then(({ sendLimitExceededEmail }) => {
+          sendLimitExceededEmail(store.owner.email, store.owner.name, store.name).catch(console.error);
+        });
+
+        throw new Error(\`Limite excedido: Seu plano permite no máximo \${maxProducts} peças. Você está tentando adicionar mais do que o permitido. Faça o upgrade para continuar!\`);
+      }
+    }
+
+    return prisma.product.createMany({
+      data,
+      skipDuplicates: true,
     });
   }
 

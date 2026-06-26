@@ -36,8 +36,8 @@ export default async function AdminFinanceiroPage() {
     <div className="space-y-6 animate-fade-in">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="font-display text-2xl font-bold text-white">Financeiro</h1>
-          <p className="text-zinc-400">Receitas, faturas e fluxo de caixa da plataforma</p>
+          <h1 className="font-display text-2xl font-bold text-foreground">Financeiro</h1>
+          <p className="text-muted-foreground">Receitas, faturas e fluxo de caixa da plataforma</p>
         </div>
       </div>
 
@@ -60,7 +60,7 @@ export default async function AdminFinanceiroPage() {
       </div>
 
       <div>
-        <h2 className="font-display text-lg font-bold text-white mb-4 mt-8">Últimos Pagamentos B2B</h2>
+        <h2 className="font-display text-lg font-bold text-foreground mb-4 mt-8">Últimos Pagamentos B2B</h2>
         <Table>
           <TableHeader>
             <TableRow>

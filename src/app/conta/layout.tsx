@@ -29,7 +29,7 @@ export default async function ContaLayout({ children }: { children: React.ReactN
   }
 
   return (
-    <div className="min-h-screen bg-zinc-950">
+    <div className="min-h-screen bg-background">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-8">
         <div className="flex flex-col md:flex-row gap-8">
           
@@ -38,8 +38,8 @@ export default async function ContaLayout({ children }: { children: React.ReactN
             <div className="flex items-center gap-4 mb-8">
               <Avatar name={session.name} size="lg" />
               <div>
-                <h2 className="font-display font-bold text-white">{session.name}</h2>
-                <p className="text-sm text-zinc-400">@{session.username}</p>
+                <h2 className="font-display font-bold text-foreground">{session.name}</h2>
+                <p className="text-sm text-muted-foreground">@{session.username}</p>
               </div>
             </div>
             
@@ -48,13 +48,13 @@ export default async function ContaLayout({ children }: { children: React.ReactN
                 <Link
                   key={href}
                   href={href}
-                  className="flex items-center gap-3 rounded-xl px-4 py-3 text-sm font-medium text-zinc-400 transition hover:bg-zinc-900 hover:text-white"
+                  className="flex items-center gap-3 rounded-xl px-4 py-3 text-sm font-medium text-muted-foreground transition hover:bg-panel hover:text-foreground"
                 >
                   <Icon className="h-4 w-4" /> {label}
                 </Link>
               ))}
-              <form action="/api/auth/logout" method="POST" className="pt-4 mt-4 border-t border-zinc-800">
-                <button type="submit" className="flex w-full items-center gap-3 rounded-xl px-4 py-3 text-sm font-medium text-zinc-500 hover:bg-red-500/10 hover:text-red-400 transition-colors">
+              <form action="/api/auth/logout" method="POST" className="pt-4 mt-4 border-t border-border-subtle">
+                <button type="submit" className="flex w-full items-center gap-3 rounded-xl px-4 py-3 text-sm font-medium text-muted-foreground hover:bg-red-500/10 hover:text-red-400 transition-colors">
                   <LogOut className="h-4 w-4" /> Sair
                 </button>
               </form>
@@ -62,7 +62,7 @@ export default async function ContaLayout({ children }: { children: React.ReactN
           </aside>
 
           {/* Main Content */}
-          <main className="flex-1 bg-zinc-900/30 rounded-2xl border border-zinc-800 p-6 lg:p-8">
+          <main className="flex-1 bg-panel/30 rounded-2xl border border-border-subtle p-6 lg:p-8">
             {children}
           </main>
 

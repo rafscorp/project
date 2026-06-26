@@ -12,7 +12,7 @@ interface TabsProps {
 
 export function Tabs({ tabs, activeTab, onChange, className }: TabsProps) {
   return (
-    <div className={cn("flex space-x-1 rounded-xl bg-zinc-900/50 p-1", className)}>
+    <div className={cn("flex space-x-1 rounded-xl bg-panel/50 p-1", className)}>
       {tabs.map((tab) => (
         <button
           key={tab.id}
@@ -21,7 +21,7 @@ export function Tabs({ tabs, activeTab, onChange, className }: TabsProps) {
             "w-full rounded-lg py-2.5 text-sm font-medium leading-5 transition-all duration-200",
             activeTab === tab.id
               ? "bg-zinc-800 text-white shadow"
-              : "text-zinc-400 hover:bg-zinc-800/50 hover:text-white"
+              : "text-muted-foreground hover:bg-zinc-800/50 hover:text-white"
           )}
         >
           {tab.label}

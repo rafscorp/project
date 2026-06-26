@@ -23,15 +23,15 @@ export function StoreHeader({ store }: StoreHeaderProps) {
   const { count } = useCart(store.slug);
 
   return (
-    <header className="border-b border-zinc-800 bg-zinc-900/80 backdrop-blur">
+    <header className="border-b border-border-subtle bg-panel/80 backdrop-blur">
       <div className="mx-auto flex max-w-7xl items-center justify-between px-4 py-4 sm:px-6">
         <div className="flex items-center gap-3">
           {store.logoUrl ? <img src={store.logoUrl} alt={store.name} className="h-12 w-12 rounded-full object-cover" /> : <div className="flex h-12 w-12 items-center justify-center rounded-full bg-amber-400/20 text-lg font-bold text-amber-400">{store.name.slice(0, 1)}</div>}
           <div>
-            <Link href={`/loja/${store.slug}`} className="font-display text-xl font-bold text-white hover:text-amber-400">
+            <Link href={`/loja/${store.slug}`} className="font-display text-xl font-bold text-foreground hover:text-amber-400">
               {store.name}
             </Link>
-            <div className="mt-1 flex flex-wrap gap-3 text-xs text-zinc-500">
+            <div className="mt-1 flex flex-wrap gap-3 text-xs text-muted-foreground">
               <span className="flex items-center gap-1"><MapPin className="h-3 w-3" /> {store.city}/{store.state}</span>
               <span className="flex items-center gap-1"><Phone className="h-3 w-3" /> {store.phone}</span>
             </div>

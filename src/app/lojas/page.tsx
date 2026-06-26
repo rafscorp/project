@@ -4,8 +4,23 @@ import prisma from "@/lib/db/prisma";
 import { Button } from "@/components/ui/Button";
 import { LocationFilter } from "@/components/store/LocationFilter";
 import { RegionFilter } from "@/components/store/RegionFilter";
+import { ThemeToggle } from "@/components/ThemeToggle";
+import { MotionDiv } from "@/components/MotionWrapper";
 
 export const dynamic = 'force-dynamic';
+
+const container = {
+  hidden: { opacity: 0 },
+  show: {
+    opacity: 1,
+    transition: { staggerChildren: 0.1 }
+  }
+};
+
+const item = {
+  hidden: { opacity: 0, y: 30 },
+  show: { opacity: 1, y: 0, transition: { type: "spring", stiffness: 300, damping: 24 } }
+};
 
 function getDistance(lat1: number, lon1: number, lat2: number, lon2: number) {
   const R = 6371;
@@ -85,35 +100,38 @@ export default async function LojasPage({
   const hasFilters = !!(stateFilter || cityFilter || ratingFilter || latFilter || searchTerm);
 
   return (
-    <div className="min-h-screen bg-zinc-950 text-zinc-100 flex flex-col">
+    <div className="min-h-screen bg-background text-foreground flex flex-col">
       <div className="fixed inset-0 z-0 bg-mesh-dark pointer-events-none" />
       <div className="fixed inset-0 z-0 bg-grid-dark opacity-20 pointer-events-none" />
       
       {/* Header */}
-      <header className="relative z-10 p-4 sm:p-6 border-b border-white/10 bg-zinc-950/80 backdrop-blur-xl sticky top-0">
+      <header className="relative z-10 p-4 sm:p-6 border-b border-border-subtle bg-panel/80 backdrop-blur-xl sticky top-0">
         <div className="max-w-[1600px] mx-auto flex flex-col sm:flex-row justify-between items-center gap-4">
-          <Link href="/" className="font-display font-extrabold text-2xl tracking-tight text-white flex items-center gap-2">
+          <Link href="/" className="font-display font-extrabold text-2xl tracking-tight text-foreground flex items-center gap-2">
             <Store className="h-6 w-6 text-violet-500" />
             Agury <span className="text-violet-500">Auto</span>
           </Link>
 
           {/* Barra de Busca Rápida */}
           <form action="/lojas" method="GET" className="relative flex-1 max-w-xl">
-            <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-zinc-500 pointer-events-none" />
+            <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground pointer-events-none" />
             <input
               type="text"
               name="q"
               defaultValue={searchTerm}
               placeholder="Buscar por loja, cidade..."
-              className="w-full pl-11 pr-4 py-2.5 bg-zinc-900 border border-white/10 rounded-xl text-white text-sm focus:outline-none focus:ring-2 focus:ring-violet-500/50 transition-all"
+              className="w-full pl-11 pr-4 py-2.5 bg-zinc-100 dark:bg-panel border border-zinc-200 dark:border-border-subtle rounded-xl text-foreground text-sm focus:outline-none focus:ring-2 focus:ring-violet-500/50 transition-all"
             />
           </form>
 
-          <Link href="/cadastro/empresa">
-            <Button variant="outline" className="border-white/20 text-white hover:bg-white hover:text-black font-bold whitespace-nowrap">
-              + Cadastrar minha loja
-            </Button>
-          </Link>
+          <div className="flex items-center gap-4">
+            <ThemeToggle />
+            <Link href="/cadastro/empresa">
+              <Button variant="outline" className="border-black/10 dark:border-white/20 text-foreground hover:bg-foreground hover:text-background font-bold whitespace-nowrap">
+                + Cadastrar minha loja
+              </Button>
+            </Link>
+          </div>
         </div>
       </header>
 
@@ -121,26 +139,26 @@ export default async function LojasPage({
         
         {/* Sidebar */}
         <aside className="hidden lg:block w-72 shrink-0">
-          <div className="sticky top-28 glass-panel p-6 rounded-3xl border-white/10 bg-zinc-900/60 space-y-8">
-            <div className="flex items-center gap-2 text-white font-bold text-lg">
-              <SlidersHorizontal className="h-5 w-5 text-violet-400" /> Filtrar Lojas
+          <div className="sticky top-28 glass-panel p-6 rounded-3xl bg-zinc-100/60 dark:bg-panel/60 space-y-8">
+            <div className="flex items-center gap-2 text-foreground font-bold text-lg">
+              <SlidersHorizontal className="h-5 w-5 text-violet-500" /> Filtrar Lojas
             </div>
 
             <LocationFilter />
             <RegionFilter />
             
             <div>
-              <h4 className="font-bold text-zinc-300 mb-4">Avaliação Mínima</h4>
+              <h4 className="font-bold text-muted-foreground dark:text-foreground/80 mb-4">Avaliação Mínima</h4>
               <ul className="space-y-3">
                 {[5, 4, 3].map(stars => (
                   <li key={stars}>
                     <Link
                       href={`/lojas?minRating=${stars}${stateFilter ? `&state=${stateFilter}` : ''}${searchTerm ? `&q=${searchTerm}` : ''}`}
-                      className={`flex items-center gap-2 transition-colors ${ratingFilter === stars ? 'text-amber-400' : 'text-zinc-400 hover:text-amber-400'}`}
+                      className={`flex items-center gap-2 transition-colors ${ratingFilter === stars ? 'text-amber-500' : 'text-muted-foreground dark:text-muted-foreground hover:text-amber-500'}`}
                     >
                       <div className="flex">
                         {Array.from({ length: 5 }).map((_, i) => (
-                          <Star key={i} className={`h-4 w-4 ${i < stars ? "fill-amber-400 text-amber-400" : "fill-zinc-700 text-zinc-700"}`} />
+                          <Star key={i} className={`h-4 w-4 ${i < stars ? "fill-amber-400 text-amber-400" : "fill-zinc-300 dark:fill-zinc-700 text-foreground/80 dark:text-zinc-700"}`} />
                         ))}
                       </div>
                       <span className="text-sm font-medium">& Acima</span>
@@ -152,7 +170,7 @@ export default async function LojasPage({
 
             {hasFilters && (
               <Link href="/lojas">
-                <Button className="w-full bg-zinc-800 text-zinc-300 hover:bg-zinc-700 hover:text-white">
+                <Button className="w-full bg-zinc-200 dark:bg-zinc-800 text-zinc-600 dark:text-foreground/80 hover:bg-zinc-300 dark:hover:bg-zinc-700 hover:text-foreground">
                   Limpar Filtros
                 </Button>
               </Link>
@@ -164,10 +182,10 @@ export default async function LojasPage({
         <div className="flex-1 min-w-0">
           <div className="flex items-center justify-between mb-8 flex-wrap gap-4">
             <div>
-              <h1 className="font-display text-4xl font-extrabold text-white">
+              <h1 className="font-display text-4xl font-extrabold text-foreground">
                 {searchTerm ? `Resultados para "${searchTerm}"` : 'Lojas de Autopeças'}
               </h1>
-              <p className="text-zinc-400 mt-1">
+              <p className="text-muted-foreground mt-1">
                 {stores.length > 0 
                   ? `${stores.length} ${stores.length === 1 ? 'loja encontrada' : 'lojas encontradas'}`
                   : 'Nenhuma loja encontrada com estes filtros'}
@@ -175,39 +193,45 @@ export default async function LojasPage({
             </div>
           </div>
 
-          <div className="grid gap-6">
+          <MotionDiv 
+            variants={container}
+            initial="hidden"
+            animate="show"
+            className="grid gap-6"
+          >
             {stores.length === 0 ? (
-              <div className="glass-panel p-16 rounded-3xl text-center border-white/10 flex flex-col items-center">
-                <Search className="h-14 w-14 text-zinc-600 mb-5" />
-                <h3 className="text-2xl font-black text-white mb-3">Nenhuma loja encontrada</h3>
-                <p className="text-zinc-400 mb-6 max-w-sm">Tente remover alguns filtros ou busque por outra cidade.</p>
+              <MotionDiv variants={item} className="glass-panel p-16 rounded-3xl text-center flex flex-col items-center">
+                <Search className="h-14 w-14 text-muted-foreground mb-5" />
+                <h3 className="text-2xl font-black text-foreground mb-3">Nenhuma loja encontrada</h3>
+                <p className="text-muted-foreground mb-6 max-w-sm">Tente remover alguns filtros ou busque por outra cidade.</p>
                 <Link href="/lojas">
-                  <Button className="bg-violet-600 hover:bg-violet-500 text-white font-bold">Ver todas as lojas</Button>
+                  <Button className="bg-violet-600 hover:bg-violet-500 text-white font-bold btn-shimmer">Ver todas as lojas</Button>
                 </Link>
-              </div>
+              </MotionDiv>
             ) : (
               stores.map((store) => (
-                <div
+                <MotionDiv
+                  variants={item}
                   key={store.id}
-                  className="glass-panel rounded-[2rem] border border-white/5 bg-zinc-900/50 hover:bg-zinc-900/80 hover:border-violet-500/20 transition-all duration-300 overflow-hidden group hover:shadow-[0_0_40px_rgba(139,92,246,0.1)]"
+                  className="glass-panel rounded-[2rem] bg-panel hover:bg-panel-hover transition-all duration-300 overflow-hidden group hover:shadow-[0_0_40px_rgba(139,92,246,0.1)] hover:scale-[1.01]"
                 >
                   <div className="flex flex-col sm:flex-row">
                     {/* Banner / Logo Area */}
-                    <div className="sm:w-56 sm:h-auto h-40 bg-zinc-800 relative overflow-hidden shrink-0">
+                    <div className="sm:w-56 sm:h-auto h-40 bg-zinc-200 dark:bg-zinc-800 relative overflow-hidden shrink-0">
                       {store.bannerUrl ? (
                         <img src={store.bannerUrl} alt={store.name} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
                       ) : (
                         <div className="absolute inset-0 flex items-center justify-center">
-                          <Store className="h-16 w-16 text-zinc-700" />
+                          <Store className="h-16 w-16 text-muted-foreground dark:text-zinc-700" />
                         </div>
                       )}
-                      <div className="absolute inset-0 bg-gradient-to-r from-transparent to-zinc-900/60" />
+                      <div className="absolute inset-0 bg-gradient-to-r from-transparent to-black/60 dark:to-zinc-900/60 hidden sm:block" />
                       {/* Logo Badge */}
                       <div className="absolute bottom-3 left-3 sm:hidden">
                         {store.logoUrl ? (
-                          <img src={store.logoUrl} alt={store.name} className="w-14 h-14 rounded-2xl object-cover border-2 border-zinc-900 shadow-xl" />
+                          <img src={store.logoUrl} alt={store.name} className="w-14 h-14 rounded-2xl object-cover border-2 border-background shadow-xl" />
                         ) : (
-                          <div className="w-14 h-14 rounded-2xl bg-zinc-950 border-2 border-zinc-900 flex items-center justify-center">
+                          <div className="w-14 h-14 rounded-2xl bg-zinc-100 dark:bg-background border-2 border-background flex items-center justify-center">
                             <Store className="h-6 w-6 text-violet-500" />
                           </div>
                         )}
@@ -221,20 +245,20 @@ export default async function LojasPage({
                           {/* Desktop Logo */}
                           <div className="hidden sm:block shrink-0">
                             {store.logoUrl ? (
-                              <img src={store.logoUrl} alt={store.name} className="w-16 h-16 rounded-2xl object-cover border-2 border-zinc-800 shadow-lg" />
+                              <img src={store.logoUrl} alt={store.name} className="w-16 h-16 rounded-2xl object-cover border-2 border-zinc-200 dark:border-border-subtle shadow-lg" />
                             ) : (
-                              <div className="w-16 h-16 rounded-2xl bg-zinc-900 border-2 border-zinc-800 flex items-center justify-center">
+                              <div className="w-16 h-16 rounded-2xl bg-white dark:bg-panel border-2 border-zinc-200 dark:border-border-subtle flex items-center justify-center">
                                 <Store className="h-7 w-7 text-violet-500" />
                               </div>
                             )}
                           </div>
                           <div>
                             <Link href={`/loja/${store.slug}`}>
-                              <h2 className="text-2xl font-black text-white hover:text-violet-400 transition-colors">{store.name}</h2>
+                              <h2 className="text-2xl font-black text-foreground hover:text-violet-500 transition-colors">{store.name}</h2>
                             </Link>
                             <div className="flex items-center gap-3 mt-1 flex-wrap">
-                              <span className="flex items-center text-zinc-400 text-sm">
-                                <MapPin className="h-3.5 w-3.5 mr-1 text-zinc-500" />
+                              <span className="flex items-center text-muted-foreground text-sm">
+                                <MapPin className="h-3.5 w-3.5 mr-1 text-muted-foreground" />
                                 {store.city}, {store.state}
                               </span>
                               {/* @ts-ignore */}
@@ -256,54 +280,54 @@ export default async function LojasPage({
                         </div>
 
                         {/* Rating */}
-                        <div className="flex flex-col items-start sm:items-end bg-zinc-950/50 p-3 rounded-2xl border border-white/5 shrink-0">
-                          <div className="flex text-amber-400 mb-1">
+                        <div className="flex flex-col items-start sm:items-end bg-zinc-100 dark:bg-background/50 p-3 rounded-2xl border border-zinc-200 dark:border-border-subtle shrink-0">
+                          <div className="flex text-amber-500 mb-1">
                             {Array.from({ length: 5 }).map((_, i) => (
-                              <Star key={i} className={`h-4 w-4 ${i < Math.round(store.averageRating) ? "fill-amber-400" : "fill-zinc-700 text-zinc-700"}`} />
+                              <Star key={i} className={`h-4 w-4 ${i < Math.round(store.averageRating) ? "fill-amber-500" : "fill-zinc-300 dark:fill-zinc-700 text-foreground/80 dark:text-zinc-700"}`} />
                             ))}
                           </div>
-                          <span className="font-black text-white text-lg leading-none">{store.averageRating.toFixed(1)}</span>
-                          <span className="text-zinc-500 text-xs">{store.totalReviews} avaliações</span>
+                          <span className="font-black text-foreground text-lg leading-none">{store.averageRating.toFixed(1)}</span>
+                          <span className="text-muted-foreground text-xs">{store.totalReviews} avaliações</span>
                         </div>
                       </div>
 
                       {store.description && (
-                        <p className="text-zinc-400 text-sm mb-4 line-clamp-2 max-w-2xl">{store.description}</p>
+                        <p className="text-muted-foreground dark:text-muted-foreground text-sm mb-4 line-clamp-2 max-w-2xl">{store.description}</p>
                       )}
 
                       {/* Último comentário */}
                       {store.reviews.length > 0 && store.reviews[0].comment && (
-                        <div className="bg-zinc-950/40 rounded-2xl p-4 border border-white/5 mb-5 flex items-start gap-3">
+                        <div className="bg-zinc-100 dark:bg-background/40 rounded-2xl p-4 border border-zinc-200 dark:border-border-subtle mb-5 flex items-start gap-3">
                           <div className="flex shrink-0 mt-0.5">
                             {Array.from({ length: store.reviews[0].rating }).map((_, i) => (
-                              <Star key={i} className="h-3 w-3 fill-amber-400 text-amber-400" />
+                              <Star key={i} className="h-3 w-3 fill-amber-500 text-amber-500" />
                             ))}
                           </div>
                           <div className="min-w-0">
-                            <p className="text-zinc-300 text-sm italic line-clamp-1">"{store.reviews[0].comment}"</p>
-                            <p className="text-zinc-600 text-xs mt-1">— {store.reviews[0].user.name}</p>
+                            <p className="text-zinc-600 dark:text-foreground/80 text-sm italic line-clamp-1">"{store.reviews[0].comment}"</p>
+                            <p className="text-muted-foreground dark:text-zinc-600 text-xs mt-1">— {store.reviews[0].user.name}</p>
                           </div>
                         </div>
                       )}
 
                       <div className="mt-auto flex flex-wrap gap-3 justify-end">
                         <Link href={`/loja/${store.slug}#avaliacoes`}>
-                          <Button variant="outline" className="border-white/10 text-zinc-300 hover:text-white hover:bg-zinc-800 font-bold rounded-xl h-11 px-5 text-sm">
+                          <Button variant="outline" className="border-border-subtle text-muted-foreground dark:text-foreground/80 hover:text-foreground hover:bg-zinc-200 dark:hover:bg-zinc-800 font-bold rounded-xl h-11 px-5 text-sm">
                             Avaliações
                           </Button>
                         </Link>
                         <Link href={`/loja/${store.slug}`}>
-                          <Button className="bg-violet-600 hover:bg-violet-500 text-white font-bold rounded-xl h-11 px-5 text-sm shadow-[0_0_15px_rgba(139,92,246,0.3)]">
+                          <Button className="bg-violet-600 hover:bg-violet-500 text-white font-bold rounded-xl h-11 px-5 text-sm shadow-[0_0_15px_rgba(139,92,246,0.3)] btn-shimmer">
                             Ver Peças <ArrowRight className="ml-1.5 h-4 w-4" />
                           </Button>
                         </Link>
                       </div>
                     </div>
                   </div>
-                </div>
+                </MotionDiv>
               ))
             )}
-          </div>
+          </MotionDiv>
         </div>
       </main>
     </div>

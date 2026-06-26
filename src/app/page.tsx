@@ -37,5 +37,18 @@ export default async function Page() {
     orderBy: { sortOrder: 'asc' }
   });
 
-  return <PremiumLandingPage topStores={topStores} plans={plans} />;
+  // Calculate the most chosen plan
+  const subscriptionsCount = await prisma.subscription.groupBy({
+    by: ['planId'],
+    _count: { planId: true },
+    orderBy: { _count: { planId: 'desc' } },
+    where: { status: 'ACTIVE' },
+    take: 1,
+  });
+
+  const mostChosenPlanId = subscriptionsCount.length > 0 && subscriptionsCount[0]._count.planId > 0 
+    ? subscriptionsCount[0].planId 
+    : null;
+
+  return <PremiumLandingPage topStores={topStores} plans={plans} mostChosenPlanId={mostChosenPlanId} />;
 }

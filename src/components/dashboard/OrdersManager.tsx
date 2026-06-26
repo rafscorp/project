@@ -47,10 +47,10 @@ export function OrdersManager({ initialOrders }: { initialOrders: Order[] }) {
             <CardBody>
               <div className="flex flex-wrap items-start justify-between gap-4">
                 <div>
-                  <p className="font-display font-bold text-white">{order.orderNumber}</p>
-                  <p className="text-sm text-zinc-400">{order.customerName} · {order.customerPhone}</p>
-                  <p className="text-xs text-zinc-500">{formatDate(order.createdAt)}</p>
-                  <ul className="mt-2 text-sm text-zinc-400">
+                  <p className="font-display font-bold text-foreground">{order.orderNumber}</p>
+                  <p className="text-sm text-muted-foreground">{order.customerName} · {order.customerPhone}</p>
+                  <p className="text-xs text-muted-foreground">{formatDate(order.createdAt)}</p>
+                  <ul className="mt-2 text-sm text-muted-foreground">
                     {order.items.map((item, i) => (
                       <li key={i}>{item.quantity}x {item.product.name}</li>
                     ))}
@@ -61,7 +61,7 @@ export function OrdersManager({ initialOrders }: { initialOrders: Order[] }) {
                   <Badge variant={order.status === "PENDING" ? "warning" : order.status === "PICKED_UP" ? "default" : "success"} className="mt-2">
                     {ORDER_STATUS_LABELS[order.status]}
                   </Badge>
-                  <p className="mt-2 font-mono text-sm text-zinc-400">Retirada: {order.pickupCode}</p>
+                  <p className="mt-2 font-mono text-sm text-muted-foreground">Retirada: {order.pickupCode}</p>
                   {nextStatus && order.status !== "CANCELLED" && (
                     <Button
                       size="sm"
@@ -79,7 +79,7 @@ export function OrdersManager({ initialOrders }: { initialOrders: Order[] }) {
         );
       })}
       {orders.length === 0 && (
-        <p className="rounded-2xl border border-zinc-800 p-12 text-center text-zinc-500">Nenhum pedido</p>
+        <p className="rounded-2xl border border-border-subtle p-12 text-center text-muted-foreground">Nenhum pedido</p>
       )}
     </div>
   );

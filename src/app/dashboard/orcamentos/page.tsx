@@ -33,8 +33,8 @@ export default async function StoreQuotesPage() {
     <div className="space-y-8">
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
-          <h1 className="text-3xl font-display font-black text-white">Pedidos de Orçamento</h1>
-          <p className="text-zinc-400 mt-1">Gerencie os pedidos de clientes e envie propostas para fechar vendas.</p>
+          <h1 className="text-3xl font-display font-black text-foreground">Pedidos de Orçamento</h1>
+          <p className="text-muted-foreground mt-1">Gerencie os pedidos de clientes e envie propostas para fechar vendas.</p>
         </div>
       </div>
 

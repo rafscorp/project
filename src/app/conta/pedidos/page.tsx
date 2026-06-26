@@ -21,8 +21,8 @@ export default async function ContaPedidosPage() {
   return (
     <div className="space-y-6 animate-fade-in">
       <div>
-        <h1 className="font-display text-2xl font-bold text-white">Meus Pedidos</h1>
-        <p className="text-zinc-400">Histórico de compras e status de retirada</p>
+        <h1 className="font-display text-2xl font-bold text-foreground">Meus Pedidos</h1>
+        <p className="text-muted-foreground">Histórico de compras e status de retirada</p>
       </div>
 
       {orders.length === 0 ? (

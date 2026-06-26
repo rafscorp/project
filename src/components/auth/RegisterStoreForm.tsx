@@ -91,6 +91,11 @@ export function RegisterStoreForm({ plans }: { plans: { slug: string; name: stri
 
   const [loading, setLoading] = useState(false);
   const [alert, setAlert] = useState<AlertState>(null);
+  
+  // Termos Legais
+  const [termsAccepted, setTermsAccepted] = useState(false);
+  const [privacyAccepted, setPrivacyAccepted] = useState(false);
+  
   const [cepLoading, setCepLoading] = useState(false);
   const [form, setForm] = useState<FormState>(initialForm(defaultPlan));
   const [errors, setErrors] = useState<FormErrors>({});
@@ -211,7 +216,7 @@ export function RegisterStoreForm({ plans }: { plans: { slug: string; name: stri
         <legend className="text-sm font-semibold uppercase tracking-wider text-amber-400">Sua Loja</legend>
         <Input label="Nome da loja" value={form.storeName} onChange={(e) => update("storeName", e.target.value)} onBlur={() => handleBlur("storeName")} error={touched.storeName ? errors.storeName : undefined} successMessage={touched.storeName && !errors.storeName && form.storeName ? "Nome da loja pronto" : undefined} required />
         <Input label="Endereço da loja online" value={form.slug} onChange={(e) => update("slug", e.target.value)} onBlur={() => handleBlur("slug")} error={touched.slug ? errors.slug : undefined} successMessage={touched.slug && !errors.slug && form.slug ? "Endereço disponível" : undefined} required placeholder="minha-oficina" />
-        <p className="text-xs text-zinc-500">Sua loja: /loja/{form.slug || "minha-oficina"}</p>
+        <p className="text-xs text-muted-foreground">Sua loja: /loja/{form.slug || "minha-oficina"}</p>
         <div className="grid gap-4 sm:grid-cols-2">
           <Input label="CNPJ" value={form.cnpj} onChange={(e) => update("cnpj", e.target.value)} placeholder="00.000.000/0000-00" />
           <Input label="Telefone da loja" value={form.phone} onChange={(e) => update("phone", e.target.value)} onBlur={() => handleBlur("phone")} error={touched.phone ? errors.phone : undefined} successMessage={touched.phone && !errors.phone && form.phone ? "Telefone válido" : undefined} required />
@@ -228,17 +233,83 @@ export function RegisterStoreForm({ plans }: { plans: { slug: string; name: stri
         <legend className="mb-3 text-sm font-semibold uppercase tracking-wider text-amber-400">Plano</legend>
         <div className="grid gap-3 sm:grid-cols-3">
           {plans.map((p) => (
-            <label key={p.slug} className={`cursor-pointer rounded-xl border p-4 transition ${form.planSlug === p.slug ? "border-amber-400 bg-amber-400/10" : "border-zinc-700"}`}>
+            <label key={p.slug} className={`cursor-pointer rounded-xl border p-4 transition relative ${form.planSlug === p.slug ? "border-amber-400 bg-amber-400/10" : "border-zinc-700"}`}>
+              {p.comparePriceMonthly && p.comparePriceMonthly > p.priceMonthly && (
+                <div className="absolute -top-3 -right-2 bg-amber-400 text-black text-[10px] font-black px-2 py-0.5 rounded-full shadow-sm">
+                  -{Math.round(((p.comparePriceMonthly - p.priceMonthly) / p.comparePriceMonthly) * 100)}%
+                </div>
+              )}
               <input type="radio" name="plan" value={p.slug} checked={form.planSlug === p.slug} onChange={() => update("planSlug", p.slug)} className="sr-only" />
-              <p className="font-semibold text-white">{p.name}</p>
-              <p className="text-sm text-amber-400">R$ {p.priceMonthly}/mês</p>
+              <p className="font-semibold text-foreground">{p.name}</p>
+              <div className="flex flex-col mt-1">
+                {p.comparePriceMonthly && p.comparePriceMonthly > p.priceMonthly && (
+                  <span className="text-xs text-muted-foreground line-through">R$ {p.comparePriceMonthly}</span>
+                )}
+                <p className="text-sm font-bold text-amber-400">R$ {p.priceMonthly}/mês</p>
+              </div>
             </label>
           ))}
         </div>
       </fieldset>
 
-      <Button type="submit" size="lg" className="w-full" loading={loading}>
-        Criar loja — 14 dias grátis
+      <fieldset className="space-y-4 pt-4 border-t border-border-subtle mt-4">
+        <legend className="mb-2 text-sm font-semibold uppercase tracking-wider text-amber-400">Documentos Legais</legend>
+        
+        <div className="bg-background/50 border border-zinc-700/50 rounded-xl p-4 h-40 overflow-y-auto text-xs text-muted-foreground font-mono space-y-4">
+          <div>
+            <h4 className="font-bold text-foreground text-sm mb-1">Termos de Uso - ConectaParts</h4>
+            <p>1. A ConectaParts atua exclusivamente como uma plataforma de tecnologia (SaaS) e vitrine digital para lojas de autopeças.</p>
+            <p>2. A ConectaParts NÃO comercializa peças, não realiza entregas, não é proprietária dos produtos oferecidos pelas lojas parceiras e não tem responsabilidade sobre a logística.</p>
+            <p>3. Qualquer problema relacionado a defeitos de fabricação, garantia, entrega, logística ou estorno de pagamentos deve ser tratado diretamente entre o Cliente e a Loja de Autopeças (Lojista). A ConectaParts está integralmente isenta de responsabilidade sobre a relação de consumo.</p>
+            <p>4. O lojista é inteiramente responsável pela veracidade dos dados dos produtos, descrições, preços e disponibilidade.</p>
+          </div>
+          <div className="border-t border-zinc-800 pt-4">
+            <h4 className="font-bold text-foreground text-sm mb-1">Política de Privacidade</h4>
+            <p>1. Coletamos os dados estritamente necessários para o funcionamento da plataforma.</p>
+            <p>2. Os dados do cliente são compartilhados EXCLUSIVAMENTE com o Lojista do qual o cliente realizou uma cotação ou compra. A ConectaParts não vende, aluga ou cede dados pessoais a terceiros.</p>
+            <p>3. Conforme a LGPD, o usuário tem direito de solicitar a exclusão de sua conta a qualquer momento pelo painel de controle.</p>
+          </div>
+        </div>
+
+        <div className="space-y-3 bg-zinc-900/50 p-4 rounded-xl border border-zinc-800">
+          <label className="flex items-start gap-3 cursor-pointer">
+            <div className="flex items-center h-5 mt-0.5">
+              <input 
+                type="checkbox" 
+                className="w-5 h-5 rounded border-zinc-600 bg-zinc-800 text-amber-500 focus:ring-amber-500 transition-colors" 
+                checked={termsAccepted}
+                onChange={(e) => setTermsAccepted(e.target.checked)}
+              />
+            </div>
+            <div className="text-sm font-medium text-foreground/90">
+              Li e aceito os <strong>Termos de Uso</strong> da plataforma, compreendendo a isenção de responsabilidade da ConectaParts sobre peças e pagamentos.
+            </div>
+          </label>
+          
+          <label className="flex items-start gap-3 cursor-pointer">
+            <div className="flex items-center h-5 mt-0.5">
+              <input 
+                type="checkbox" 
+                className="w-5 h-5 rounded border-zinc-600 bg-zinc-800 text-amber-500 focus:ring-amber-500 transition-colors" 
+                checked={privacyAccepted}
+                onChange={(e) => setPrivacyAccepted(e.target.checked)}
+              />
+            </div>
+            <div className="text-sm font-medium text-foreground/90">
+              Li e aceito a <strong>Política de Privacidade</strong>.
+            </div>
+          </label>
+        </div>
+      </fieldset>
+
+      <Button 
+        type="submit" 
+        size="lg" 
+        className={`w-full mt-6 transition-all duration-300 ${!termsAccepted || !privacyAccepted ? "bg-zinc-800 text-zinc-500 border-zinc-700" : "bg-amber-500 hover:bg-amber-400 text-black shadow-[0_0_20px_rgba(245,158,11,0.3)]"}`} 
+        loading={loading} 
+        disabled={!termsAccepted || !privacyAccepted}
+      >
+        {!termsAccepted || !privacyAccepted ? "Aceite os termos para continuar" : "Criar loja — 14 dias grátis"}
       </Button>
     </form>
   );

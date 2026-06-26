@@ -14,10 +14,14 @@ export async function POST(req: NextRequest) {
   let event;
 
   try {
+    if (!env.STRIPE_WEBHOOK_SECRET) {
+      throw new Error("Missing STRIPE_WEBHOOK_SECRET");
+    }
+    
     event = stripe.webhooks.constructEvent(
       body,
       signature,
-      env.STRIPE_WEBHOOK_SECRET || "whsec_mock"
+      env.STRIPE_WEBHOOK_SECRET
     );
   } catch (err: any) {
     console.error("Stripe Webhook signature verification failed.", err.message);

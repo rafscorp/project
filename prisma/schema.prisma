@@ -18,9 +18,10 @@ datasource db {
 
 enum UserRole {
   PLATFORM_ADMIN // Administrador da plataforma Agury
-  STORE_OWNER // Dono da empresa/loja (paga assinatura)
-  STORE_STAFF // Funcionário da loja
-  CUSTOMER // Cliente final que compra na loja
+  SYSTEM_ADMIN   // Super admin (alias Agury owner — Modo Deus)
+  STORE_OWNER    // Dono da empresa/loja (paga assinatura)
+  STORE_STAFF    // Funcionário da loja
+  CUSTOMER       // Cliente final que compra na loja
 }
 
 enum SubscriptionStatus {
@@ -140,6 +141,12 @@ model User {
   createdAt          DateTime  @default(now())
   updatedAt          DateTime  @updatedAt
 
+  // 2FA (TOTP via Google Authenticator / Authy)
+  // twoFactorSecret é salvo AES-256-GCM encriptado (formato: iv:tag:ciphertext)
+  twoFactorEnabled    Boolean   @default(false)
+  twoFactorSecret     String?   // Encriptado — NUNCA salvar em texto plano
+  twoFactorVerifiedAt DateTime? // Última vez que o 2FA foi confirmado na sessão
+
   // Relações
   ownedStores         Store[]              @relation("StoreOwner")
   quoteRequests       QuoteRequest[]
@@ -153,6 +160,7 @@ model User {
   couponUsages        CouponUsage[]
   storeReviews        StoreReview[]
   orders              Order[]
+  vehicles            Vehicle[]            // Garagem Virtual
 
   @@index([email])
   @@index([username])
@@ -215,6 +223,43 @@ model VerificationToken {
 }
 
 // -----------------------------------------------------------------------------
+// Garagem Virtual — Veículos salvos pelo cliente
+// ATENÇÃO DE SEGURANÇA: Os campos marcados com [ENCRYPTED] são armazenados
+// criptografados via AES-256-GCM. A decifragem ocorre na camada de serviço.
+// NUNCA consulte esses campos diretamente para comparação no banco.
+// -----------------------------------------------------------------------------
+
+model Vehicle {
+  id        String   @id @default(cuid())
+  userId    String
+
+  // ── Campos públicos (não-sensíveis) ──────────────────────────────────────
+  placa     String   // Placa normalizada (ex: ABC1D23). Salva em texto claro para busca/index.
+  marca     String   // Marca do veículo
+  modelo    String   // Modelo do veículo
+  ano       String   // Ano do modelo
+  cor       String   // Cor
+  combustivel String @default("—")
+  versao    String   @default("—")
+  cidade    String   @default("—")
+
+  // ── Campos PII [ENCRYPTED] — AES-256-GCM — NUNCA em texto plano ─────────
+  // Formato de storage: "<iv_hex>:<authtag_hex>:<ciphertext_hex>"
+  chassiEnc     String   @default("—") // [ENCRYPTED] Chassi do veículo
+  motorEnc      String   @default("—") // [ENCRYPTED] Número/Tipo do motor
+  ownerNameEnc  String   @default("—") // [ENCRYPTED] Nome do proprietário
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([placa])
+  @@map("vehicles")
+}
+
+// -----------------------------------------------------------------------------
 // Planos e Assinaturas (empresas pagam à Agury)
 // -----------------------------------------------------------------------------
 
@@ -224,8 +269,10 @@ model SubscriptionPlan {
   slug         String   @unique
   description  String?
   priceMonthly Float // Valor mensal em BRL
+  comparePriceMonthly Float? // Preço antigo (riscado) para exibir descontos no front
   maxProducts  Int      @default(100)
   maxStaff     Int      @default(3)
+  maxClients   Int      @default(50) // Limite de conversas/orçamentos únicos por mês
   features     Json     @default("[]") // Array de features
   active       Boolean  @default(true)
   sortOrder    Int      @default(0)
@@ -248,16 +295,43 @@ model Subscription {
   // Payment gateway references
   stripeSubscriptionId      String?
   mercadoPagoSubscriptionId String?
+  
+  // Custom Pricing / Discounts
+  customPrice               Float?   // Preço negociado fixo (ignora o valor do plano)
+  discountPercentage        Float?   // Desconto em % sobre o valor do plano
+  discountReason            String?  // Justificativa do desconto comercial
+  couponId                  String?  // Cupom vinculado à assinatura recorrente
+
   createdAt                 DateTime           @default(now())
   updatedAt                 DateTime           @updatedAt
 
   store    Store            @relation(fields: [storeId], references: [id], onDelete: Cascade)
   plan     SubscriptionPlan @relation(fields: [planId], references: [id])
+  coupon   Coupon?          @relation(fields: [couponId], references: [id], onDelete: SetNull)
   payments Payment[]
 
   @@index([status])
   @@index([planId])
   @@map("subscriptions")
+}
+
+// -----------------------------------------------------------------------------
+// Ofertas Customizadas (Admin -> Loja)
+// -----------------------------------------------------------------------------
+
+model StoreOffer {
+  id                 String   @id @default(cuid())
+  storeId            String
+  discountPercentage Float
+  expiresAt          DateTime // Oferta válida até (ex: 7 dias)
+  used               Boolean  @default(false)
+  usedAt             DateTime?
+  createdAt          DateTime @default(now())
+
+  store Store @relation(fields: [storeId], references: [id], onDelete: Cascade)
+
+  @@index([storeId, used, expiresAt])
+  @@map("store_offers")
 }
 
 // -----------------------------------------------------------------------------
@@ -297,6 +371,7 @@ model Store {
   reviews       StoreReview[]
   orders        Order[]
   quoteRequests QuoteRequest[]
+  offers        StoreOffer[]
 
   @@index([ownerId])
   @@index([slug])
@@ -497,9 +572,10 @@ model Coupon {
   createdAt      DateTime    @default(now())
   updatedAt      DateTime    @updatedAt
 
-  affiliate Affiliate?    @relation(fields: [affiliateId], references: [id], onDelete: SetNull)
-  usages    CouponUsage[]
-  orders    Order[]
+  affiliate     Affiliate?      @relation(fields: [affiliateId], references: [id], onDelete: SetNull)
+  usages        CouponUsage[]
+  orders        Order[]
+  subscriptions Subscription[]
 
   @@index([code])
   @@index([active, startsAt, expiresAt])
@@ -702,3 +778,20 @@ model PlacaCache {
   @@index([expiresAt])
   @@map("placa_cache")
 }
+
+// -----------------------------------------------------------------------------
+// Status e Circuit Breaker de APIs externas
+// -----------------------------------------------------------------------------
+model ApiServiceStatus {
+  id                String    @id @default(cuid())
+  serviceName       String    @unique // ex: "placa-api", "cep-api", "email-api"
+  isAvailable       Boolean   @default(true)
+  lastFailure       DateTime?
+  failureCount      Int       @default(0)
+  errorMessage      String?
+  autoDisabledUntil DateTime? // Tempo de bloqueio automático para cooldown
+  updatedAt         DateTime  @updatedAt
+
+  @@map("api_service_status")
+}
+

@@ -123,3 +123,54 @@ export async function sendLoginCodeEmail(to: string, name: string, code: string)
     html,
   });
 }
+
+export async function sendLimitExceededEmail(to: string, name: string, storeName: string) {
+  const html = `
+    <div style="font-family: Arial, sans-serif; max-width: 640px; margin: 0 auto; padding: 32px; background: #09090b; color: #f5f5f5; border-radius: 24px; border: 1px solid #27272a;">
+      <div style="text-align: center; margin-bottom: 24px;">
+        <div style="display: inline-block; padding: 10px 14px; border-radius: 999px; background: #ef4444; color: #ffffff; font-weight: 700;">Aviso de Limite Excedido</div>
+      </div>
+      <h1 style="color: #ef4444; margin-bottom: 12px; font-size: 28px; text-align: center;">Você está crescendo! 🚀</h1>
+      <p>Olá ${name},</p>
+      <p>A sua loja <strong>${storeName}</strong> acaba de atingir o limite máximo de peças permitido no seu plano atual.</p>
+      <p>Para continuar cadastrando novas peças e expandindo suas vendas na Agury Auto, é necessário realizar o upgrade do seu plano.</p>
+      <div style="margin: 28px 0; text-align: center;">
+        <a href="${env.NEXT_PUBLIC_APP_URL}/dashboard/assinatura" style="background: #f5b942; color: #18181b; padding: 12px 20px; text-decoration: none; border-radius: 999px; font-weight: bold;">Fazer Upgrade Agora</a>
+      </div>
+      <p style="font-size: 13px; color: #a1a1aa; text-align: center;">Nossa equipe de suporte está à disposição se precisar de ajuda para escolher o melhor plano para o seu tamanho.</p>
+    </div>
+  `;
+
+  return emailProvider.send({
+    to,
+    subject: \`Sua loja atingiu o limite de peças - Agury Auto\`,
+    html,
+  });
+}
+
+export async function sendOfferEmail(to: string, name: string, discount: number, validDays: number) {
+  const html = `
+    <div style="font-family: Arial, sans-serif; max-width: 640px; margin: 0 auto; padding: 32px; background: #09090b; color: #f5f5f5; border-radius: 24px; border: 1px solid #27272a;">
+      <div style="text-align: center; margin-bottom: 24px;">
+        <div style="display: inline-block; padding: 10px 14px; border-radius: 999px; background: #f5b942; color: #18181b; font-weight: 700;">Oferta Exclusiva Liberada</div>
+      </div>
+      <h1 style="color: #f5b942; margin-bottom: 12px; font-size: 28px; text-align: center;">Desconto Especial de ${discount}%!</h1>
+      <p>Olá ${name},</p>
+      <p>Nossa equipe liberou um desconto temporário exclusivo de <strong>${discount}%</strong> para a renovação ou upgrade da sua assinatura na Agury Auto!</p>
+      <div style="background: #18181b; padding: 20px; border-radius: 16px; margin: 20px 0; text-align: center; border: 1px solid #27272a;">
+        <p style="margin: 0; color: #a1a1aa; font-size: 14px;">Atenção</p>
+        <p style="margin: 10px 0 0 0; font-size: 20px; font-weight: bold; color: #f5b942;">Essa oferta expira em ${validDays} dias!</p>
+      </div>
+      <p>Não perca tempo. Acesse o seu painel de assinatura para garantir esse valor antes que o relógio zere.</p>
+      <div style="margin: 28px 0; text-align: center;">
+        <a href="${env.NEXT_PUBLIC_APP_URL}/dashboard/assinatura" style="background: #f5b942; color: #18181b; padding: 12px 20px; text-decoration: none; border-radius: 999px; font-weight: bold;">Resgatar Meu Desconto</a>
+      </div>
+    </div>
+  `;
+
+  return emailProvider.send({
+    to,
+    subject: \`Presente da Agury: ${discount}% de desconto liberado na sua conta!\`,
+    html,
+  });
+}

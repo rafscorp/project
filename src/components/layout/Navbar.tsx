@@ -10,16 +10,8 @@ export async function Navbar() {
   return (
     <header className="fixed inset-x-0 top-0 z-50 border-b border-slate-200 bg-white/80 backdrop-blur-xl">
       <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-4 sm:px-6">
-        <Link href="/" className="flex items-center gap-2.5 font-display text-lg font-bold text-slate-900">
-          <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-blue-600 text-white shadow-lg shadow-blue-600/20">
-            <Car className="h-5 w-5" />
-          </span>
-          <span className="flex items-center gap-2">
-            Agury Auto
-            <span className="rounded-full border border-blue-200 bg-blue-50 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-[0.2em] text-blue-700">
-              Premium
-            </span>
-          </span>
+        <Link href="/" className="flex items-center gap-2.5 font-display text-lg font-bold text-slate-900 overflow-hidden">
+          <img src="/images/logo-conectaparts-transparent.png" alt="ConectaParts" className="h-12 w-auto scale-125 rounded-[2rem] object-contain" />
         </Link>
 
         <nav className="hidden items-center gap-1 md:flex">

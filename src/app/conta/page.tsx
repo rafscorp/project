@@ -25,8 +25,8 @@ export default async function ContaDashboardPage() {
   return (
     <div className="space-y-8 animate-fade-in">
       <div>
-        <h1 className="font-display text-2xl font-bold text-white">Olá, {session.name.split(" ")[0]}!</h1>
-        <p className="text-zinc-400">Bem-vindo ao seu painel de controle.</p>
+        <h1 className="font-display text-2xl font-bold text-foreground">Olá, {session.name.split(" ")[0]}!</h1>
+        <p className="text-muted-foreground">Bem-vindo ao seu painel de controle.</p>
       </div>
 
       <div className="grid gap-4 sm:grid-cols-3">
@@ -49,28 +49,28 @@ export default async function ContaDashboardPage() {
 
       <div>
         <div className="flex items-center justify-between mb-4 mt-8">
-          <h2 className="font-display text-lg font-bold text-white">Últimos Pedidos</h2>
+          <h2 className="font-display text-lg font-bold text-foreground">Últimos Pedidos</h2>
           <Link href="/conta/pedidos">
             <Button variant="ghost" size="sm">Ver todos</Button>
           </Link>
         </div>
         
         {recentOrders.length === 0 ? (
-          <div className="rounded-xl border border-dashed border-zinc-800 p-8 text-center">
-            <p className="text-zinc-500">Você ainda não fez nenhum pedido.</p>
+          <div className="rounded-xl border border-dashed border-border-subtle p-8 text-center">
+            <p className="text-muted-foreground">Você ainda não fez nenhum pedido.</p>
           </div>
         ) : (
           <div className="space-y-3">
             {recentOrders.map(order => (
-              <div key={order.id} className="flex items-center justify-between p-4 rounded-xl border border-zinc-800 bg-zinc-900/50">
+              <div key={order.id} className="flex items-center justify-between p-4 rounded-xl border border-border-subtle bg-panel/50">
                 <div>
-                  <p className="font-medium text-white">{order.store.name}</p>
-                  <p className="text-xs text-zinc-500">
+                  <p className="font-medium text-foreground">{order.store.name}</p>
+                  <p className="text-xs text-muted-foreground">
                     {new Date(order.createdAt).toLocaleDateString("pt-BR")} • {order.orderNumber}
                   </p>
                 </div>
                 <div className="text-right">
-                  <p className="font-medium text-white">{formatCurrency(order.total)}</p>
+                  <p className="font-medium text-foreground">{formatCurrency(order.total)}</p>
                   <p className="text-xs text-amber-400">{order.status}</p>
                 </div>
               </div>

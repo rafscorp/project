@@ -21,8 +21,8 @@ export default async function AdminCuponsPage() {
     <div className="space-y-6 animate-fade-in">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="font-display text-2xl font-bold text-white">Cupons de Desconto</h1>
-          <p className="text-zinc-400">Gerencie cupons para assinaturas ou produtos</p>
+          <h1 className="font-display text-2xl font-bold text-foreground">Cupons de Desconto</h1>
+          <p className="text-muted-foreground">Gerencie cupons para assinaturas ou produtos</p>
         </div>
         <Button>Criar Cupom</Button>
       </div>

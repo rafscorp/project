@@ -151,8 +151,8 @@ export function MultiStepStoreRegister({ plans }: { plans: { slug: string; name:
         {/* PASSO 1: CONTA */}
         {step === 1 && (
           <motion.div key="step1" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }}>
-            <h2 className="text-3xl font-display font-bold text-white mb-2">Sua Conta</h2>
-            <p className="text-zinc-400 mb-8">Como vamos te chamar e como você fará login.</p>
+            <h2 className="text-3xl font-display font-bold text-foreground mb-2">Sua Conta</h2>
+            <p className="text-muted-foreground mb-8">Como vamos te chamar e como você fará login.</p>
             
             <div className="space-y-4">
               <Input label="Seu Nome" value={form.ownerName} onChange={e => update("ownerName", e.target.value)} required />
@@ -170,11 +170,11 @@ export function MultiStepStoreRegister({ plans }: { plans: { slug: string; name:
         {/* PASSO 2: VERIFICAÇÃO */}
         {step === 2 && (
           <motion.div key="step2" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }}>
-            <button onClick={prevStep} className="flex items-center text-zinc-500 hover:text-white mb-6 transition-colors">
+            <button onClick={prevStep} className="flex items-center text-muted-foreground hover:text-foreground mb-6 transition-colors">
               <ChevronLeft className="h-4 w-4 mr-1" /> Voltar
             </button>
-            <h2 className="text-3xl font-display font-bold text-white mb-2">Verifique seu e-mail</h2>
-            <p className="text-zinc-400 mb-8">Enviamos um código de 6 dígitos para <strong className="text-zinc-200">{form.ownerEmail}</strong>.</p>
+            <h2 className="text-3xl font-display font-bold text-foreground mb-2">Verifique seu e-mail</h2>
+            <p className="text-muted-foreground mb-8">Enviamos um código de 6 dígitos para <strong className="text-zinc-200">{form.ownerEmail}</strong>.</p>
             
             <div className="space-y-4">
               <Input 
@@ -195,11 +195,11 @@ export function MultiStepStoreRegister({ plans }: { plans: { slug: string; name:
         {/* PASSO 3: LOJA */}
         {step === 3 && (
           <motion.div key="step3" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }}>
-            <button onClick={prevStep} className="flex items-center text-zinc-500 hover:text-white mb-6 transition-colors">
+            <button onClick={prevStep} className="flex items-center text-muted-foreground hover:text-foreground mb-6 transition-colors">
               <ChevronLeft className="h-4 w-4 mr-1" /> Voltar
             </button>
-            <h2 className="text-3xl font-display font-bold text-white mb-2">Detalhes da Loja</h2>
-            <p className="text-zinc-400 mb-8">Apresente sua marca para o mercado.</p>
+            <h2 className="text-3xl font-display font-bold text-foreground mb-2">Detalhes da Loja</h2>
+            <p className="text-muted-foreground mb-8">Apresente sua marca para o mercado.</p>
             
             <div className="space-y-4">
               <Input label="CNPJ" value={form.cnpj} onChange={e => update("cnpj", e.target.value)} placeholder="00.000.000/0001-00" />
@@ -218,11 +218,11 @@ export function MultiStepStoreRegister({ plans }: { plans: { slug: string; name:
         {/* PASSO 4: ENDEREÇO */}
         {step === 4 && (
           <motion.div key="step4" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }}>
-            <button onClick={prevStep} className="flex items-center text-zinc-500 hover:text-white mb-6 transition-colors">
+            <button onClick={prevStep} className="flex items-center text-muted-foreground hover:text-foreground mb-6 transition-colors">
               <ChevronLeft className="h-4 w-4 mr-1" /> Voltar
             </button>
-            <h2 className="text-3xl font-display font-bold text-white mb-2">Localização</h2>
-            <p className="text-zinc-400 mb-8">Para os clientes conseguirem chegar até você ou calcular o frete.</p>
+            <h2 className="text-3xl font-display font-bold text-foreground mb-2">Localização</h2>
+            <p className="text-muted-foreground mb-8">Para os clientes conseguirem chegar até você ou calcular o frete.</p>
             
             <div className="space-y-4">
               <Input label="CEP" value={form.zipCode} onChange={e => update("zipCode", e.target.value)} onBlur={buscarCep} placeholder="00000-000" />
@@ -242,20 +242,20 @@ export function MultiStepStoreRegister({ plans }: { plans: { slug: string; name:
         {/* PASSO 5: PLANO E FINALIZAR */}
         {step === 5 && (
           <motion.div key="step5" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }}>
-            <button onClick={prevStep} className="flex items-center text-zinc-500 hover:text-white mb-6 transition-colors">
+            <button onClick={prevStep} className="flex items-center text-muted-foreground hover:text-foreground mb-6 transition-colors">
               <ChevronLeft className="h-4 w-4 mr-1" /> Voltar
             </button>
-            <h2 className="text-3xl font-display font-bold text-white mb-2">Quase lá!</h2>
-            <p className="text-zinc-400 mb-8">Confirme o plano escolhido para iniciar.</p>
+            <h2 className="text-3xl font-display font-bold text-foreground mb-2">Quase lá!</h2>
+            <p className="text-muted-foreground mb-8">Confirme o plano escolhido para iniciar.</p>
             
             <div className="space-y-4">
               <div className="grid gap-3">
                 {plans.map(p => (
-                  <label key={p.slug} className={`cursor-pointer rounded-2xl border p-5 transition-all ${form.planSlug === p.slug ? "border-violet-500 bg-violet-500/10 shadow-[0_0_20px_rgba(139,92,246,0.15)]" : "border-zinc-800 bg-zinc-900/50 hover:bg-zinc-800"}`}>
+                  <label key={p.slug} className={`cursor-pointer rounded-2xl border p-5 transition-all ${form.planSlug === p.slug ? "border-violet-500 bg-violet-500/10 shadow-[0_0_20px_rgba(139,92,246,0.15)]" : "border-border-subtle bg-panel/50 hover:bg-zinc-800"}`}>
                     <input type="radio" name="plan" value={p.slug} checked={form.planSlug === p.slug} onChange={() => update("planSlug", p.slug)} className="sr-only" />
                     <div className="flex justify-between items-center">
-                      <p className={`font-bold text-lg ${form.planSlug === p.slug ? "text-violet-400" : "text-zinc-300"}`}>{p.name}</p>
-                      <p className="text-zinc-400">R$ {p.priceMonthly}/mês</p>
+                      <p className={`font-bold text-lg ${form.planSlug === p.slug ? "text-violet-400" : "text-foreground/80"}`}>{p.name}</p>
+                      <p className="text-muted-foreground">R$ {p.priceMonthly}/mês</p>
                     </div>
                   </label>
                 ))}

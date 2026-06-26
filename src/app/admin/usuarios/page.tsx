@@ -24,8 +24,8 @@ export default async function AdminUsuariosPage() {
     <div className="space-y-6 animate-fade-in">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="font-display text-2xl font-bold text-white">Usuários</h1>
-          <p className="text-zinc-400">Gerencie os usuários da plataforma</p>
+          <h1 className="font-display text-2xl font-bold text-foreground">Usuários</h1>
+          <p className="text-muted-foreground">Gerencie os usuários da plataforma</p>
         </div>
       </div>
 
@@ -44,7 +44,7 @@ export default async function AdminUsuariosPage() {
           {users.map((user) => (
             <TableRow key={user.id}>
               <TableCell className="font-medium">{user.name}</TableCell>
-              <TableCell className="text-zinc-400">@{user.username}</TableCell>
+              <TableCell className="text-muted-foreground">@{user.username}</TableCell>
               <TableCell>{user.email}</TableCell>
               <TableCell>
                 <Badge variant={roleColors[user.role]}>{user.role.replace('_', ' ')}</Badge>

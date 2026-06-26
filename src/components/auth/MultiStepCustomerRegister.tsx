@@ -25,6 +25,10 @@ export function MultiStepCustomerRegister() {
   const [form, setForm] = useState<FormState>(initialForm);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  
+  // Termos Legais
+  const [termsAccepted, setTermsAccepted] = useState(false);
+  const [privacyAccepted, setPrivacyAccepted] = useState(false);
 
   const update = (field: keyof FormState, value: string) => {
     setForm(f => ({ ...f, [field]: value }));
@@ -100,8 +104,8 @@ export function MultiStepCustomerRegister() {
         {/* PASSO 1: DADOS */}
         {step === 1 && (
           <motion.div key="step1" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }}>
-            <h2 className="text-3xl font-display font-bold text-white mb-2">Criar Conta</h2>
-            <p className="text-zinc-400 mb-8">Encontre oficinas, gerencie seus veículos e histórico de manutenções.</p>
+            <h2 className="text-3xl font-display font-bold text-foreground mb-2">Criar Conta</h2>
+            <p className="text-muted-foreground mb-8">Encontre peças, gerencie seus veículos e histórico de compras.</p>
             
             <div className="space-y-4">
               <Input label="Seu Nome" value={form.name} onChange={e => update("name", e.target.value)} required />
@@ -109,7 +113,56 @@ export function MultiStepCustomerRegister() {
               <Input label="Telefone / WhatsApp (Opcional)" value={form.phone} onChange={e => update("phone", e.target.value)} />
               <Input label="Crie uma Senha" type="password" value={form.password} onChange={e => update("password", e.target.value)} required />
               
-              <Button size="lg" className="w-full mt-6 bg-blue-600 hover:bg-blue-500 text-white rounded-xl" loading={loading} onClick={handleSendCode}>
+              <fieldset className="space-y-4 pt-4 border-t border-border-subtle mt-4">
+                <legend className="mb-2 text-sm font-semibold uppercase tracking-wider text-blue-400">Documentos Legais</legend>
+                
+                <div className="bg-background/50 border border-zinc-700/50 rounded-xl p-4 h-40 overflow-y-auto text-xs text-muted-foreground font-mono space-y-4">
+                  <div>
+                    <h4 className="font-bold text-foreground text-sm mb-1">Termos de Uso - ConectaParts</h4>
+                    <p>1. A ConectaParts atua exclusivamente como uma plataforma de tecnologia (SaaS) e vitrine digital para lojas de autopeças.</p>
+                    <p>2. A ConectaParts NÃO comercializa peças, não realiza entregas, não é proprietária dos produtos oferecidos pelas lojas parceiras e não tem responsabilidade sobre a logística.</p>
+                    <p>3. Qualquer problema relacionado a defeitos de fabricação, garantia, entrega, logística ou estorno de pagamentos deve ser tratado diretamente entre o Cliente e a Loja de Autopeças (Lojista). A ConectaParts está integralmente isenta de responsabilidade sobre a relação de consumo.</p>
+                  </div>
+                  <div className="border-t border-zinc-800 pt-4">
+                    <h4 className="font-bold text-foreground text-sm mb-1">Política de Privacidade</h4>
+                    <p>1. Coletamos os dados estritamente necessários para o funcionamento da plataforma e criação da sua conta.</p>
+                    <p>2. Seus dados de contato (Nome, Telefone, E-mail) são compartilhados EXCLUSIVAMENTE com o Lojista do qual você realizou uma cotação ou compra, para que ele possa te atender. A ConectaParts não vende, aluga ou cede dados pessoais a terceiros.</p>
+                    <p>3. Conforme a LGPD, o usuário tem direito de solicitar a exclusão de sua conta a qualquer momento pelo painel de controle.</p>
+                  </div>
+                </div>
+
+                <div className="space-y-3 bg-zinc-900/50 p-4 rounded-xl border border-zinc-800">
+                  <label className="flex items-start gap-3 cursor-pointer">
+                    <div className="flex items-center h-5 mt-0.5">
+                      <input 
+                        type="checkbox" 
+                        className="w-5 h-5 rounded border-zinc-600 bg-zinc-800 text-blue-500 focus:ring-blue-500 transition-colors" 
+                        checked={termsAccepted}
+                        onChange={(e) => setTermsAccepted(e.target.checked)}
+                      />
+                    </div>
+                    <div className="text-sm font-medium text-foreground/90">
+                      Li e aceito os <strong>Termos de Uso</strong> da plataforma, compreendendo a isenção de responsabilidade da ConectaParts sobre peças e pagamentos.
+                    </div>
+                  </label>
+                  
+                  <label className="flex items-start gap-3 cursor-pointer">
+                    <div className="flex items-center h-5 mt-0.5">
+                      <input 
+                        type="checkbox" 
+                        className="w-5 h-5 rounded border-zinc-600 bg-zinc-800 text-blue-500 focus:ring-blue-500 transition-colors" 
+                        checked={privacyAccepted}
+                        onChange={(e) => setPrivacyAccepted(e.target.checked)}
+                      />
+                    </div>
+                    <div className="text-sm font-medium text-foreground/90">
+                      Li e aceito a <strong>Política de Privacidade</strong>.
+                    </div>
+                  </label>
+                </div>
+              </fieldset>
+
+              <Button size="lg" className="w-full mt-6 bg-blue-600 hover:bg-blue-500 text-white rounded-xl" loading={loading} onClick={handleSendCode} disabled={!termsAccepted || !privacyAccepted}>
                 Avançar <ArrowRight className="ml-2 h-4 w-4" />
               </Button>
             </div>
@@ -119,11 +172,11 @@ export function MultiStepCustomerRegister() {
         {/* PASSO 2: VERIFICAÇÃO */}
         {step === 2 && (
           <motion.div key="step2" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }}>
-            <button onClick={prevStep} className="flex items-center text-zinc-500 hover:text-white mb-6 transition-colors">
+            <button onClick={prevStep} className="flex items-center text-muted-foreground hover:text-foreground mb-6 transition-colors">
               <ChevronLeft className="h-4 w-4 mr-1" /> Voltar
             </button>
-            <h2 className="text-3xl font-display font-bold text-white mb-2">Verifique seu e-mail</h2>
-            <p className="text-zinc-400 mb-8">Enviamos um código de 6 dígitos para <strong className="text-zinc-200">{form.email}</strong>.</p>
+            <h2 className="text-3xl font-display font-bold text-foreground mb-2">Verifique seu e-mail</h2>
+            <p className="text-muted-foreground mb-8">Enviamos um código de 6 dígitos para <strong className="text-zinc-200">{form.email}</strong>.</p>
             
             <div className="space-y-4">
               <Input 

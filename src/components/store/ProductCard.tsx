@@ -24,7 +24,7 @@ interface ProductCardProps {
 
 export function ProductCard({ storeSlug, product, onAdd }: ProductCardProps) {
   return (
-    <article className="group flex flex-col h-full rounded-2xl border border-zinc-800 bg-zinc-900/50 p-5 transition hover:border-amber-400/30">
+    <article className="group flex flex-col h-full rounded-2xl border border-border-subtle bg-panel/50 p-5 transition hover:border-amber-400/30">
       <div className="mb-4 flex h-40 w-full items-center justify-center rounded-xl bg-zinc-800/50 overflow-hidden relative">
         {product.imageUrl ? (
           <img src={product.imageUrl} alt={product.name} className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-110" />
@@ -37,25 +37,25 @@ export function ProductCard({ storeSlug, product, onAdd }: ProductCardProps) {
       )}
       {product.condition && product.condition !== 'NEW' && (
         <span className={`mb-2 w-fit rounded-full px-2 py-0.5 text-xs font-semibold ${
-          product.condition === 'USED' ? 'bg-zinc-500/15 text-zinc-400' : 'bg-blue-500/15 text-blue-400'
+          product.condition === 'USED' ? 'bg-zinc-500/15 text-muted-foreground' : 'bg-blue-500/15 text-blue-400'
         }`}>
           {product.condition === 'USED' ? 'Usada' : 'Recondicionada'}
         </span>
       )}
       <Link href={`/loja/${storeSlug}/produto/${product.slug}`}>
-        <h3 className="font-display font-bold text-white group-hover:text-amber-400">{product.name}</h3>
+        <h3 className="font-display font-bold text-foreground group-hover:text-amber-400">{product.name}</h3>
       </Link>
       {product.description && (
-        <p className="mt-1 line-clamp-2 text-sm text-zinc-500">{product.description}</p>
+        <p className="mt-1 line-clamp-2 text-sm text-muted-foreground">{product.description}</p>
       )}
       <div className="mt-auto pt-4">
         <div className="flex items-baseline gap-2">
           <span className="font-display text-xl font-bold text-amber-400">{formatCurrency(product.price)}</span>
           {product.comparePrice && (
-            <span className="text-sm text-zinc-500 line-through">{formatCurrency(product.comparePrice)}</span>
+            <span className="text-sm text-muted-foreground line-through">{formatCurrency(product.comparePrice)}</span>
           )}
         </div>
-        <p className="mt-1 text-xs text-zinc-500">{product.stock} em estoque · Retirada na loja</p>
+        <p className="mt-1 text-xs text-muted-foreground">{product.stock} em estoque · Retirada na loja</p>
         <Button
           className="mt-3 w-full"
           size="sm"

@@ -18,8 +18,8 @@ export default async function AdminAuditoriaPage() {
     <div className="space-y-6 animate-fade-in">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="font-display text-2xl font-bold text-white">Logs de Auditoria</h1>
-          <p className="text-zinc-400">Rastreamento de todas as ações sensíveis no sistema</p>
+          <h1 className="font-display text-2xl font-bold text-foreground">Logs de Auditoria</h1>
+          <p className="text-muted-foreground">Rastreamento de todas as ações sensíveis no sistema</p>
         </div>
       </div>
 
@@ -36,17 +36,17 @@ export default async function AdminAuditoriaPage() {
         <TableBody>
           {logs.map((log) => (
             <TableRow key={log.id}>
-              <TableCell className="text-xs text-zinc-400 whitespace-nowrap">
+              <TableCell className="text-xs text-muted-foreground whitespace-nowrap">
                 {new Date(log.createdAt).toLocaleString("pt-BR")}
               </TableCell>
               <TableCell>
                 {log.user ? (
                   <div>
                     {log.user.name}
-                    <div className="text-xs text-zinc-500">{log.user.email}</div>
+                    <div className="text-xs text-muted-foreground">{log.user.email}</div>
                   </div>
                 ) : (
-                  <span className="text-zinc-500 italic">Sistema / Anônimo</span>
+                  <span className="text-muted-foreground italic">Sistema / Anônimo</span>
                 )}
               </TableCell>
               <TableCell>
@@ -56,14 +56,14 @@ export default async function AdminAuditoriaPage() {
               </TableCell>
               <TableCell>
                 {log.entity ? (
-                  <span className="text-xs font-mono text-zinc-300">
+                  <span className="text-xs font-mono text-foreground/80">
                     {log.entity} <span className="text-zinc-600">({log.entityId})</span>
                   </span>
                 ) : (
                   <span className="text-zinc-600">-</span>
                 )}
               </TableCell>
-              <TableCell className="text-xs font-mono text-zinc-500">
+              <TableCell className="text-xs font-mono text-muted-foreground">
                 {log.ipAddress || "-"}
               </TableCell>
             </TableRow>

@@ -23,8 +23,8 @@ export default async function CustomerQuotesPage() {
     <div className="space-y-8 max-w-4xl">
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
-          <h1 className="text-3xl font-display font-black text-white">Meus Orçamentos</h1>
-          <p className="text-zinc-400 mt-1">Acompanhe as respostas das lojas para as peças que você solicitou.</p>
+          <h1 className="text-3xl font-display font-black text-foreground">Meus Orçamentos</h1>
+          <p className="text-muted-foreground mt-1">Acompanhe as respostas das lojas para as peças que você solicitou.</p>
         </div>
       </div>
 

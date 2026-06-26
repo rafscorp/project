@@ -11,8 +11,8 @@ export default async function ProductsPage() {
 
   return (
     <div>
-      <h1 className="font-display text-2xl font-bold text-white">Produtos</h1>
-      <p className="mt-1 text-sm text-zinc-400">Gerencie o catálogo da sua loja online</p>
+      <h1 className="font-display text-2xl font-bold text-foreground">Produtos</h1>
+      <p className="mt-1 text-sm text-muted-foreground">Gerencie o catálogo da sua loja online</p>
       <div className="mt-6">
         <ProductsManager initialProducts={JSON.parse(JSON.stringify(products))} />
       </div>

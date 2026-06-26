@@ -52,10 +52,41 @@ export function LoginForm() {
 
       if (nextErrors.email || nextErrors.password) {
         setAlert({ type: "error", message: "Preencha os campos corretamente para entrar." });
+        
+        // Focus no primeiro campo com erro
+        if (nextErrors.email) {
+          document.getElementById('email')?.focus();
+        } else if (nextErrors.password) {
+          document.getElementById('password')?.focus();
+        }
+        
         return;
       }
 
       setLoading(true);
+      
+      // TODO: RE-ENABLE 2FA BEFORE PRODUCTION!
+      // Bypass temporário do 2FA para debug. Chamando direto o /api/auth/login normal.
+      const res = await fetch("/api/auth/login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email, password }),
+      });
+
+      const json = await res.json();
+      setLoading(false);
+
+      if (!json.success) {
+        setAlert({ type: "error", message: json.error || "E-mail ou senha incorretos." });
+        return;
+      }
+
+      setAlert({ type: "success", message: "Entrando..." });
+      router.push(json.data.redirect);
+      router.refresh();
+
+      // CÓDIGO ORIGINAL (DESABILITADO PARA DEBUG):
+      /*
       const res = await fetch("/api/auth/verify-credentials", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -74,9 +105,10 @@ export function LoginForm() {
       setAlert({ type: "success", message: "Código enviado para o seu e-mail!" });
       setStep(2);
       return;
+      */
     }
 
-    // Passo 2: Validar Código
+    // Passo 2: Validar Código (DESABILITADO PARA DEBUG)
     if (step === 2) {
       if (code.length !== 6) {
         setAlert({ type: "error", message: "O código deve ter 6 dígitos." });
@@ -115,8 +147,8 @@ export function LoginForm() {
       <form onSubmit={handleSubmit} className="space-y-4" noValidate>
         {step === 1 && (
           <div className="space-y-4 animate-in fade-in slide-in-from-bottom-2 duration-300">
-            <Input label="E-mail" type="email" value={email} onChange={(e) => updateField("email", e.target.value)} onBlur={() => setTouched((prev) => ({ ...prev, email: true }))} error={touched.email ? errors.email : undefined} successMessage={touched.email && !errors.email && email ? "E-mail válido" : undefined} required />
-            <Input label="Senha" type="password" value={password} onChange={(e) => updateField("password", e.target.value)} onBlur={() => setTouched((prev) => ({ ...prev, password: true }))} error={touched.password ? errors.password : undefined} successMessage={touched.password && !errors.password && password ? "Senha ok" : undefined} required />
+            <Input id="email" label="E-mail" type="email" value={email} onChange={(e) => updateField("email", e.target.value)} onBlur={() => setTouched((prev) => ({ ...prev, email: true }))} error={touched.email ? errors.email : undefined} required />
+            <Input id="password" label="Senha" type="password" value={password} onChange={(e) => updateField("password", e.target.value)} onBlur={() => setTouched((prev) => ({ ...prev, password: true }))} error={touched.password ? errors.password : undefined} required />
             <Button type="submit" className="w-full h-12 text-base font-bold bg-violet-600 hover:bg-violet-500 shadow-[0_0_20px_rgba(139,92,246,0.3)] btn-shimmer" loading={loading}>
               Continuar
             </Button>
@@ -135,7 +167,7 @@ export function LoginForm() {
               <div className="mx-auto w-12 h-12 bg-emerald-500/10 rounded-full flex items-center justify-center mb-3 ring-1 ring-emerald-500/30">
                 <span className="text-2xl">✉️</span>
               </div>
-              <p className="text-sm text-zinc-300">Digite o código de 6 dígitos que acabamos de enviar para <strong>{email}</strong>.</p>
+              <p className="text-sm text-foreground/80">Digite o código de 6 dígitos que acabamos de enviar para <strong>{email}</strong>.</p>
             </div>
             
             <Input label="Código de Acesso" value={code} onChange={(e) => setCode(e.target.value)} maxLength={6} placeholder="123456" autoFocus className="text-center text-2xl tracking-[0.5em] font-mono h-14" />
@@ -145,7 +177,7 @@ export function LoginForm() {
             </Button>
 
             <div className="mt-4 text-center">
-              <button type="button" onClick={() => { setStep(1); setCode(""); setAlert(null); }} className="text-sm text-zinc-500 hover:text-white transition-colors font-medium">
+              <button type="button" onClick={() => { setStep(1); setCode(""); setAlert(null); }} className="text-sm text-muted-foreground hover:text-foreground transition-colors font-medium">
                 Voltar e alterar e-mail
               </button>
             </div>

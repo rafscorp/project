@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 import prisma from "@/lib/db/prisma";
 import { checkRateLimit, getClientIp } from "@/lib/auth/rate-limiter";
+import { checkServiceStatus, recordSuccess, recordFailure } from "@/lib/security/circuit-breaker";
+
 
 // ─── Constantes ───────────────────────────────────────────────────────────────
 const CACHE_TTL_HOURS = 24;
@@ -79,6 +81,15 @@ export async function GET(
     const token = process.env.WDAPI_TOKEN?.trim();
 
     if (token) {
+      // Verifica o Circuit Breaker antes de consultar
+      const serviceStatus = await checkServiceStatus("placa-api");
+      if (!serviceStatus.available) {
+        return NextResponse.json(
+          { error: "SERVICE_UNAVAILABLE", message: "Função de pesquisa por placas indisponível" },
+          { status: 503 }
+        );
+      }
+
       const controller = new AbortController();
       const timer = setTimeout(() => controller.abort(), WDAPI_TIMEOUT_MS);
 
@@ -97,12 +108,27 @@ export async function GET(
         }
         if (res.status === 401 || res.status === 403) {
           console.error("[WDAPI] Token inválido ou sem créditos.");
+          await recordFailure("placa-api", "API token inválido ou sem créditos (401/403)", true);
           return NextResponse.json(
-            { error: "Serviço temporariamente indisponível. Tente novamente." },
+            { error: "SERVICE_UNAVAILABLE", message: "Função de pesquisa por placas indisponível" },
             { status: 503 }
           );
         }
-        if (!res.ok) throw new Error(`WDAPI status ${res.status}`);
+        if (res.status === 429) {
+          console.error("[WDAPI] Limite de requisições excedido.");
+          await recordFailure("placa-api", "Limite de requisições da API externa excedido (429)", true);
+          return NextResponse.json(
+            { error: "SERVICE_UNAVAILABLE", message: "Função de pesquisa por placas indisponível" },
+            { status: 503 }
+          );
+        }
+        if (!res.ok) {
+          await recordFailure("placa-api", `API respondeu com status ${res.status}`);
+          return NextResponse.json(
+            { error: "SERVICE_UNAVAILABLE", message: "Função de pesquisa por placas indisponível" },
+            { status: 503 }
+          );
+        }
 
         const raw = await res.json();
 
@@ -115,6 +141,9 @@ export async function GET(
         }
 
         const vehicle = normalizeVehicle(raw, cleanPlaca);
+
+        // Registra sucesso no circuit breaker
+        await recordSuccess("placa-api");
 
         // Salva no cache (fire-and-forget, sem bloquear a resposta)
         const expiresAt = new Date(Date.now() + CACHE_TTL_HOURS * 3600 * 1000);
@@ -131,13 +160,15 @@ export async function GET(
         });
       } catch (err: any) {
         clearTimeout(timer);
-        if (err.name === "AbortError") {
-          return NextResponse.json(
-            { error: "Timeout: serviço demorou para responder. Tente novamente." },
-            { status: 408 }
-          );
-        }
-        throw err;
+        const isTimeout = err.name === "AbortError";
+        const errorDetail = isTimeout ? "Timeout: serviço demorou para responder." : (err.message || "Erro de conexão.");
+        
+        await recordFailure("placa-api", `Erro ao consultar API externa: ${errorDetail}`);
+
+        return NextResponse.json(
+          { error: "SERVICE_UNAVAILABLE", message: "Função de pesquisa por placas indisponível" },
+          { status: 503 }
+        );
       }
     }
 

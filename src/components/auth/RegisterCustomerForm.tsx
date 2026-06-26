@@ -151,7 +151,7 @@ export function RegisterCustomerForm() {
         minLength={6}
       />
       <Button type="submit" className="w-full" loading={loading}>Criar conta</Button>
-      <p className="text-center text-sm text-zinc-500">
+      <p className="text-center text-sm text-muted-foreground">
         Já tem conta? <Link href="/login" className="text-amber-400">Entrar</Link>
       </p>
     </form>

@@ -72,18 +72,12 @@ function parseEnv() {
       "\n❌ Invalid environment variables:\n" + formatted + "\n"
     );
 
-    // In production, crash hard. In dev, warn but continue.
-    if (process.env.NODE_ENV === "production") {
-      throw new Error("Missing or invalid environment variables");
-    }
+    // CRITICAL SECURITY FIX: Never use hardcoded fallbacks for secrets.
+    // If the .env is missing or invalid, the app MUST crash to prevent security breaches.
+    throw new Error("Missing or invalid environment variables. Check the console for details.");
   }
 
-  return parsed.success ? parsed.data : (envSchema.parse({
-    ...process.env,
-    // Provide safe defaults to let dev continue
-    DATABASE_URL: process.env.DATABASE_URL || "postgresql://agury:agury123@localhost:5432/agury_platform?schema=public",
-    JWT_SECRET: process.env.JWT_SECRET || "agury-dev-secret-change-in-production-min-32-chars",
-  }));
+  return parsed.data;
 }
 
 export const env = parseEnv();

@@ -19,8 +19,8 @@ export default async function ContaNotificacoesPage() {
     <div className="space-y-6 animate-fade-in max-w-3xl">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="font-display text-2xl font-bold text-white">Notificações</h1>
-          <p className="text-zinc-400">Suas atualizações e alertas recentes</p>
+          <h1 className="font-display text-2xl font-bold text-foreground">Notificações</h1>
+          <p className="text-muted-foreground">Suas atualizações e alertas recentes</p>
         </div>
         <Button variant="outline" size="sm" className="gap-2">
           <CheckCircle2 className="w-4 h-4" /> Marcar todas como lidas
@@ -28,12 +28,12 @@ export default async function ContaNotificacoesPage() {
       </div>
 
       {notifications.length === 0 ? (
-        <div className="rounded-2xl border border-dashed border-zinc-800 p-12 text-center flex flex-col items-center">
+        <div className="rounded-2xl border border-dashed border-border-subtle p-12 text-center flex flex-col items-center">
           <div className="p-4 bg-zinc-800/50 rounded-full mb-4">
-            <Bell className="w-8 h-8 text-zinc-500" />
+            <Bell className="w-8 h-8 text-muted-foreground" />
           </div>
-          <p className="text-white font-medium">Nenhuma notificação</p>
-          <p className="text-sm text-zinc-500 mt-1">Você está em dia!</p>
+          <p className="text-foreground font-medium">Nenhuma notificação</p>
+          <p className="text-sm text-muted-foreground mt-1">Você está em dia!</p>
         </div>
       ) : (
         <div className="space-y-3">
@@ -41,8 +41,8 @@ export default async function ContaNotificacoesPage() {
             <div 
               key={n.id} 
               className={cn(
-                "p-4 rounded-xl border border-zinc-800 flex gap-4 items-start transition-colors",
-                n.read ? "bg-zinc-900/30 opacity-70" : "bg-zinc-900/80 shadow-lg border-zinc-700"
+                "p-4 rounded-xl border border-border-subtle flex gap-4 items-start transition-colors",
+                n.read ? "bg-panel/30 opacity-70" : "bg-panel/80 shadow-lg border-zinc-700"
               )}
             >
               <div className={cn(
@@ -56,14 +56,14 @@ export default async function ContaNotificacoesPage() {
               </div>
               <div className="flex-1">
                 <div className="flex justify-between items-start">
-                  <h3 className={cn("font-medium", n.read ? "text-zinc-300" : "text-white")}>
+                  <h3 className={cn("font-medium", n.read ? "text-foreground/80" : "text-white")}>
                     {n.title}
                   </h3>
-                  <span className="text-xs text-zinc-500 whitespace-nowrap ml-4">
+                  <span className="text-xs text-muted-foreground whitespace-nowrap ml-4">
                     {new Date(n.createdAt).toLocaleDateString("pt-BR")}
                   </span>
                 </div>
-                <p className="text-sm text-zinc-400 mt-1">{n.message}</p>
+                <p className="text-sm text-muted-foreground mt-1">{n.message}</p>
                 {!n.read && (
                   <button className="text-xs text-amber-400 hover:text-amber-300 mt-2 font-medium">
                     Marcar como lida

@@ -58,16 +58,16 @@ export function LocationFilter() {
   }
 
   return (
-    <div className="mb-8 p-5 bg-zinc-950/50 rounded-2xl border border-white/5 relative overflow-hidden">
+    <div className="mb-8 p-5 bg-background/50 rounded-2xl border border-border-subtle relative overflow-hidden">
       {/* Glow Effect */}
       <div className="absolute inset-0 bg-gradient-to-br from-violet-500/5 to-transparent pointer-events-none" />
       
       <div className="relative z-10">
-        <h4 className="font-bold text-zinc-300 mb-2 flex items-center gap-2">
+        <h4 className="font-bold text-foreground/80 mb-2 flex items-center gap-2">
           <MapPin className="h-4 w-4 text-violet-400" />
           Proximidade
         </h4>
-        <p className="text-zinc-500 text-xs mb-4">
+        <p className="text-muted-foreground text-xs mb-4">
           Habilite o GPS para ver as lojas mais próximas a você.
         </p>
 

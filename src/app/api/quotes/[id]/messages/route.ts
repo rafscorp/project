@@ -16,12 +16,6 @@ export async function GET(
 
     const quote = await prisma.quoteRequest.findUnique({
       where: { id: quoteId },
-      include: {
-        messages: {
-          orderBy: { createdAt: "asc" },
-          include: { sender: { select: { id: true, name: true, role: true } } },
-        },
-      },
     });
 
     if (!quote) return NextResponse.json({ error: "Orçamento não encontrado" }, { status: 404 });
@@ -34,7 +28,24 @@ export async function GET(
       return NextResponse.json({ error: "Acesso negado" }, { status: 403 });
     }
 
-    return NextResponse.json(quote.messages);
+    // Marca as mensagens enviadas pela OUTRA parte como lidas
+    await prisma.quoteMessage.updateMany({
+      where: {
+        quoteRequestId: quoteId,
+        senderId: { not: session.userId },
+        isRead: false
+      },
+      data: { isRead: true }
+    });
+
+    // Busca as mensagens atualizadas
+    const messages = await prisma.quoteMessage.findMany({
+      where: { quoteRequestId: quoteId },
+      orderBy: { createdAt: "asc" },
+      include: { sender: { select: { id: true, name: true, role: true } } },
+    });
+
+    return NextResponse.json(messages);
   } catch (error) {
     console.error("GET /api/quotes/[id]/messages ERROR", error);
     return NextResponse.json({ error: "Erro interno" }, { status: 500 });

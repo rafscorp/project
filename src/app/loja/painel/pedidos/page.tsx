@@ -11,8 +11,8 @@ export default async function OrdersPage() {
 
   return (
     <div>
-      <h1 className="font-display text-2xl font-bold text-white">Pedidos</h1>
-      <p className="mt-1 text-sm text-zinc-400">Gerencie pedidos e códigos de retirada</p>
+      <h1 className="font-display text-2xl font-bold text-foreground">Pedidos</h1>
+      <p className="mt-1 text-sm text-muted-foreground">Gerencie pedidos e códigos de retirada</p>
       <div className="mt-6">
         <OrdersManager initialOrders={JSON.parse(JSON.stringify(orders))} />
       </div>

@@ -68,35 +68,35 @@ export function CheckoutPageClient({
   // SUCCESS SCREEN
   if (order) {
     return (
-      <div className="min-h-screen bg-zinc-950">
+      <div className="min-h-screen bg-background">
         <div className="fixed inset-0 z-0 bg-grid-dark opacity-20 pointer-events-none" />
         <StoreHeader store={store} />
         <main className="relative z-10 mx-auto max-w-lg px-4 py-16 sm:px-6">
-          <div className="glass-panel rounded-[2rem] border border-emerald-500/20 bg-zinc-900/60 p-10 text-center">
+          <div className="glass-panel rounded-[2rem] border border-emerald-500/20 bg-panel/60 p-10 text-center">
             <div className="w-20 h-20 rounded-3xl bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center mx-auto mb-6">
               <CheckCircle2 className="h-10 w-10 text-emerald-400" />
             </div>
-            <h1 className="font-display text-3xl font-black text-white mb-2">Agendamento Confirmado!</h1>
-            <p className="text-zinc-400 mb-2">Pedido <strong className="text-white font-mono">{order.orderNumber}</strong></p>
-            <p className="text-zinc-500 text-sm mb-8">A loja foi notificada e entrará em contato para confirmar a disponibilidade.</p>
+            <h1 className="font-display text-3xl font-black text-foreground mb-2">Agendamento Confirmado!</h1>
+            <p className="text-muted-foreground mb-2">Pedido <strong className="text-foreground font-mono">{order.orderNumber}</strong></p>
+            <p className="text-muted-foreground text-sm mb-8">A loja foi notificada e entrará em contato para confirmar a disponibilidade.</p>
 
             <div className="bg-amber-500/10 border border-amber-500/30 rounded-2xl p-6 mb-8">
               <p className="text-xs font-bold text-amber-400 uppercase tracking-widest mb-3">Seu Código de Retirada</p>
               <p className="font-display text-5xl font-black tracking-[0.3em] text-amber-400 mb-4">{order.pickupCode}</p>
               <button
                 onClick={copyCode}
-                className="flex items-center gap-2 mx-auto text-sm font-medium text-zinc-400 hover:text-white transition-colors bg-zinc-900/50 px-4 py-2 rounded-xl border border-white/5"
+                className="flex items-center gap-2 mx-auto text-sm font-medium text-muted-foreground hover:text-foreground transition-colors bg-panel/50 px-4 py-2 rounded-xl border border-border-subtle"
               >
                 <Copy className="h-4 w-4" /> {copied ? 'Copiado!' : 'Copiar código'}
               </button>
             </div>
 
-            <div className="flex items-start gap-3 bg-zinc-950/50 rounded-2xl p-4 border border-white/5 text-left mb-8">
-              <MapPin className="h-5 w-5 text-zinc-500 mt-0.5 shrink-0" />
+            <div className="flex items-start gap-3 bg-background/50 rounded-2xl p-4 border border-border-subtle text-left mb-8">
+              <MapPin className="h-5 w-5 text-muted-foreground mt-0.5 shrink-0" />
               <div>
-                <p className="text-sm font-bold text-white">{store.name}</p>
-                <p className="text-xs text-zinc-500">{store.address} — {store.city}/{store.state}</p>
-                <p className="text-xs text-zinc-500 mt-1">Tel: {store.phone}</p>
+                <p className="text-sm font-bold text-foreground">{store.name}</p>
+                <p className="text-xs text-muted-foreground">{store.address} — {store.city}/{store.state}</p>
+                <p className="text-xs text-muted-foreground mt-1">Tel: {store.phone}</p>
               </div>
             </div>
 
@@ -115,27 +115,27 @@ export function CheckoutPageClient({
 
   // CHECKOUT FORM
   return (
-    <div className="min-h-screen bg-zinc-950">
+    <div className="min-h-screen bg-background">
       <div className="fixed inset-0 z-0 bg-grid-dark opacity-20 pointer-events-none" />
       <StoreHeader store={store} />
       <main className="relative z-10 mx-auto max-w-5xl px-4 py-10 sm:px-6">
         <div className="flex items-center gap-4 mb-10">
-          <Link href={`/loja/${store.slug}/carrinho`} className="p-2 rounded-xl bg-zinc-900 border border-white/5 text-zinc-400 hover:text-white transition-colors">
+          <Link href={`/loja/${store.slug}/carrinho`} className="p-2 rounded-xl bg-panel border border-border-subtle text-muted-foreground hover:text-foreground transition-colors">
             <ArrowLeft className="h-5 w-5" />
           </Link>
           <div>
-            <h1 className="font-display text-3xl font-black text-white">Finalizar Agendamento</h1>
-            <p className="text-zinc-400 text-sm mt-1">Confirme seus dados e reserve as peças em {store.name}</p>
+            <h1 className="font-display text-3xl font-black text-foreground">Finalizar Agendamento</h1>
+            <p className="text-muted-foreground text-sm mt-1">Confirme seus dados e reserve as peças em {store.name}</p>
           </div>
         </div>
 
         <div className="grid lg:grid-cols-5 gap-8">
           {/* Form */}
           <div className="lg:col-span-3">
-            <div className="glass-panel rounded-[2rem] border border-white/5 bg-zinc-900/40 overflow-hidden">
-              <div className="p-6 border-b border-white/5">
-                <h2 className="font-bold text-white text-lg">Seus Dados de Contato</h2>
-                <p className="text-sm text-zinc-400 mt-1">Para a loja entrar em contato sobre sua reserva</p>
+            <div className="glass-panel rounded-[2rem] border border-border-subtle bg-panel/40 overflow-hidden">
+              <div className="p-6 border-b border-border-subtle">
+                <h2 className="font-bold text-foreground text-lg">Seus Dados de Contato</h2>
+                <p className="text-sm text-muted-foreground mt-1">Para a loja entrar em contato sobre sua reserva</p>
               </div>
               <form id="checkout-form" onSubmit={handleSubmit} className="p-6 space-y-5">
                 {error && (
@@ -168,9 +168,9 @@ export function CheckoutPageClient({
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-bold text-zinc-300 mb-2">Observações (Opcional)</label>
+                  <label className="block text-sm font-bold text-foreground/80 mb-2">Observações (Opcional)</label>
                   <textarea
-                    className="w-full bg-zinc-950 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:ring-2 focus:ring-amber-500/50 focus:border-transparent transition-all resize-none"
+                    className="w-full bg-background border border-border-subtle rounded-xl px-4 py-3 text-foreground focus:outline-none focus:ring-2 focus:ring-amber-500/50 focus:border-transparent transition-all resize-none"
                     rows={3}
                     placeholder="Informações adicionais para a loja..."
                     value={form.notes}
@@ -183,35 +183,35 @@ export function CheckoutPageClient({
 
           {/* Order Summary */}
           <div className="lg:col-span-2">
-            <div className="glass-panel rounded-[2rem] border border-white/5 bg-zinc-900/40 overflow-hidden sticky top-24">
-              <div className="p-6 border-b border-white/5">
-                <h2 className="font-bold text-white text-lg">Resumo do Pedido</h2>
+            <div className="glass-panel rounded-[2rem] border border-border-subtle bg-panel/40 overflow-hidden sticky top-24">
+              <div className="p-6 border-b border-border-subtle">
+                <h2 className="font-bold text-foreground text-lg">Resumo do Pedido</h2>
               </div>
-              <ul className="divide-y divide-white/5 max-h-64 overflow-y-auto">
+              <ul className="divide-y divide-border-subtle max-h-64 overflow-y-auto">
                 {items.map((item) => (
                   <li key={item.productId} className="flex items-center gap-3 p-4">
-                    <div className="w-9 h-9 rounded-lg bg-zinc-900 border border-white/5 flex items-center justify-center shrink-0">
-                      <Package className="h-4 w-4 text-zinc-500" />
+                    <div className="w-9 h-9 rounded-lg bg-panel border border-border-subtle flex items-center justify-center shrink-0">
+                      <Package className="h-4 w-4 text-muted-foreground" />
                     </div>
                     <div className="flex-1 min-w-0">
-                      <p className="text-sm font-medium text-white truncate">{item.name}</p>
-                      <p className="text-xs text-zinc-500">{item.quantity}x {formatCurrency(item.price)}</p>
+                      <p className="text-sm font-medium text-foreground truncate">{item.name}</p>
+                      <p className="text-xs text-muted-foreground">{item.quantity}x {formatCurrency(item.price)}</p>
                     </div>
-                    <span className="text-sm font-bold text-white shrink-0">{formatCurrency(item.price * item.quantity)}</span>
+                    <span className="text-sm font-bold text-foreground shrink-0">{formatCurrency(item.price * item.quantity)}</span>
                   </li>
                 ))}
               </ul>
-              <div className="p-6 border-t border-white/5 space-y-4">
-                <div className="flex justify-between text-zinc-400">
+              <div className="p-6 border-t border-border-subtle space-y-4">
+                <div className="flex justify-between text-muted-foreground">
                   <span>Subtotal ({count} itens)</span>
-                  <span className="text-white font-medium">{formatCurrency(total)}</span>
+                  <span className="text-foreground font-medium">{formatCurrency(total)}</span>
                 </div>
-                <div className="flex justify-between text-zinc-400">
+                <div className="flex justify-between text-muted-foreground">
                   <span>Frete</span>
                   <span className="text-emerald-400 font-bold">Retirada Grátis</span>
                 </div>
-                <div className="border-t border-white/10 pt-4 flex justify-between text-xl font-black">
-                  <span className="text-white">Total</span>
+                <div className="border-t border-border-subtle pt-4 flex justify-between text-xl font-black">
+                  <span className="text-foreground">Total</span>
                   <span className="text-amber-400">{formatCurrency(total)}</span>
                 </div>
                 <Button

@@ -178,6 +178,90 @@ async function main() {
   console.log("✓ Cliente:", customer.email, "| senha: cliente123");
 
   console.log("\n✅ Seed concluído!\n");
+
+  // CRIANDO MAIS LOJAS DEMO PARA TESTE DO CARROSSEL
+  const store2 = await prisma.store.upsert({
+    where: { slug: "motor-power" },
+    update: {},
+    create: {
+      slug: "motor-power",
+      name: "Motor Power Auto Peças",
+      legalName: "Motor Power Auto Peças LTDA",
+      cnpj: "22.333.444/0001-99",
+      description: "A maior variedade de peças para o seu motor. Entrega rápida!",
+      phone: "(19) 3333-4444",
+      email: "contato@motorpower.com",
+      address: "Av. Brasil, 500",
+      city: "Campinas",
+      state: "SP",
+      zipCode: "13000-000",
+      ownerId: storeOwner.id,
+      averageRating: 4.8,
+      totalReviews: 85
+    },
+  });
+
+  const store3 = await prisma.store.upsert({
+    where: { slug: "turbo-garage" },
+    update: {},
+    create: {
+      slug: "turbo-garage",
+      name: "Turbo Custom Garage",
+      legalName: "Turbo Custom Garage Automotivo",
+      cnpj: "55.666.777/0001-88",
+      description: "Especializada em performance, remap e preparação de motores.",
+      phone: "(31) 4444-5555",
+      email: "oficina@turbogarage.com.br",
+      address: "Rua das Turbinas, 100",
+      city: "Belo Horizonte",
+      state: "MG",
+      zipCode: "30000-000",
+      ownerId: storeOwner.id,
+      averageRating: 4.9,
+      totalReviews: 120
+    },
+  });
+
+  // Criar reviews para as novas lojas (para aparecer no carrossel)
+  await prisma.storeReview.upsert({
+    where: { storeId_userId: { storeId: store2.id, userId: customer.id } },
+    update: {},
+    create: {
+      storeId: store2.id,
+      userId: customer.id,
+      rating: 5,
+      comment: "Comprei peças para o motor e chegou super rápido. Atendimento excelente, loja muito confiável!",
+    }
+  });
+
+  await prisma.storeReview.upsert({
+    where: { storeId_userId: { storeId: store3.id, userId: customer.id } },
+    update: {},
+    create: {
+      storeId: store3.id,
+      userId: customer.id,
+      rating: 5,
+      comment: "O remap ficou animal! O carro tá voando, recomendo de olhos fechados pra quem curte performance.",
+    }
+  });
+  
+  await prisma.storeReview.upsert({
+    where: { storeId_userId: { storeId: store.id, userId: customer.id } },
+    update: {},
+    create: {
+      storeId: store.id,
+      userId: customer.id,
+      rating: 5,
+      comment: "Oficina impecável! Melhor polimento que já vi em São Paulo.",
+    }
+  });
+
+  // Atualizar a loja principal para ter a rating computada
+  await prisma.store.update({
+    where: { id: store.id },
+    data: { averageRating: 5.0, totalReviews: 1 }
+  });
+
   console.log("Contas de teste:");
   console.log("  Admin:    admin@agury.com.br / admin123");
   console.log("  Lojista:  loja@agurydemo.com.br / loja123");
