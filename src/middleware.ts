@@ -109,7 +109,7 @@ export async function middleware(request: NextRequest) {
   }
 
   // ─── 6. Proteção de Rotas Privadas (RBAC) ────────────────────────────────
-  const protectedPrefixes = ["/dashboard", "/admin", "/cliente/home", "/conta"];
+  const protectedPrefixes = ["/dashboard", "/admin", "/cliente", "/conta"];
   const isProtected = protectedPrefixes.some((p) => pathname.startsWith(p));
 
   if (isProtected) {

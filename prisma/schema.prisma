@@ -119,6 +119,8 @@ enum AuditAction {
   AFFILIATE_PAYOUT
   SESSION_REVOKE
   ADMIN_ACTION
+  PLACA_QUERY
+  PLACA_PURCHASE
 }
 
 // -----------------------------------------------------------------------------
@@ -141,6 +143,10 @@ model User {
   createdAt          DateTime  @default(now())
   updatedAt          DateTime  @updatedAt
 
+  // Consulta de Placas
+  placaFreeUsed      Int       @default(0)  // Consultas gratuitas usadas (limite: 10)
+  placaCredits       Int       @default(0)  // Créditos pagos disponíveis
+
   // 2FA (TOTP via Google Authenticator / Authy)
   // twoFactorSecret é salvo AES-256-GCM encriptado (formato: iv:tag:ciphertext)
   twoFactorEnabled    Boolean   @default(false)
@@ -161,6 +167,7 @@ model User {
   storeReviews        StoreReview[]
   orders              Order[]
   vehicles            Vehicle[]            // Garagem Virtual
+  placaPurchases      PlacaQueryPurchase[]
 
   @@index([email])
   @@index([username])
@@ -794,4 +801,49 @@ model ApiServiceStatus {
 
   @@map("api_service_status")
 }
+
+// -----------------------------------------------------------------------------
+// Planos de Consulta de Placas (Usuário final paga via PIX)
+// -----------------------------------------------------------------------------
+
+model PlacaQueryPlan {
+  id          String   @id @default(cuid())
+  name        String   // Ex: "Consulta Placas"
+  slug        String   @unique // Ex: "consulta-placas"
+  description String?
+  price       Float    // Ex: 4.40
+  credits     Int      // Ex: 20 consultas
+  active      Boolean  @default(true)
+  sortOrder   Int      @default(0)
+  features    Json     @default("[]")
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  purchases PlacaQueryPurchase[]
+
+  @@map("placa_query_plans")
+}
+
+model PlacaQueryPurchase {
+  id            String        @id @default(cuid())
+  userId        String
+  planId        String
+  creditsAdded  Int           // Quantos créditos comprou
+  amountPaid    Float         // Valor pago
+  paymentStatus PaymentStatus @default(PENDING)
+  pixQrCode     String?       @db.Text // QR Code base64
+  pixCopiaECola String?       @db.Text // Chave PIX copia e cola
+  mpPaymentId   String?       // ID do pagamento no MP
+  paidAt        DateTime?
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @updatedAt
+
+  user User           @relation(fields: [userId], references: [id], onDelete: Cascade)
+  plan PlacaQueryPlan @relation(fields: [planId], references: [id])
+
+  @@index([userId])
+  @@index([mpPaymentId])
+  @@map("placa_query_purchases")
+}
+
 

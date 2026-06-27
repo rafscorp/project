@@ -1,6 +1,6 @@
 import prisma from "@/lib/db/prisma";
 import Link from "next/link";
-import { Store, ArrowRight, CheckCircle2, ChevronLeft } from "lucide-react";
+import { Store, ArrowRight, CheckCircle2, ChevronLeft, Search } from "lucide-react";
 import { getSession } from "@/lib/auth/session";
 import { BackButton } from "@/components/BackButton";
 
@@ -10,6 +10,11 @@ export default async function PlanosPage() {
   const session = await getSession();
 
   const plans = await prisma.subscriptionPlan.findMany({
+    where: { active: true },
+    orderBy: { sortOrder: 'asc' }
+  });
+
+  const placaPlans = await prisma.placaQueryPlan.findMany({
     where: { active: true },
     orderBy: { sortOrder: 'asc' }
   });
@@ -188,6 +193,61 @@ export default async function PlanosPage() {
             );
           })}
         </div>
+
+        {/* SECÇÃO PARA USUÁRIOS FINAIS */}
+        {placaPlans.length > 0 && (
+          <div className="mt-32 text-center max-w-4xl mx-auto">
+            <div className="mb-4 inline-flex items-center gap-2 rounded-full border border-blue-500/50 bg-blue-500/10 px-5 py-2 text-sm font-bold text-blue-500">
+              <Search className="h-4 w-4" /> Para Motoristas e Entusiastas
+            </div>
+            <h2 className="font-display text-3xl font-extrabold tracking-tight sm:text-4xl text-foreground mb-4">
+              Consulte todo o histórico do veículo
+            </h2>
+            <p className="text-lg text-foreground/80 font-medium mb-12">
+              Basta a placa para ter acesso completo a Chassi, Motor, Renavam e pendências.
+            </p>
+
+            <div className="grid gap-8 sm:grid-cols-2 lg:grid-cols-2 max-w-3xl mx-auto items-center justify-center">
+              {placaPlans.map((plan) => {
+                const featuresArray = Array.isArray(plan.features) 
+                  ? plan.features 
+                  : typeof plan.features === 'string' 
+                    ? JSON.parse(plan.features) 
+                    : [];
+
+                return (
+                  <div key={plan.id} className="relative glass-panel bg-panel/60 rounded-[2rem] p-8 border border-border-subtle hover:border-blue-500/50 hover:bg-blue-900/10 transition-all flex flex-col h-full text-left mx-auto w-full">
+                    <h3 className="text-2xl font-black text-blue-400">{plan.name}</h3>
+                    <div className="mt-4 flex flex-col">
+                      <div className="flex items-baseline text-5xl font-black text-foreground">
+                        <span className="text-2xl text-muted-foreground mr-1">R$</span>
+                        {plan.price.toFixed(2).replace('.', ',')}
+                      </div>
+                      <span className="text-sm font-medium text-muted-foreground mt-1">
+                        Pagamento único via PIX
+                      </span>
+                    </div>
+                    <p className="mt-4 text-foreground/80 font-medium">{plan.description}</p>
+                    <ul className="mt-6 space-y-3 mb-8 flex-1">
+                      {featuresArray.map((feat: string, i: number) => (
+                        <li key={i} className="flex items-start text-foreground/90 font-medium">
+                          <CheckCircle2 className="h-5 w-5 text-blue-400 shrink-0 mr-3 mt-0.5" />
+                          <span>{feat}</span>
+                        </li>
+                      ))}
+                    </ul>
+                    <Link 
+                      href={session ? "/cliente/garagem" : `/login?callbackUrl=/cliente/garagem`}
+                      className="w-full flex items-center justify-center h-14 bg-blue-600 hover:bg-blue-500 text-white font-bold text-lg rounded-xl transition-colors"
+                    >
+                      {session ? "Ir para Garagem" : "Criar conta e comprar"}
+                    </Link>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );

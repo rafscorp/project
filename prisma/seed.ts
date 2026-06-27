@@ -179,6 +179,22 @@ async function main() {
 
   console.log("\n✅ Seed concluído!\n");
 
+  // Plano de Consultas avulso (Usuários)
+  const consultaPlan = await prisma.placaQueryPlan.upsert({
+    where: { slug: "consulta-placas" },
+    update: {},
+    create: {
+      name: "Consulta Placas",
+      slug: "consulta-placas",
+      description: "Pacote de 20 consultas de placas na base nacional.",
+      price: 4.40,
+      credits: 20,
+      features: JSON.stringify(["Consulta nacional instantânea", "Descubra Chassi e Motor", "Adicione os veículos na garagem"]),
+      sortOrder: 1,
+    },
+  });
+  console.log("✓ Plano Consulta:", consultaPlan.name, `- R$ ${consultaPlan.price.toFixed(2)} por ${consultaPlan.credits} créditos`);
+
   // CRIANDO MAIS LOJAS DEMO PARA TESTE DO CARROSSEL
   const store2 = await prisma.store.upsert({
     where: { slug: "motor-power" },

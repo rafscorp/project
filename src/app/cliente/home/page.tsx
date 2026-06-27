@@ -1,8 +1,15 @@
 import Link from "next/link";
 import { CarFront, Store, MapPin, Search, User, LogOut } from "lucide-react";
 import { ThemeToggle } from "@/components/ThemeToggle";
+import { getSession } from "@/lib/auth/session";
+import { redirect } from "next/navigation";
 
-export default function CustomerDashboard() {
+export default async function CustomerDashboard() {
+  const session = await getSession();
+  if (!session) redirect("/login");
+  
+  const userName = session.name.split(" ")[0];
+
   return (
     <div className="min-h-screen bg-background text-zinc-100 flex flex-col">
       <div className="fixed inset-0 z-0 bg-mesh-dark pointer-events-none" />
@@ -33,7 +40,7 @@ export default function CustomerDashboard() {
 
       <main className="relative z-10 flex-1 max-w-7xl mx-auto w-full p-4 sm:p-8 space-y-8 mt-8">
         <div>
-          <h1 className="text-4xl font-display font-black text-foreground">Olá, Cliente!</h1>
+          <h1 className="text-4xl font-display font-black text-foreground">Olá, {userName}!</h1>
           <p className="text-muted-foreground mt-2 text-lg">O que seu veículo precisa hoje?</p>
         </div>
 
@@ -61,13 +68,15 @@ export default function CustomerDashboard() {
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 pt-8">
-          <div className="glass-panel p-8 rounded-3xl border border-border-subtle bg-panel/40 hover:bg-panel/80 transition-colors group cursor-pointer">
-            <div className="w-14 h-14 rounded-2xl bg-zinc-800 border border-border-subtle flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
-              <CarFront className="h-7 w-7 text-blue-400" />
+          <Link href="/cliente/garagem" className="block group">
+            <div className="glass-panel p-8 rounded-3xl border border-border-subtle bg-panel/40 hover:bg-panel/80 transition-colors h-full">
+              <div className="w-14 h-14 rounded-2xl bg-zinc-800 border border-border-subtle flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
+                <CarFront className="h-7 w-7 text-blue-400" />
+              </div>
+              <h3 className="text-2xl font-bold text-foreground mb-2">Minha Garagem</h3>
+              <p className="text-muted-foreground">Cadastre seus carros e consulte as placas para achar peças compatíveis automaticamente.</p>
             </div>
-            <h3 className="text-2xl font-bold text-foreground mb-2">Meus Veículos</h3>
-            <p className="text-muted-foreground">Cadastre seus carros para achar peças compatíveis automaticamente.</p>
-          </div>
+          </Link>
 
           <Link href="/lojas" className="block group">
             <div className="glass-panel p-8 rounded-3xl border border-border-subtle bg-panel/40 hover:bg-panel/80 transition-colors h-full">

@@ -2,7 +2,8 @@ import { NextRequest, NextResponse } from "next/server";
 import prisma from "@/lib/db/prisma";
 import { checkRateLimit, getClientIp } from "@/lib/auth/rate-limiter";
 import { checkServiceStatus, recordSuccess, recordFailure } from "@/lib/security/circuit-breaker";
-
+import { getSession } from "@/lib/auth/session";
+import { checkPlacaCredits, debitPlacaCredit } from "@/lib/placa/credits";
 
 // ─── Constantes ───────────────────────────────────────────────────────────────
 const CACHE_TTL_HOURS = 24;
@@ -40,6 +41,27 @@ export async function GET(
       return NextResponse.json(
         { error: "Placa inválida. Verifique o formato: ABC1234 (antiga) ou ABC1D23 (Mercosul)." },
         { status: 400 }
+      );
+    }
+
+    // 1.5. Verificar Sessão e Créditos
+    const session = await getSession();
+    if (!session) {
+      return NextResponse.json(
+        { error: "Faça login para realizar consultas de placa." },
+        { status: 401 }
+      );
+    }
+
+    const creditStatus = await checkPlacaCredits(session.userId);
+    if (!creditStatus.allowed) {
+      return NextResponse.json(
+        { 
+          error: "Créditos insuficientes.", 
+          code: "NO_CREDITS", 
+          requiresPlan: true 
+        },
+        { status: 402 }
       );
     }
 
@@ -145,6 +167,9 @@ export async function GET(
         // Registra sucesso no circuit breaker
         await recordSuccess("placa-api");
 
+        // Debita o crédito do usuário (somente se consultou a API externa de fato)
+        await debitPlacaCredit(session.userId, creditStatus.isFreeQuota!);
+
         // Salva no cache (fire-and-forget, sem bloquear a resposta)
         const expiresAt = new Date(Date.now() + CACHE_TTL_HOURS * 3600 * 1000);
         prisma.placaCache
@@ -172,31 +197,13 @@ export async function GET(
       }
     }
 
-    // 5. Simulador (quando WDAPI_TOKEN não está configurado)
-    console.warn(`[Placa] WDAPI_TOKEN não configurado — retornando simulação para ${cleanPlaca}`);
+    // 5. Simulador (quando WDAPI_TOKEN não está configurado) - Apenas retorna erro limpo conforme solicitado pelo usuário
+    console.warn(`[Placa] WDAPI_TOKEN não configurado — retornando erro`);
 
-    const sim: Record<string, object> = {
-      A: { marca: "HONDA",      modelo: "CIVIC EXL 2.0",       cor: "PRATA",    chassi: "9BWZZZ377VT004251", motor: "20T4AB123456", anoFabricacao: "2022", anoModelo: "2023" },
-      B: { marca: "TOYOTA",     modelo: "COROLLA XEI",          cor: "BRANCO",   chassi: "9BRXE69S0D3456789", motor: "2ZRFE987654",  anoFabricacao: "2021", anoModelo: "2022" },
-      C: { marca: "VOLKSWAGEN", modelo: "GOL 1.6 COMFORTLINE",  cor: "PRATA",    chassi: "9BWZZZ377VT012345", motor: "EA211001122",  anoFabricacao: "2020", anoModelo: "2020" },
-      D: { marca: "CHEVROLET",  modelo: "ONIX PLUS PREMIER",    cor: "PRETO",    chassi: "9BGXT69X0LG112233", motor: "SDFGH23456F",  anoFabricacao: "2023", anoModelo: "2024" },
-      E: { marca: "FORD",       modelo: "RANGER LIMITED 4X4",   cor: "CINZA",    chassi: "8AFES7KP0GJ334455", motor: "RANGER2200DT", anoFabricacao: "2022", anoModelo: "2023" },
-      F: { marca: "HYUNDAI",    modelo: "HB20 VISION 1.0",      cor: "VERMELHO", chassi: "93HBF2AG4EE556677", motor: "KAPPA10001A",  anoFabricacao: "2021", anoModelo: "2021" },
-      G: { marca: "RENAULT",    modelo: "KWID INTENSE 1.0",     cor: "AZUL",     chassi: "9FB4AE3W4HC778899", motor: "BR10SCE002",   anoFabricacao: "2023", anoModelo: "2023" },
-      H: { marca: "JEEP",       modelo: "COMPASS LIMITED",      cor: "BRANCO",   chassi: "9C4MJDAG6FT990011", motor: "TIGSHARK22FL", anoFabricacao: "2022", anoModelo: "2022" },
-      I: { marca: "FIAT",       modelo: "PULSE DRIVE 1.3",      cor: "VERDE",    chassi: "9BD195BX6KZ112244", motor: "GSE13TC0050",  anoFabricacao: "2022", anoModelo: "2023" },
-      J: { marca: "NISSAN",     modelo: "KICKS ADVANCE CVT",    cor: "PRATA",    chassi: "3N6AD33A5XK334466", motor: "HR16DE55512",  anoFabricacao: "2021", anoModelo: "2022" },
-    };
-
-    const vehicleRaw = sim[cleanPlaca[0]] ?? sim["C"];
-    const vehicle = normalizeVehicle(vehicleRaw, cleanPlaca);
-
-    return NextResponse.json({
-      ...vehicle,
-      _simulado: true,
-    }, {
-      headers: { "X-RateLimit-Remaining": String(rateLimit.remaining) },
-    });
+    return NextResponse.json(
+      { error: "SERVICE_UNAVAILABLE", message: "API de pesquisa de placa não configurada. Defina a variável WDAPI_TOKEN." },
+      { status: 503 }
+    );
 
   } catch (error) {
     console.error("[API Placa]", error);

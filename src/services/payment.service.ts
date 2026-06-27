@@ -159,13 +159,37 @@ export class PaymentService {
     }
   }
 
-  /**
-   * Processa Webhook do Mercado Pago
-   */
   static async handleMercadoPagoWebhook(paymentId: string) {
     const paymentInfo = await mpPayment.get({ id: paymentId });
     if (paymentInfo.status === "approved" && paymentInfo.external_reference) {
-      await this.confirmOrderPayment(paymentInfo.external_reference, "mercadopago", paymentId);
+      const placaPurchase = await prisma.placaQueryPurchase.findUnique({
+        where: { id: paymentInfo.external_reference }
+      });
+
+      if (placaPurchase) {
+        if (placaPurchase.paymentStatus === "PENDING") {
+          await prisma.$transaction([
+            prisma.placaQueryPurchase.update({
+              where: { id: placaPurchase.id },
+              data: { paymentStatus: "PAID", paidAt: new Date() }
+            }),
+            prisma.user.update({
+              where: { id: placaPurchase.userId },
+              data: { placaCredits: { increment: placaPurchase.creditsAdded } }
+            }),
+            prisma.auditLog.create({
+              data: {
+                userId: placaPurchase.userId,
+                action: "PLACA_PURCHASE",
+                metadata: { amount: placaPurchase.amountPaid, credits: placaPurchase.creditsAdded }
+              }
+            })
+          ]);
+          console.log(`[PAYMENT VERIFICATION SUCESSO] Compra de Placa ${placaPurchase.id} confirmada.`);
+        }
+      } else {
+        await this.confirmOrderPayment(paymentInfo.external_reference, "mercadopago", paymentId);
+      }
     }
   }
 
