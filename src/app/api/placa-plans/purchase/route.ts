@@ -2,6 +2,11 @@ import { NextRequest, NextResponse } from "next/server";
 import { getSession } from "@/lib/auth/session";
 import prisma from "@/lib/db/prisma";
 import { mpPayment } from "@/lib/payments/mercadopago";
+import { z } from "zod";
+
+const purchaseSchema = z.object({
+  planId: z.string().cuid("ID do plano inválido"),
+});
 
 export async function POST(req: NextRequest) {
   try {
@@ -10,7 +15,14 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    const { planId } = await req.json();
+    const body = await req.json().catch(() => null);
+    const parsed = purchaseSchema.safeParse(body);
+    
+    if (!parsed.success) {
+      return NextResponse.json({ error: parsed.error.errors[0].message }, { status: 400 });
+    }
+
+    const { planId } = parsed.data;
 
     const plan = await prisma.placaQueryPlan.findUnique({
       where: { id: planId },

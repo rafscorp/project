@@ -28,10 +28,17 @@ const envSchema = z.object({
   // Email (optional — console fallback in dev)
   RESEND_API_KEY: z.string().optional(),
   SENDGRID_API_KEY: z.string().optional(),
-  AWS_ACCESS_KEY_ID: z.string().optional(),
-  AWS_SECRET_ACCESS_KEY: z.string().optional(),
-  AWS_REGION: z.string().optional(),
   EMAIL_FROM: z.string().email().optional().default("noreply@agury.com.br"),
+
+  // Storage S3 / Cloudflare R2
+  S3_ENDPOINT: z.string().optional(),
+  S3_ACCESS_KEY_ID: z.string().optional(),
+  S3_SECRET_ACCESS_KEY: z.string().optional(),
+  S3_BUCKET_NAME: z.string().optional(),
+  NEXT_PUBLIC_STORAGE_URL: z.string().optional(),
+
+  // Security & Cron
+  CRON_SECRET: z.string().optional(),
 
   // Payments (optional — activated when keys are set)
   STRIPE_SECRET_KEY: z.string().optional(),

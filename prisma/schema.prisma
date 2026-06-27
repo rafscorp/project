@@ -576,10 +576,13 @@ model Coupon {
   expiresAt      DateTime?
   // Afiliado (cupom pode ser vinculado a um afiliado)
   affiliateId    String?
+  // Loja (cupom pode ser vinculado a uma loja específica)
+  storeId        String?
   createdAt      DateTime    @default(now())
   updatedAt      DateTime    @updatedAt
 
   affiliate     Affiliate?      @relation(fields: [affiliateId], references: [id], onDelete: SetNull)
+  store         Store?          @relation(fields: [storeId], references: [id], onDelete: Cascade)
   usages        CouponUsage[]
   orders        Order[]
   subscriptions Subscription[]
@@ -587,6 +590,7 @@ model Coupon {
   @@index([code])
   @@index([active, startsAt, expiresAt])
   @@index([affiliateId])
+  @@index([storeId])
   @@map("coupons")
 }
 

@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { Store, Package, Star, CreditCard, Settings, LogOut, Bell, AlertTriangle } from "lucide-react";
+import { Store, Package, Star, CreditCard, Settings, LogOut, Bell, AlertTriangle, Users, Ticket } from "lucide-react";
 import { getSession } from "@/lib/auth/session";
 import { StoreService } from "@/services/store.service";
 import { redirect } from "next/navigation";
@@ -41,6 +41,12 @@ export default async function DashboardLayout({
               </Link>
               <Link href="/dashboard/avaliacoes" className="flex items-center gap-3 px-4 py-3 rounded-xl text-muted-foreground hover:text-white hover:bg-zinc-800 transition-colors font-medium">
                 <Star className="h-5 w-5" /> Avaliações
+              </Link>
+              <Link href="/dashboard/clientes" className="flex items-center gap-3 px-4 py-3 rounded-xl text-emerald-400 hover:text-white hover:bg-zinc-800 transition-colors font-bold mt-2">
+                <Users className="h-5 w-5" /> CRM de Clientes
+              </Link>
+              <Link href="/dashboard/cupons" className="flex items-center gap-3 px-4 py-3 rounded-xl text-muted-foreground hover:text-white hover:bg-zinc-800 transition-colors font-medium">
+                <Ticket className="h-5 w-5" /> Cupons de Desconto
               </Link>
               <Link href="/dashboard/orcamentos" className="flex items-center gap-3 px-4 py-3 rounded-xl text-muted-foreground hover:text-white hover:bg-zinc-800 transition-colors font-medium">
                 <Package className="h-5 w-5" /> Orçamentos

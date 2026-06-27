@@ -2,6 +2,9 @@ import { stripe } from "@/lib/payments/stripe";
 import { mpPayment } from "@/lib/payments/mercadopago";
 import prisma from "@/lib/db/prisma";
 import { env } from "@/lib/env";
+import { emailProvider } from "@/lib/email/provider";
+import { placaPurchaseConfirmed } from "@/lib/email/templates/placa-purchase-confirmed";
+import { subscriptionConfirmedEmail } from "@/lib/email/templates/subscription-confirmed";
 
 export class PaymentService {
   /**
@@ -152,9 +155,12 @@ export class PaymentService {
     if (event.type === "checkout.session.completed") {
       const session = event.data.object;
       const orderId = session.metadata?.orderId;
+      const subscriptionId = session.metadata?.subscriptionId;
       
       if (orderId && session.payment_status === "paid") {
         await this.confirmOrderPayment(orderId, "stripe", session.id);
+      } else if (subscriptionId && session.payment_status === "paid") {
+        await this.confirmSubscriptionPayment(subscriptionId, "stripe", session.id);
       }
     }
   }
@@ -186,6 +192,20 @@ export class PaymentService {
             })
           ]);
           console.log(`[PAYMENT VERIFICATION SUCESSO] Compra de Placa ${placaPurchase.id} confirmada.`);
+
+          // Enviar E-mail
+          try {
+            const user = await prisma.user.findUnique({ where: { id: placaPurchase.userId }});
+            if (user?.email) {
+              await emailProvider.send({
+                to: user.email,
+                ...placaPurchaseConfirmed(user.name.split(" ")[0], placaPurchase.creditsAdded, `${env.NEXT_PUBLIC_APP_URL}/cliente/garagem`)
+              });
+              console.log(`[EMAIL ENVIADO] Confirmação de compra para ${user.email}`);
+            }
+          } catch (emailErr) {
+            console.error("[EMAIL ERROR] Falha ao enviar email de compra de placa:", emailErr);
+          }
         }
       } else {
         await this.confirmOrderPayment(paymentInfo.external_reference, "mercadopago", paymentId);
@@ -229,6 +249,46 @@ export class PaymentService {
     } catch (error) {
       console.error(`[CRITICAL] Falha catastrófica ao confirmar pagamento do pedido ${orderId}:`, error);
       throw error;
+    }
+  }
+
+  private static async confirmSubscriptionPayment(subscriptionId: string, gateway: string, gatewayPaymentId: string) {
+    try {
+      const sub = await prisma.subscription.findUnique({
+        where: { id: subscriptionId },
+        include: { store: { include: { owner: true } } }
+      });
+      if (!sub) return;
+      
+      if (sub.status === "ACTIVE") return;
+      
+      await prisma.subscription.update({
+        where: { id: subscriptionId },
+        data: {
+          status: "ACTIVE",
+          currentPeriodEnd: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000),
+          stripeSubscriptionId: gateway === "stripe" ? gatewayPaymentId : undefined,
+          mercadoPagoSubscriptionId: gateway === "mercadopago" ? gatewayPaymentId : undefined,
+        }
+      });
+      
+      console.log(`[SUBSCRIPTION VERIFICATION SUCESSO] Assinatura ${subscriptionId} ativada via ${gateway}.`);
+
+      // Enviar E-mail
+      try {
+        if (sub.store.owner.email) {
+          await emailProvider.send({
+            to: sub.store.owner.email,
+            ...subscriptionConfirmedEmail(sub.store.owner.name.split(" ")[0], `${env.NEXT_PUBLIC_APP_URL}/dashboard`)
+          });
+          console.log(`[EMAIL ENVIADO] Confirmação de assinatura para ${sub.store.owner.email}`);
+        }
+      } catch (emailErr) {
+        console.error("[EMAIL ERROR] Falha ao enviar email de assinatura:", emailErr);
+      }
+    } catch (e) {
+      console.error("[CRITICAL] Falha catastrófica ao confirmar assinatura:", e);
+      throw e;
     }
   }
 }

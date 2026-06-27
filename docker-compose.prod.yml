@@ -1,0 +1,77 @@
+version: "3.8"
+
+services:
+  traefik:
+    image: traefik:v3.0
+    container_name: traefik
+    restart: unless-stopped
+    command:
+      - "--api.insecure=false"
+      - "--providers.docker=true"
+      - "--providers.docker.exposedbydefault=false"
+      - "--entrypoints.web.address=:80"
+      - "--entrypoints.websecure.address=:443"
+      # Redirecionar HTTP para HTTPS
+      - "--entrypoints.web.http.redirections.entryPoint.to=websecure"
+      - "--entrypoints.web.http.redirections.entryPoint.scheme=https"
+      # Configuração do Let's Encrypt
+      - "--certificatesresolvers.myresolver.acme.tlschallenge=true"
+      - "--certificatesresolvers.myresolver.acme.email=seu-email@agury.com.br" # TROQUE PELO SEU EMAIL
+      - "--certificatesresolvers.myresolver.acme.storage=/letsencrypt/acme.json"
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - "/var/run/docker.sock:/var/run/docker.sock:ro"
+      - "traefik-certs:/letsencrypt"
+    networks:
+      - agury-net
+
+  web:
+    build: 
+      context: .
+      dockerfile: Dockerfile
+    container_name: agury-web
+    restart: always
+    env_file:
+      - .env.local
+    environment:
+      - NODE_ENV=production
+      - DATABASE_URL=postgresql://agury:agury_secure_pass@db:5432/agury?schema=public
+    depends_on:
+      db:
+        condition: service_healthy
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.agury-web.rule=Host(`agury.com.br`) || Host(`www.agury.com.br`)"
+      - "traefik.http.routers.agury-web.entrypoints=websecure"
+      - "traefik.http.routers.agury-web.tls.certresolver=myresolver"
+      - "traefik.http.services.agury-web.loadbalancer.server.port=3000"
+    networks:
+      - agury-net
+
+  db:
+    image: postgres:16-alpine
+    container_name: agury-db
+    restart: always
+    environment:
+      POSTGRES_USER: agury
+      POSTGRES_PASSWORD: agury_secure_pass
+      POSTGRES_DB: agury
+    volumes:
+      - agury-pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U agury"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - agury-net
+
+volumes:
+  agury-pgdata:
+  traefik-certs:
+
+networks:
+  agury-net:
+    driver: bridge

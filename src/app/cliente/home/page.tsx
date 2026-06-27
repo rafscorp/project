@@ -93,8 +93,28 @@ export default async function CustomerDashboard() {
               <div className="w-14 h-14 rounded-2xl bg-zinc-800 border border-border-subtle flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
                 <Search className="h-7 w-7 text-emerald-400" />
               </div>
-              <h3 className="text-2xl font-bold text-foreground mb-2">Meus Pedidos & Chat</h3>
-              <p className="text-muted-foreground">Acompanhe compras, negocie com lojistas e veja seus orçamentos.</p>
+              <h3 className="text-2xl font-bold text-foreground mb-2">Orçamentos</h3>
+              <p className="text-muted-foreground">Acompanhe negociações e orçamentos pendentes com lojistas.</p>
+            </div>
+          </Link>
+
+          <Link href="/cliente/pedidos" className="block group">
+            <div className="glass-panel p-8 rounded-3xl border border-border-subtle bg-panel/40 hover:bg-panel/80 transition-colors h-full">
+              <div className="w-14 h-14 rounded-2xl bg-zinc-800 border border-border-subtle flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
+                <Store className="h-7 w-7 text-violet-400" />
+              </div>
+              <h3 className="text-2xl font-bold text-foreground mb-2">Histórico de Compras</h3>
+              <p className="text-muted-foreground">Consulte pedidos concluídos, recibos e códigos de retirada.</p>
+            </div>
+          </Link>
+
+          <Link href="/cliente/conta" className="block group">
+            <div className="glass-panel p-8 rounded-3xl border border-border-subtle bg-panel/40 hover:bg-panel/80 transition-colors h-full">
+              <div className="w-14 h-14 rounded-2xl bg-zinc-800 border border-border-subtle flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
+                <User className="h-7 w-7 text-rose-400" />
+              </div>
+              <h3 className="text-2xl font-bold text-foreground mb-2">Minha Conta</h3>
+              <p className="text-muted-foreground">Configure seus dados de acesso e preferências de segurança.</p>
             </div>
           </Link>
         </div>

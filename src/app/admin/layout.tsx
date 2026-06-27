@@ -6,7 +6,9 @@ import {
   Settings, 
   LogOut, 
   ShieldCheck,
-  Users
+  Users,
+  LifeBuoy,
+  Radio
 } from "lucide-react";
 import { getSession } from "@/lib/auth/session";
 import { redirect } from "next/navigation";
@@ -40,6 +42,9 @@ export default async function AdminLayout({
           </Link>
           <Link href="/admin/lojas" className="flex items-center gap-3 px-4 py-3 rounded-xl text-muted-foreground hover:text-white hover:bg-zinc-800 transition-colors font-medium">
             <Store className="h-5 w-5" /> Gestão de Lojas
+          </Link>
+          <Link href="/admin/tickets" className="flex items-center gap-3 px-4 py-3 rounded-xl text-blue-400 hover:text-white hover:bg-zinc-800 transition-colors font-bold mt-2">
+            <LifeBuoy className="h-5 w-5" /> Tickets de Suporte
           </Link>
           <Link href="/admin/planos" className="flex items-center gap-3 px-4 py-3 rounded-xl text-muted-foreground hover:text-white hover:bg-zinc-800 transition-colors font-medium">
             <CreditCard className="h-5 w-5" /> Planos Financeiros

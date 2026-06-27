@@ -1,69 +1,48 @@
 import { NextRequest, NextResponse } from "next/server";
-import { getSession } from "@/lib/auth/session";
-import { writeFile, mkdir } from "fs/promises";
-import path from "path";
-import crypto from "crypto";
-import { UserRole } from "@prisma/client";
+import { generateUploadUrl } from "@/lib/storage/s3";
+import { verifySessionToken, COOKIE_NAME } from "@/lib/auth/session";
+import { z } from "zod";
 
-export async function POST(request: NextRequest) {
+const uploadSchema = z.object({
+  filename: z.string().min(1, "O nome do arquivo é obrigatório").max(255),
+  contentType: z.string().regex(/^(image\/(jpeg|png|webp|gif))|(application\/pdf)$/, "Tipo de arquivo não permitido"),
+  folder: z.enum(["avatars", "stores", "documents"]).default("avatars"),
+});
+
+export async function POST(req: NextRequest) {
   try {
-    const session = await getSession();
-    // Apenas donos de loja e equipe podem fazer upload
-    if (!session || (session.role !== UserRole.STORE_OWNER && session.role !== UserRole.STORE_STAFF)) {
-      return NextResponse.json({ error: "Não autorizado" }, { status: 401 });
-    }
-
-    const formData = await request.formData();
-    const file = formData.get("file") as File;
-
-    if (!file) {
-      return NextResponse.json({ error: "Nenhum arquivo enviado" }, { status: 400 });
-    }
-
-    // Validar tipo de arquivo
-    const validTypes = ["image/jpeg", "image/png", "image/webp"];
-    if (!validTypes.includes(file.type)) {
-      return NextResponse.json({ error: "Formato de arquivo inválido. Envie JPG, PNG ou WEBP." }, { status: 400 });
-    }
-
-    // Validar tamanho (Max 5MB)
-    if (file.size > 5 * 1024 * 1024) {
-      return NextResponse.json({ error: "O arquivo deve ter no máximo 5MB." }, { status: 400 });
-    }
-
-    const bytes = await file.arrayBuffer();
-    const buffer = Buffer.from(bytes);
-
-    // Mapeamento estrito de extensão por MIME-type (impede RCE injetando extensões executáveis)
-    const mimeToExt: Record<string, string> = {
-      "image/jpeg": ".jpg",
-      "image/png": ".png",
-      "image/webp": ".webp",
-    };
-    const extension = mimeToExt[file.type] || ".jpg";
-    const fileName = `${session.storeId}-${crypto.randomBytes(16).toString("hex")}${extension}`;
+    // 1. Validar Sessão
+    const token = req.cookies.get(COOKIE_NAME)?.value;
+    if (!token) return new NextResponse("Não autorizado", { status: 401 });
     
-    // Caminho completo
-    const uploadDir = path.join(process.cwd(), "public", "uploads");
+    const session = await verifySessionToken(token);
+    if (!session) return new NextResponse("Sessão inválida", { status: 401 });
+
+    // 2. Validar Input do Cliente
+    const body = await req.json();
+    const result = uploadSchema.safeParse(body);
     
-    // Garantir que a pasta existe
-    try {
-      await mkdir(uploadDir, { recursive: true });
-    } catch (e) {
-      // Ignorar se já existir
+    if (!result.success) {
+      return new NextResponse(JSON.stringify({ error: "Dados inválidos", details: result.error.format() }), { 
+        status: 400,
+        headers: { "Content-Type": "application/json" }
+      });
     }
 
-    const filePath = path.join(uploadDir, fileName);
+    const { filename, contentType, folder } = result.data;
 
-    // Salvar o arquivo
-    await writeFile(filePath, buffer);
+    // 3. Gerar URL Pré-assinada (Client Direct Upload)
+    const uploadData = await generateUploadUrl(filename, contentType, `${folder}/${session.userId}`);
 
-    // Retornar a URL pública
-    const url = `/uploads/${fileName}`;
-
-    return NextResponse.json({ url });
-  } catch (error) {
-    console.error("Erro no upload:", error);
-    return NextResponse.json({ error: "Erro interno no servidor ao fazer upload." }, { status: 500 });
+    return new NextResponse(JSON.stringify(uploadData), {
+      status: 200,
+      headers: { "Content-Type": "application/json" }
+    });
+  } catch (error: any) {
+    console.error("[UPLOAD API ERROR]", error);
+    return new NextResponse(JSON.stringify({ error: "Falha ao gerar link de upload seguro" }), {
+      status: 500,
+      headers: { "Content-Type": "application/json" }
+    });
   }
 }

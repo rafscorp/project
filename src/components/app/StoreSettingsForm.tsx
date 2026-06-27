@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { Card, CardBody } from "@/components/ui/Card";
 import { Input } from "@/components/ui/Input";
 import { Button } from "@/components/ui/Button";
+import { UploadCloud, Loader2 } from "lucide-react";
 
 interface StoreSettingsFormProps {
   store: {
@@ -29,6 +30,7 @@ interface StoreSettingsFormProps {
 export function StoreSettingsForm({ store }: StoreSettingsFormProps) {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
+  const [uploadingLogo, setUploadingLogo] = useState(false);
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
   const [form, setForm] = useState({
@@ -91,6 +93,48 @@ export function StoreSettingsForm({ store }: StoreSettingsFormProps) {
     router.refresh();
   }
 
+  async function handleLogoUpload(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    setUploadingLogo(true);
+    setError("");
+
+    try {
+      // 1. Pegar Pre-signed URL da API
+      const res = await fetch("/api/upload", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          filename: file.name,
+          contentType: file.type,
+          folder: "stores"
+        })
+      });
+
+      if (!res.ok) throw new Error("Falha ao preparar upload.");
+      
+      const { signedUrl, publicUrl } = await res.json();
+
+      // 2. Fazer Upload Direto pro R2/S3
+      const uploadRes = await fetch(signedUrl, {
+        method: "PUT",
+        headers: { "Content-Type": file.type },
+        body: file,
+      });
+
+      if (!uploadRes.ok) throw new Error("Falha no upload para o storage.");
+
+      // 3. Salvar URL no formulário
+      setForm((f) => ({ ...f, logoUrl: publicUrl }));
+      setSuccess("Logo enviada com sucesso! Lembre-se de salvar as configurações.");
+    } catch (err: any) {
+      setError(err.message || "Erro no upload da logo.");
+    } finally {
+      setUploadingLogo(false);
+    }
+  }
+
   return (
     <div>
       <form onSubmit={handleSubmit} className="mt-6 space-y-6">
@@ -114,8 +158,20 @@ export function StoreSettingsForm({ store }: StoreSettingsFormProps) {
               <Input label="Estado (UF)" value={form.state} onChange={(e) => setForm((f) => ({ ...f, state: e.target.value.toUpperCase() }))} maxLength={2} required />
             </div>
             <div className="grid gap-4 md:grid-cols-2">
-              <Input label="URL da logo" value={form.logoUrl} onChange={(e) => setForm((f) => ({ ...f, logoUrl: e.target.value }))} placeholder="https://..." />
-              <Input label="URL da foto da loja" value={form.bannerUrl} onChange={(e) => setForm((f) => ({ ...f, bannerUrl: e.target.value }))} placeholder="https://..." />
+              <div className="space-y-1">
+                <label className="text-sm font-medium text-foreground">Logo da Loja</label>
+                <div className="flex items-center gap-4">
+                  {form.logoUrl && (
+                    <img src={form.logoUrl} alt="Logo" className="w-12 h-12 rounded-lg object-cover bg-zinc-800" />
+                  )}
+                  <label className="flex items-center justify-center gap-2 bg-zinc-800 hover:bg-zinc-700 text-white text-sm font-bold px-4 py-2 rounded-lg cursor-pointer transition-colors border border-border-subtle">
+                    {uploadingLogo ? <Loader2 className="w-4 h-4 animate-spin" /> : <UploadCloud className="w-4 h-4" />}
+                    {uploadingLogo ? "Enviando..." : "Enviar Logo"}
+                    <input type="file" accept="image/png, image/jpeg, image/webp" className="hidden" onChange={handleLogoUpload} disabled={uploadingLogo} />
+                  </label>
+                </div>
+              </div>
+              <Input label="URL da foto da loja (Banner)" value={form.bannerUrl} onChange={(e) => setForm((f) => ({ ...f, bannerUrl: e.target.value }))} placeholder="https://..." />
             </div>
             <div className="grid gap-4 md:grid-cols-2">
               <Input label="Latitude" value={form.latitude} onChange={(e) => setForm((f) => ({ ...f, latitude: e.target.value }))} placeholder="-23.5505" />

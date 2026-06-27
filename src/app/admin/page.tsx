@@ -7,7 +7,9 @@ import {
   Users, 
   AlertTriangle,
   Loader2,
-  DollarSign
+  DollarSign,
+  Radio,
+  Download
 } from "lucide-react";
 import Link from "next/link";
 import { motion } from "framer-motion";
@@ -80,9 +82,19 @@ export default function AdminDashboardPage() {
 
   return (
     <div className="space-y-8">
-      <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5 }}>
-        <h1 className="text-3xl font-display font-black text-foreground">Visão Geral</h1>
-        <p className="text-muted-foreground mt-1">Bem-vindo ao centro de controle da Agury.</p>
+      <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5 }} className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+        <div>
+          <h1 className="text-3xl font-display font-black text-foreground">Visão Geral</h1>
+          <p className="text-muted-foreground mt-1">Bem-vindo ao centro de controle da Agury.</p>
+        </div>
+        <div className="flex gap-3">
+          <button className="flex items-center gap-2 bg-zinc-100 dark:bg-zinc-800 hover:bg-zinc-200 dark:hover:bg-zinc-700 text-foreground font-bold px-4 py-2 rounded-lg transition-colors border border-border-subtle" onClick={() => alert('Feature Export CSV disparada.')}>
+            <Download className="h-4 w-4" /> Exportar Dados (CSV)
+          </button>
+          <button className="flex items-center gap-2 bg-blue-600 hover:bg-blue-500 text-white font-bold px-4 py-2 rounded-lg transition-colors shadow-lg" onClick={() => alert('Modal de Broadcast Global aberto.')}>
+            <Radio className="h-4 w-4" /> Enviar Aviso em Massa
+          </button>
+        </div>
       </motion.div>
 
       <motion.div 
