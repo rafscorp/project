@@ -89,10 +89,40 @@ export function checkRateLimit(
   return { allowed: true, remaining: config.maxRequests - existing.count };
 }
 
+/**
+ * Check if identifier is currently blocked without incrementing the counter.
+ */
+export function isCurrentlyBlocked(
+  identifier: string,
+  config: RateLimitConfig
+): boolean {
+  cleanup();
+  const now = Date.now();
+  const key = `${config.maxRequests}:${config.windowSeconds}:${identifier}`;
+  const existing = store.get(key);
+  
+  if (existing?.blockedUntil && now < existing.blockedUntil) {
+    return true;
+  }
+  return false;
+}
+
+/**
+ * Increment the counter for an identifier (e.g., on login failure).
+ */
+export function incrementRateLimit(
+  identifier: string,
+  config: RateLimitConfig
+): void {
+  checkRateLimit(identifier, config);
+}
+
 // Pre-configured rate limits
 export const RATE_LIMITS = {
-  /** Login: 5 tentativas por 15 min, bloqueia por 30 min */
-  login: { maxRequests: 5, windowSeconds: 900, blockSeconds: 1800 } as RateLimitConfig,
+  /** Login (Geral no Middleware): Apenas previne DDoS maciço na rota */
+  login: { maxRequests: 50, windowSeconds: 60 } as RateLimitConfig,
+  /** Login Falho (No Endpoint): Bloqueia por 10 min após 10 tentativas falhas */
+  loginFailed: { maxRequests: 10, windowSeconds: 600, blockSeconds: 600 } as RateLimitConfig,
   /** Registro: 3 por hora */
   register: { maxRequests: 3, windowSeconds: 3600 } as RateLimitConfig,
   /** Reset de senha: 3 por hora */

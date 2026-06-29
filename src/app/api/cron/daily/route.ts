@@ -8,7 +8,7 @@ import prisma from "@/lib/db/prisma";
 export async function GET(request: Request) {
   // Num sistema real, usaríamos um cabeçalho Authorization com Bearer token para segurança
   const authHeader = request.headers.get("authorization");
-  if (process.env.NODE_ENV === "production" && authHeader !== \`Bearer \${process.env.CRON_SECRET}\`) {
+  if (process.env.NODE_ENV === "production" && authHeader !== `Bearer ${process.env.CRON_SECRET}`) {
     // Para simplificar localmente, só checa se em prod
     // return new NextResponse("Unauthorized", { status: 401 });
   }

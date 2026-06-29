@@ -34,7 +34,13 @@ export async function sendStoreRegistrationEmail(to: string, name: string, store
       <h1 style="color: #f5b942; margin-bottom: 12px; font-size: 28px;">Sua loja já está pronta!</h1>
       <p>Olá ${name},</p>
       <p>Sua loja <strong>${storeName}</strong> foi criada com sucesso na Agury Auto.</p>
-      <p>Use o código abaixo para acessar o painel da sua operação:</p>
+      <div style="background: #18181b; padding: 20px; border-radius: 16px; margin: 20px 0; text-align: left; border: 1px solid #27272a;">
+        <p style="margin: 0; color: #f5b942; font-weight: bold; font-size: 16px;">⚠️ Atenção</p>
+        <p style="margin: 10px 0 0 0; font-size: 14px; color: #a1a1aa; line-height: 1.5;">
+          Para você poder utilizar a plataforma de forma completa, interagir com clientes e gerenciar produtos, <strong>você precisa escolher um plano</strong>. Atualmente, o seu painel está em modo <em>Vitrine</em> (Apenas leitura).
+        </p>
+      </div>
+      <p>Use o código abaixo para acessar o seu painel:</p>
       <div style="background: #18181b; padding: 20px; border-radius: 16px; margin: 20px 0; text-align: center; border: 1px solid #27272a;">
         <p style="margin: 0; color: #a1a1aa; font-size: 14px;">Código de acesso</p>
         <p style="margin: 10px 0 0 0; font-size: 32px; font-weight: bold; font-family: monospace; letter-spacing: 5px; color: #f5b942;">${accessCode}</p>
@@ -143,7 +149,7 @@ export async function sendLimitExceededEmail(to: string, name: string, storeName
 
   return emailProvider.send({
     to,
-    subject: \`Sua loja atingiu o limite de peças - Agury Auto\`,
+    subject: `Sua loja atingiu o limite de peças - Agury Auto`,
     html,
   });
 }
@@ -170,7 +176,19 @@ export async function sendOfferEmail(to: string, name: string, discount: number,
 
   return emailProvider.send({
     to,
-    subject: \`Presente da Agury: ${discount}% de desconto liberado na sua conta!\`,
+    subject: `Presente da Agury: ${discount}% de desconto liberado na sua conta!`,
     html,
   });
+}
+
+import { o2oCustomerEmail, o2oStoreEmail } from "./queue";
+
+export async function sendO2OCodeEmail(to: string, customerName: string, storeName: string, code: string, mapsLink: string) {
+  const { subject, html } = o2oCustomerEmail(customerName, storeName, code, mapsLink);
+  return emailProvider.send({ to, subject, html });
+}
+
+export async function sendO2OStoreEmail(to: string, storeName: string, customerName: string, vehicle: string, part: string) {
+  const { subject, html } = o2oStoreEmail(storeName, customerName, vehicle, part);
+  return emailProvider.send({ to, subject, html });
 }

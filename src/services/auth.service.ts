@@ -84,10 +84,9 @@ export class AuthService {
     const slugExists = await prisma.store.findUnique({ where: { slug: input.slug } });
     if (slugExists) throw new Error("Este endereço de loja já está em uso");
 
-    const plan = await prisma.subscriptionPlan.findUnique({ where: { slug: input.planSlug } });
-    if (!plan) throw new Error("Plano inválido");
+    const plan = await prisma.subscriptionPlan.findFirst({ orderBy: { sortOrder: 'asc' } });
+    if (!plan) throw new Error("Erro interno ao buscar planos");
 
-    const trialEnd = new Date(Date.now() + 14 * 24 * 60 * 60 * 1000);
     const accessCode = Math.floor(100000 + Math.random() * 900000).toString();
 
     const result = await prisma.$transaction(async (tx) => {
@@ -123,9 +122,7 @@ export class AuthService {
         data: {
           storeId: store.id,
           planId: plan.id,
-          status: "TRIAL",
-          trialEndsAt: trialEnd,
-          currentPeriodEnd: trialEnd,
+          status: "EXPIRED",
         },
       });
 

@@ -3,7 +3,7 @@ import { ProductCondition } from "@prisma/client";
 
 export const loginSchema = z.object({
   email: z.string().email("E-mail inválido"),
-  password: z.string().min(6, "Senha deve ter no mínimo 6 caracteres").optional(),
+  password: z.string().min(4, "Senha deve ter no mínimo 4 caracteres").optional(),
   code: z.string().length(6, "Código inválido").optional(),
 }).refine((data) => Boolean(data.password || data.code), {
   message: "Informe a senha ou o código de acesso",
@@ -13,19 +13,19 @@ export const loginSchema = z.object({
 export const registerCustomerSchema = z.object({
   name: z.string().min(2, "Nome muito curto"),
   email: z.string().email("E-mail inválido"),
-  phone: z.string().min(10, "Telefone inválido"),
+  phone: z.string().regex(/^\d{10,11}$/, "Telefone deve conter DDD + Número (apenas dígitos)"),
   password: z.string().min(6, "Senha deve ter no mínimo 6 caracteres"),
 });
 
 export const registerStoreSchema = z.object({
   ownerName: z.string().min(2),
   ownerEmail: z.string().email(),
-  ownerPhone: z.string().min(10),
+  ownerPhone: z.string().regex(/^\d{10,11}$/, "Telefone deve conter DDD + Número (apenas dígitos)"),
   password: z.string().min(6),
   storeName: z.string().min(2),
   slug: z.string().min(3).regex(/^[a-z0-9-]+$/, "Slug só pode ter letras minúsculas, números e hífens"),
   cnpj: z.string().min(14, "CNPJ inválido").optional(),
-  phone: z.string().min(10),
+  phone: z.string().regex(/^\d{10,11}$/, "Telefone deve conter DDD + Número (apenas dígitos)"),
   email: z.string().email(),
   address: z.string().min(5),
   city: z.string().min(2),
@@ -52,7 +52,7 @@ export const productSchema = z.object({
 export const checkoutSchema = z.object({
   customerName: z.string().min(2),
   customerEmail: z.string().email(),
-  customerPhone: z.string().min(10),
+  customerPhone: z.string().regex(/^\d{10,11}$/, "Telefone deve conter DDD + Número (apenas dígitos)"),
   notes: z.string().optional(),
   items: z.array(z.object({
     productId: z.string(),

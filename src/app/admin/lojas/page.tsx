@@ -167,7 +167,7 @@ export default function AdminLojasPage() {
                     </div>
                   </td>
                   <td className="px-6 py-4 text-right flex items-center justify-end gap-2">
-                    <Link href={\`/admin/lojas/\${store.id}\`}>
+                    <Link href={`/admin/lojas/${store.id}`}>
                       <Button className="h-8 px-4 text-xs font-bold bg-violet-600 hover:bg-violet-500 text-white">
                         Modo Deus
                       </Button>
@@ -175,11 +175,11 @@ export default function AdminLojasPage() {
                     <Button 
                       onClick={() => toggleStoreActive(store.id, store.active)}
                       disabled={updatingId === store.id}
-                      className={\`h-8 px-4 text-xs font-bold \${
+                      className={`h-8 px-4 text-xs font-bold ${
                         store.active 
                           ? "bg-red-600 hover:bg-red-500 text-white" 
                           : "bg-emerald-600 hover:bg-emerald-500 text-white"
-                      }\`}
+                      }`}
                     >
                       {updatingId === store.id ? (
                         <Loader2 className="w-4 h-4 animate-spin" />

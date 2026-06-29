@@ -22,6 +22,7 @@ interface StoreSettingsFormProps {
     description?: string | null;
     logoUrl?: string | null;
     bannerUrl?: string | null;
+    galleryUrls?: any;
     latitude?: number | null;
     longitude?: number | null;
   };
@@ -31,6 +32,7 @@ export function StoreSettingsForm({ store }: StoreSettingsFormProps) {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
   const [uploadingLogo, setUploadingLogo] = useState(false);
+  const [uploadingGallery, setUploadingGallery] = useState(false);
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
   const [form, setForm] = useState({
@@ -44,8 +46,7 @@ export function StoreSettingsForm({ store }: StoreSettingsFormProps) {
     zipCode: store.zipCode || "",
     logoUrl: store.logoUrl || "",
     bannerUrl: store.bannerUrl || "",
-    latitude: store.latitude?.toString() || "",
-    longitude: store.longitude?.toString() || "",
+    galleryUrls: (store.galleryUrls as string[]) || [],
   });
 
   useEffect(() => {
@@ -60,10 +61,31 @@ export function StoreSettingsForm({ store }: StoreSettingsFormProps) {
       zipCode: store.zipCode || "",
       logoUrl: store.logoUrl || "",
       bannerUrl: store.bannerUrl || "",
-      latitude: store.latitude?.toString() || "",
-      longitude: store.longitude?.toString() || "",
+      galleryUrls: (store.galleryUrls as string[]) || [],
     }));
   }, [store]);
+
+  async function handleCepChange(e: React.ChangeEvent<HTMLInputElement>) {
+    const cep = e.target.value.replace(/\D/g, "");
+    setForm(f => ({ ...f, zipCode: e.target.value }));
+    
+    if (cep.length === 8) {
+      try {
+        const res = await fetch(`https://viacep.com.br/ws/${cep}/json/`);
+        const data = await res.json();
+        if (!data.erro) {
+          setForm(f => ({
+            ...f,
+            address: data.logradouro,
+            city: data.localidade,
+            state: data.uf
+          }));
+        }
+      } catch (err) {
+        // ignore
+      }
+    }
+  }
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -76,8 +98,6 @@ export function StoreSettingsForm({ store }: StoreSettingsFormProps) {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
         ...form,
-        latitude: form.latitude ? Number(form.latitude) : null,
-        longitude: form.longitude ? Number(form.longitude) : null,
       }),
     });
 
@@ -135,6 +155,49 @@ export function StoreSettingsForm({ store }: StoreSettingsFormProps) {
     }
   }
 
+  async function handleGalleryUpload(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    setUploadingGallery(true);
+    setError("");
+
+    try {
+      const res = await fetch("/api/upload", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ filename: file.name, contentType: file.type, folder: "gallery" })
+      });
+
+      if (!res.ok) throw new Error("Falha ao preparar upload.");
+      
+      const { signedUrl, publicUrl } = await res.json();
+
+      const uploadRes = await fetch(signedUrl, {
+        method: "PUT",
+        headers: { "Content-Type": file.type },
+        body: file,
+      });
+
+      if (!uploadRes.ok) throw new Error("Falha no upload para o storage.");
+
+      setForm((f) => ({ ...f, galleryUrls: [...f.galleryUrls, publicUrl] }));
+      setSuccess("Foto adicionada com sucesso! Lembre-se de salvar.");
+    } catch (err: any) {
+      setError(err.message || "Erro no upload da foto.");
+    } finally {
+      setUploadingGallery(false);
+    }
+  }
+
+  function removeGalleryImage(index: number) {
+    setForm(f => {
+      const newUrls = [...f.galleryUrls];
+      newUrls.splice(index, 1);
+      return { ...f, galleryUrls: newUrls };
+    });
+  }
+
   return (
     <div>
       <form onSubmit={handleSubmit} className="mt-6 space-y-6">
@@ -149,7 +212,7 @@ export function StoreSettingsForm({ store }: StoreSettingsFormProps) {
               <Input label="CNPJ" value={store.cnpj || ""} readOnly />
               <Input label="Telefone" value={form.phone} onChange={(e) => setForm((f) => ({ ...f, phone: e.target.value }))} required />
               <Input label="E-mail" type="email" value={form.email} onChange={(e) => setForm((f) => ({ ...f, email: e.target.value }))} required />
-              <Input label="CEP" value={form.zipCode} onChange={(e) => setForm((f) => ({ ...f, zipCode: e.target.value }))} placeholder="01310-100" />
+              <Input label="CEP" value={form.zipCode} onChange={handleCepChange} placeholder="01310-100" />
             </div>
             <Input label="Descrição" value={form.description} onChange={(e) => setForm((f) => ({ ...f, description: e.target.value }))} />
             <Input label="Endereço" value={form.address} onChange={(e) => setForm((f) => ({ ...f, address: e.target.value }))} required />
@@ -173,10 +236,33 @@ export function StoreSettingsForm({ store }: StoreSettingsFormProps) {
               </div>
               <Input label="URL da foto da loja (Banner)" value={form.bannerUrl} onChange={(e) => setForm((f) => ({ ...f, bannerUrl: e.target.value }))} placeholder="https://..." />
             </div>
-            <div className="grid gap-4 md:grid-cols-2">
-              <Input label="Latitude" value={form.latitude} onChange={(e) => setForm((f) => ({ ...f, latitude: e.target.value }))} placeholder="-23.5505" />
-              <Input label="Longitude" value={form.longitude} onChange={(e) => setForm((f) => ({ ...f, longitude: e.target.value }))} placeholder="-46.6333" />
+
+            <div className="space-y-2 pt-4 border-t border-border-subtle">
+              <label className="text-sm font-medium text-foreground">Fotos da Vitrine</label>
+              <p className="text-xs text-muted-foreground">Adicione fotos da frente da sua loja e do interior para atrair mais clientes.</p>
+              
+              <div className="flex flex-wrap gap-4 mt-2">
+                {form.galleryUrls.map((url: string, idx: number) => (
+                  <div key={idx} className="relative group w-24 h-24 rounded-lg overflow-hidden bg-zinc-800 border border-zinc-700">
+                    <img src={url} alt={`Gallery ${idx}`} className="w-full h-full object-cover" />
+                    <button 
+                      type="button" 
+                      onClick={() => removeGalleryImage(idx)}
+                      className="absolute top-1 right-1 bg-red-500 hover:bg-red-600 text-white p-1 rounded-md opacity-0 group-hover:opacity-100 transition-opacity"
+                    >
+                      <span className="text-[10px] font-bold">X</span>
+                    </button>
+                  </div>
+                ))}
+                
+                <label className="flex flex-col items-center justify-center w-24 h-24 bg-zinc-800 hover:bg-zinc-700 border border-dashed border-zinc-600 rounded-lg cursor-pointer transition-colors">
+                  {uploadingGallery ? <Loader2 className="w-5 h-5 animate-spin text-zinc-400" /> : <UploadCloud className="w-5 h-5 text-zinc-400" />}
+                  <span className="text-[10px] text-zinc-400 font-bold mt-1">Adicionar</span>
+                  <input type="file" accept="image/png, image/jpeg, image/webp" className="hidden" onChange={handleGalleryUpload} disabled={uploadingGallery} />
+                </label>
+              </div>
             </div>
+
             <Button type="submit" loading={loading}>Salvar configurações</Button>
           </CardBody>
         </Card>
@@ -185,16 +271,7 @@ export function StoreSettingsForm({ store }: StoreSettingsFormProps) {
           <CardBody className="space-y-3 text-sm">
             <div><span className="text-muted-foreground">Slug:</span> <span className="text-amber-400">/loja/{store.slug}</span></div>
             <div><span className="text-muted-foreground">Endereço:</span> <span className="text-foreground">{form.address}, {form.city}/{form.state}</span></div>
-            <div><span className="text-muted-foreground">Mapa:</span> <span className="text-foreground">{form.latitude && form.longitude ? "Localização salva" : "Adicione latitude/longitude para exibir no mapa"}</span></div>
-            {form.latitude && form.longitude && (
-              <div className="mt-3 overflow-hidden rounded-xl border border-border-subtle">
-                <iframe
-                  title="Mapa da loja"
-                  src={`https://www.google.com/maps?q=${form.latitude},${form.longitude}&z=15&output=embed`}
-                  className="h-60 w-full"
-                />
-              </div>
-            )}
+            <div><span className="text-muted-foreground">Localização:</span> <span className="text-foreground">Calculada automaticamente a partir do endereço</span></div>
           </CardBody>
         </Card>
       </form>

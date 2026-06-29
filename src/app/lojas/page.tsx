@@ -101,8 +101,8 @@ export default async function LojasPage({
 
   return (
     <div className="min-h-screen bg-background text-foreground flex flex-col">
-      <div className="fixed inset-0 z-0 bg-mesh-dark pointer-events-none" />
-      <div className="fixed inset-0 z-0 bg-grid-dark opacity-20 pointer-events-none" />
+      <div className="fixed inset-0 z-0 bg-mesh-premium pointer-events-none" />
+      <div className="fixed inset-0 z-0 bg-grid-premium opacity-20 pointer-events-none" />
       
       {/* Header */}
       <header className="relative z-10 p-4 sm:p-6 border-b border-border-subtle bg-panel/80 backdrop-blur-xl sticky top-0">

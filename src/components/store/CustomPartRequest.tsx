@@ -46,6 +46,7 @@ export function CustomPartRequest({ storeId, storeName, isCustomer, storeSlug }:
   const [searchingPlaca, setSearchingPlaca] = useState(false);
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState(false);
+  const [o2oCode, setO2oCode] = useState("");
   const [error, setError] = useState("");
   const [placaApiAvailable, setPlacaApiAvailable] = useState(true);
 
@@ -166,12 +167,16 @@ export function CustomPartRequest({ storeId, storeName, isCustomer, storeSlug }:
         }),
       });
 
+      const data = await res.json();
       if (!res.ok) {
-        const data = await res.json();
         throw new Error(data.error || "Erro ao enviar pedido de orçamento.");
       }
 
       setSuccess(true);
+      if (data.o2oCode) {
+        setO2oCode(data.o2oCode);
+      }
+      
       // Limpa os estados
       setVehicleData(null);
       setPlaca("");
@@ -196,10 +201,21 @@ export function CustomPartRequest({ storeId, storeName, isCustomer, storeSlug }:
         <div className="w-20 h-20 bg-emerald-500/10 border border-emerald-500/20 rounded-full flex items-center justify-center mx-auto mb-6">
           <CheckCircle2 className="h-10 w-10 text-emerald-400" />
         </div>
-        <h3 className="font-display font-black text-3xl text-foreground mb-4">Pedido de Orçamento Enviado!</h3>
-        <p className="text-muted-foreground text-lg mb-8 max-w-xl mx-auto">
-          A loja <strong>{storeName}</strong> recebeu os detalhes do veículo e a descrição da peça. Você receberá uma notificação assim que responderem.
+        <h3 className="font-display font-black text-3xl text-foreground mb-4">Pedido Enviado!</h3>
+        <p className="text-muted-foreground text-lg mb-6 max-w-xl mx-auto">
+          A loja <strong>{storeName}</strong> recebeu os detalhes do veículo e a descrição da peça. 
         </p>
+
+        {o2oCode && (
+          <div className="mb-8 p-6 bg-zinc-900/80 border border-emerald-500/30 rounded-2xl max-w-md mx-auto shadow-2xl">
+            <p className="text-sm font-bold text-muted-foreground uppercase tracking-wider mb-2">Seu Código de Fila (O2O)</p>
+            <p className="text-5xl font-mono font-black tracking-[0.2em] text-emerald-400">{o2oCode}</p>
+            <p className="text-xs text-zinc-400 mt-4 leading-relaxed">
+              Apresente este código no balcão da loja física para agilizar seu atendimento e finalizar a compra. Uma cópia foi enviada para o seu e-mail.
+            </p>
+          </div>
+        )}
+
         <div className="flex flex-col sm:flex-row justify-center gap-4">
           <Button onClick={() => setSuccess(false)} variant="outline" className="border-border-subtle hover:bg-zinc-800 text-white font-bold h-12 px-8">
             Solicitar Outra Peça

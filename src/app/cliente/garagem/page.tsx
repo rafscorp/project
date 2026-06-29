@@ -3,8 +3,10 @@ import { useState, useEffect } from "react";
 import { CarFront, Search, Trash2, ArrowLeft, Loader2, AlertCircle } from "lucide-react";
 import Link from "next/link";
 import { PlacaCreditBanner } from "@/components/app/PlacaCreditBanner";
+import { useRouter } from "next/navigation";
 
 export default function GaragemVirtual() {
+  const router = useRouter();
   const [vehicles, setVehicles] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [placaInput, setPlacaInput] = useState("");
@@ -49,7 +51,7 @@ export default function GaragemVirtual() {
     }
 
     if (creditStatus && !creditStatus.allowed) {
-      setError("Você não tem créditos suficientes. Compre um pacote de consultas.");
+      router.push("/planos#placas");
       return;
     }
 
@@ -135,11 +137,17 @@ export default function GaragemVirtual() {
               />
             </div>
             <button 
-              type="submit" 
-              disabled={isSearching || (!creditStatus?.allowed)}
-              className="bg-blue-600 hover:bg-blue-500 disabled:bg-zinc-800 disabled:text-zinc-500 text-white font-bold px-8 py-4 rounded-xl transition-colors flex items-center justify-center min-w-[160px]"
+              type="button" 
+              onClick={creditStatus && !creditStatus.allowed ? () => router.push("/planos#placas") : handleSearch}
+              disabled={isSearching}
+              className={`font-bold px-8 py-4 rounded-xl transition-colors flex items-center justify-center min-w-[160px] ${
+                creditStatus && !creditStatus.allowed
+                ? 'bg-amber-600 hover:bg-amber-500 text-white'
+                : 'bg-blue-600 hover:bg-blue-500 disabled:bg-zinc-800 disabled:text-zinc-500 text-white'
+              }`}
             >
-              {isSearching ? <Loader2 className="w-5 h-5 animate-spin" /> : "Buscar Placa"}
+              {isSearching ? <Loader2 className="w-5 h-5 animate-spin" /> : 
+               (creditStatus && !creditStatus.allowed ? "Adquirir Pacote (R$20)" : "Buscar Placa")}
             </button>
           </form>
           {error && (

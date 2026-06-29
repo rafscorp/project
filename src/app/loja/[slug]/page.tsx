@@ -58,16 +58,28 @@ export default async function StorePage({ params }: Props) {
             {store.address} — {store.city}/{store.state}
           </p>
           <p className="mt-1 text-sm text-muted-foreground">Telefone: {store.phone}</p>
-          {store.latitude && store.longitude && (
-            <div className="mt-4 overflow-hidden rounded-xl border border-border-subtle">
-              <iframe
-                title={`Mapa de ${store.name}`}
-                src={`https://www.google.com/maps?q=${store.latitude},${store.longitude}&z=15&output=embed`}
-                className="h-60 w-full"
-              />
-            </div>
-          )}
+          <div className="mt-4 overflow-hidden rounded-xl border border-border-subtle">
+            <iframe
+              title={`Mapa de ${store.name}`}
+              src={`https://www.google.com/maps?q=${encodeURIComponent(`${store.address}, ${store.city} - ${store.state}`)}&z=15&output=embed`}
+              className="h-60 w-full"
+            />
+          </div>
         </div>
+
+        {/* Galeria de Fotos */}
+        {store.galleryUrls && (store.galleryUrls as string[]).length > 0 && (
+          <div className="mt-12">
+            <h3 className="font-display font-bold text-foreground text-2xl mb-6">Nossa Vitrine</h3>
+            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+              {(store.galleryUrls as string[]).map((url, idx) => (
+                <div key={idx} className="relative aspect-square rounded-2xl overflow-hidden border border-border-subtle group">
+                  <img src={url} alt={`Foto ${idx + 1}`} className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-110" />
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
 
         {/* Avaliações da Loja */}
         <StoreReviews 

@@ -11,8 +11,8 @@ export const dynamic = 'force-dynamic';
 export default function CadastroSelectorPage() {
   return (
     <div className="flex min-h-screen flex-col bg-background selection:bg-violet-600/30">
-      <div className="fixed inset-0 z-0 bg-mesh-dark pointer-events-none" />
-      <div className="fixed inset-0 z-0 bg-grid-dark opacity-20 pointer-events-none" />
+      <div className="fixed inset-0 z-0 bg-mesh-premium pointer-events-none" />
+      <div className="fixed inset-0 z-0 bg-grid-premium opacity-20 pointer-events-none" />
       
       {/* Botão Global de Voltar */}
       <BackButton />

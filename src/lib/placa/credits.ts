@@ -2,7 +2,7 @@ import prisma from "@/lib/db/prisma";
 
 export const PLACA_FREE_LIMIT = 10;
 
-export async function checkPlacaCredits(userId: string) {
+export async function checkPlacaCredits(userId: string, ip?: string) {
   const user = await prisma.user.findUnique({
     where: { id: userId },
     select: { placaFreeUsed: true, placaCredits: true },
@@ -13,11 +13,30 @@ export async function checkPlacaCredits(userId: string) {
   }
 
   // 1. Tenta usar cota gratuita primeiro
-  if (user.placaFreeUsed < PLACA_FREE_LIMIT) {
+  // Check user limit
+  let userHasFreeQuota = user.placaFreeUsed < PLACA_FREE_LIMIT;
+  
+  // Check IP limit
+  let ipQuotaUsed = 0;
+  if (ip && userHasFreeQuota) {
+    const ipRecord = await prisma.placaFreeQuotaIP.findUnique({ where: { ip } });
+    if (ipRecord) {
+      ipQuotaUsed = ipRecord.count;
+      if (ipQuotaUsed >= PLACA_FREE_LIMIT) {
+        userHasFreeQuota = false; // Blocked by IP
+      }
+    }
+  }
+
+  if (userHasFreeQuota) {
+    const remainingForUser = PLACA_FREE_LIMIT - user.placaFreeUsed;
+    const remainingForIp = PLACA_FREE_LIMIT - ipQuotaUsed;
+    const actualRemaining = Math.min(remainingForUser, remainingForIp);
+    
     return {
       allowed: true,
       isFreeQuota: true,
-      remaining: PLACA_FREE_LIMIT - user.placaFreeUsed,
+      remaining: actualRemaining,
       freeUsed: user.placaFreeUsed,
       reason: "ok"
     };
@@ -41,12 +60,20 @@ export async function checkPlacaCredits(userId: string) {
   };
 }
 
-export async function debitPlacaCredit(userId: string, isFreeQuota: boolean) {
+export async function debitPlacaCredit(userId: string, isFreeQuota: boolean, ip?: string) {
   if (isFreeQuota) {
     await prisma.user.update({
       where: { id: userId },
       data: { placaFreeUsed: { increment: 1 } },
     });
+    
+    if (ip) {
+      await prisma.placaFreeQuotaIP.upsert({
+        where: { ip },
+        update: { count: { increment: 1 } },
+        create: { ip, count: 1 },
+      });
+    }
   } else {
     // Garante que não fique negativo
     const user = await prisma.user.findUnique({ where: { id: userId } });

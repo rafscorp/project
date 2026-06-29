@@ -41,6 +41,12 @@ enum OrderStatus {
   CANCELLED
 }
 
+enum OrderQueueStatus {
+  PENDING
+  FINALIZED
+  CANCELLED
+}
+
 enum PaymentStatus {
   PENDING
   PAID
@@ -168,6 +174,7 @@ model User {
   orders              Order[]
   vehicles            Vehicle[]            // Garagem Virtual
   placaPurchases      PlacaQueryPurchase[]
+  orderQueues         OrderQueue[]
 
   @@index([email])
   @@index([username])
@@ -354,6 +361,7 @@ model Store {
   description   String?
   logoUrl       String?
   bannerUrl     String?
+  galleryUrls   Json      @default("[]") // Fotos da loja (vitrine)
   latitude      Float?
   longitude     Float?
   phone         String
@@ -379,6 +387,8 @@ model Store {
   orders        Order[]
   quoteRequests QuoteRequest[]
   offers        StoreOffer[]
+  coupons       Coupon[]
+  orderQueues   OrderQueue[]
 
   @@index([ownerId])
   @@index([slug])
@@ -526,6 +536,29 @@ model OrderItem {
 }
 
 // -----------------------------------------------------------------------------
+// O2O Queue System (Fila de clientes com código offline)
+// -----------------------------------------------------------------------------
+model OrderQueue {
+  id              String           @id @default(cuid())
+  storeId         String
+  customerId      String
+  code            String           // Ex: 1234X
+  status          OrderQueueStatus @default(PENDING)
+  partDescription String?          // Peça que o cliente quer
+  expiresAt       DateTime?        // Bloqueia reuso do código se != null
+  createdAt       DateTime         @default(now())
+  updatedAt       DateTime         @updatedAt
+
+  store    Store @relation(fields: [storeId], references: [id], onDelete: Cascade)
+  customer User  @relation(fields: [customerId], references: [id], onDelete: Cascade)
+
+  @@index([storeId, status])
+  @@index([code])
+  @@index([expiresAt])
+  @@map("order_queues")
+}
+
+// -----------------------------------------------------------------------------
 // Pagamentos
 // -----------------------------------------------------------------------------
 
@@ -581,8 +614,8 @@ model Coupon {
   createdAt      DateTime    @default(now())
   updatedAt      DateTime    @updatedAt
 
-  affiliate     Affiliate?      @relation(fields: [affiliateId], references: [id], onDelete: SetNull)
-  store         Store?          @relation(fields: [storeId], references: [id], onDelete: Cascade)
+  affiliate Affiliate? @relation("AffiliateCoupons", fields: [affiliateId], references: [id], onDelete: SetNull)
+  store     Store?     @relation(fields: [storeId], references: [id], onDelete: Cascade)
   usages        CouponUsage[]
   orders        Order[]
   subscriptions Subscription[]
@@ -633,7 +666,7 @@ model Affiliate {
   user      User                @relation(fields: [userId], references: [id], onDelete: Cascade)
   referrals AffiliateReferral[]
   payments  AffiliatePayment[]
-  coupons   Coupon[]
+  coupons   Coupon[] @relation("AffiliateCoupons")
 
   @@index([code])
   @@index([status])
@@ -851,3 +884,10 @@ model PlacaQueryPurchase {
 }
 
 
+
+model PlacaFreeQuotaIP {
+  ip        String   @id
+  count     Int      @default(0)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}

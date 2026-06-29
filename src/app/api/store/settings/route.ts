@@ -19,8 +19,7 @@ export async function POST(request: NextRequest) {
       zipCode: body.zipCode,
       logoUrl: body.logoUrl,
       bannerUrl: body.bannerUrl,
-      latitude: body.latitude ?? null,
-      longitude: body.longitude ?? null,
+      galleryUrls: body.galleryUrls,
     });
 
     return NextResponse.json({ success: true });

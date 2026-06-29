@@ -51,8 +51,8 @@ export default async function PlanosPage() {
   return (
     <div className="min-h-screen bg-background text-foreground flex flex-col pt-24 pb-12 px-4 sm:px-6 lg:px-8">
       {/* BACKGROUND GLOBAL */}
-      <div className="fixed inset-0 z-0 bg-mesh-dark pointer-events-none hidden sm:block" />
-      <div className="fixed inset-0 z-0 bg-grid-dark opacity-40 pointer-events-none hidden sm:block" />
+      <div className="fixed inset-0 z-0 bg-mesh-premium pointer-events-none hidden sm:block" />
+      <div className="fixed inset-0 z-0 bg-grid-premium opacity-40 pointer-events-none hidden sm:block" />
       
       <BackButton />
 
@@ -145,15 +145,15 @@ export default async function PlanosPage() {
                     // CARD NORMAL (Free = dark gray, Paid = subtle blue/green)
                     <div className={`relative rounded-3xl p-8 h-full border transition-colors flex flex-col hover:-translate-y-2 duration-300 ${
                       isFree 
-                        ? 'bg-zinc-950 border-zinc-800 hover:border-zinc-700 hover:bg-zinc-900/50' 
-                        : 'bg-panel border-cyan-500/20 hover:border-cyan-500/40 hover:bg-cyan-950/20 shadow-[0_0_30px_rgba(6,182,212,0.05)]'
+                        ? 'bg-zinc-100 dark:bg-zinc-950 border-zinc-300 dark:border-zinc-800 hover:border-zinc-400 dark:hover:border-zinc-700 hover:bg-zinc-200/50 dark:hover:bg-zinc-900/50' 
+                        : 'glass-panel border-cyan-500/20 hover:border-cyan-500/40 hover:bg-cyan-500/5 shadow-[0_0_30px_rgba(6,182,212,0.05)]'
                     }`}>
                       {mostChosenPlanId === plan.id && !isFree && (
                         <div className="absolute top-0 right-8 bg-cyan-600/80 border border-cyan-500/50 text-zinc-50 text-xs font-black px-4 py-1.5 rounded-b-xl shadow-lg transform origin-top">
                           MAIS ESCOLHIDO
                         </div>
                       )}
-                      <h3 className={`text-2xl font-black mt-2 ${isFree ? 'text-zinc-400' : 'text-cyan-400'}`}>{plan.name}</h3>
+                      <h3 className={`text-2xl font-black mt-2 ${isFree ? 'text-zinc-600 dark:text-zinc-400' : 'text-cyan-600 dark:text-cyan-400'}`}>{plan.name}</h3>
                       <div className="mt-4 flex flex-col">
                         {(plan.comparePriceMonthly || hasDiscount) && (
                           <div className="flex items-center gap-2 mb-1">
@@ -165,7 +165,7 @@ export default async function PlanosPage() {
                             </span>
                           </div>
                         )}
-                        <div className={`flex items-baseline text-5xl font-extrabold ${isFree ? 'text-zinc-300' : 'text-foreground'}`}>
+                        <div className={`flex items-baseline text-5xl font-extrabold ${isFree ? 'text-zinc-800 dark:text-zinc-300' : 'text-foreground'}`}>
                           <span className="text-2xl text-muted-foreground mr-1">R$</span>
                           {discountedPrice.toFixed(2).replace('.', ',')}
                           <span className="ml-2 text-xl font-medium text-muted-foreground">/mês</span>
@@ -175,14 +175,14 @@ export default async function PlanosPage() {
                       <ul className="mt-8 space-y-4 mb-8 flex-1">
                         {featuresArray.map((feature: string) => (
                           <li key={feature} className="flex items-center text-foreground/80 font-medium text-lg">
-                            <CheckCircle2 className={`h-6 w-6 mr-3 shrink-0 ${isFree ? 'text-zinc-600' : 'text-cyan-500/60'}`} /> {feature}
+                            <CheckCircle2 className={`h-6 w-6 mr-3 shrink-0 ${isFree ? 'text-zinc-400 dark:text-zinc-600' : 'text-cyan-600/80 dark:text-cyan-500/60'}`} /> {feature}
                           </li>
                         ))}
                       </ul>
                       <div className={`mt-8 w-full py-4 rounded-xl font-bold text-center border-2 transition-colors ${
                         isFree 
-                          ? 'border-zinc-800 text-zinc-400 group-hover:border-zinc-600 group-hover:text-zinc-300' 
-                          : 'border-cyan-500/30 text-cyan-400 group-hover:border-cyan-500/50 group-hover:bg-cyan-500/10'
+                          ? 'border-zinc-300 dark:border-zinc-800 text-zinc-600 dark:text-zinc-400 group-hover:border-zinc-400 dark:group-hover:border-zinc-600 group-hover:text-zinc-800 dark:group-hover:text-zinc-300' 
+                          : 'border-cyan-500/30 text-cyan-600 dark:text-cyan-400 group-hover:border-cyan-500/50 group-hover:bg-cyan-500/10'
                       }`}>
                         {isFree ? "Começar Grátis" : `Assinar ${plan.name}`}
                       </div>

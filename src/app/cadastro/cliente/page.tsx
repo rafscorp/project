@@ -7,7 +7,8 @@ export const dynamic = 'force-dynamic';
 export default function RegisterCustomerPage() {
   return (
     <div className="flex min-h-screen flex-col bg-background selection:bg-blue-600/30">
-      <div className="fixed inset-0 z-0 bg-grid-dark opacity-20 pointer-events-none" />
+      <div className="fixed inset-0 z-0 bg-mesh-premium pointer-events-none" />
+      <div className="fixed inset-0 z-0 bg-grid-premium opacity-20 pointer-events-none" />
       
       {/* Simple Header */}
       <header className="relative z-10 p-6 flex justify-between items-center max-w-7xl mx-auto w-full">
@@ -21,7 +22,7 @@ export default function RegisterCustomerPage() {
       </header>
 
       {/* Main Wizard Area */}
-      <main className="relative z-10 flex-1 flex flex-col items-center justify-center p-4">
+      <main className="relative z-10 flex-1 flex flex-col items-center p-4 pt-12">
         <MultiStepCustomerRegister />
       </main>
       

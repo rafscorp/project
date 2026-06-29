@@ -48,6 +48,10 @@ export class ProductService {
       }
     });
 
+    if (store && store.subscription && !["ACTIVE", "TRIAL"].includes(store.subscription.status)) {
+      throw new Error("Modo Vitrine: Assine um plano para adicionar produtos.");
+    }
+
     if (store && store.subscription?.plan) {
       const maxProducts = store.subscription.plan.maxProducts;
       const currentProductsCount = await prisma.product.count({
@@ -60,7 +64,7 @@ export class ProductService {
           sendLimitExceededEmail(store.owner.email, store.owner.name, store.name).catch(console.error);
         });
 
-        throw new Error(\`Limite excedido: Seu plano permite no máximo \${maxProducts} peças. Faça o upgrade para continuar cadastrando!\`);
+        throw new Error(`Limite excedido: Seu plano permite no máximo ${maxProducts} peças. Faça o upgrade para continuar cadastrando!`);
       }
     }
 
@@ -118,6 +122,10 @@ export class ProductService {
       }
     });
 
+    if (store && store.subscription && !["ACTIVE", "TRIAL"].includes(store.subscription.status)) {
+      throw new Error("Modo Vitrine: Assine um plano para adicionar produtos em massa.");
+    }
+
     if (store && store.subscription?.plan) {
       const maxProducts = store.subscription.plan.maxProducts;
       const currentProductsCount = await prisma.product.count({
@@ -130,7 +138,7 @@ export class ProductService {
           sendLimitExceededEmail(store.owner.email, store.owner.name, store.name).catch(console.error);
         });
 
-        throw new Error(\`Limite excedido: Seu plano permite no máximo \${maxProducts} peças. Você está tentando adicionar mais do que o permitido. Faça o upgrade para continuar!\`);
+        throw new Error(`Limite excedido: Seu plano permite no máximo ${maxProducts} peças. Você está tentando adicionar mais do que o permitido. Faça o upgrade para continuar!`);
       }
     }
 
@@ -141,6 +149,15 @@ export class ProductService {
   }
 
   static async update(productId: string, storeId: string, input: Partial<ProductInput>) {
+    const store = await prisma.store.findUnique({
+      where: { id: storeId },
+      include: { subscription: true }
+    });
+
+    if (store && store.subscription && !["ACTIVE", "TRIAL"].includes(store.subscription.status)) {
+      throw new Error("Modo Vitrine: Assine um plano para editar produtos.");
+    }
+
     const data: any = { ...input };
 
     // Sanitiza strings do payload de atualização se existirem
@@ -161,6 +178,15 @@ export class ProductService {
   }
 
   static async delete(productId: string, storeId: string) {
+    const store = await prisma.store.findUnique({
+      where: { id: storeId },
+      include: { subscription: true }
+    });
+
+    if (store && store.subscription && !["ACTIVE", "TRIAL"].includes(store.subscription.status)) {
+      throw new Error("Modo Vitrine: Assine um plano para excluir produtos.");
+    }
+
     return prisma.product.updateMany({
       where: { id: productId, storeId },
       data: { deletedAt: new Date(), active: false },

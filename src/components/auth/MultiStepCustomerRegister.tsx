@@ -5,6 +5,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
+import { PasswordInput, evaluatePassword } from "@/components/ui/PasswordInput";
 import { ArrowRight, ChevronLeft, UserCircle } from "lucide-react";
 
 type FormState = {
@@ -44,6 +45,12 @@ export function MultiStepCustomerRegister() {
       setError("Preencha os campos obrigatórios para avançar.");
       return;
     }
+    
+    if (evaluatePassword(form.password) === "weak") {
+      setError("Sua senha é muito fraca. Digite pelo menos 6 caracteres.");
+      return;
+    }
+    
     setLoading(true);
     try {
       const res = await fetch("/api/auth/verify-email/send", {
@@ -111,7 +118,7 @@ export function MultiStepCustomerRegister() {
               <Input label="Seu Nome" value={form.name} onChange={e => update("name", e.target.value)} required />
               <Input label="E-mail" type="email" value={form.email} onChange={e => update("email", e.target.value)} required />
               <Input label="Telefone / WhatsApp (Opcional)" value={form.phone} onChange={e => update("phone", e.target.value)} />
-              <Input label="Crie uma Senha" type="password" value={form.password} onChange={e => update("password", e.target.value)} required />
+              <PasswordInput label="Crie uma Senha" value={form.password} onChange={e => update("password", e.target.value)} required />
               
               <fieldset className="space-y-4 pt-4 border-t border-border-subtle mt-4">
                 <legend className="mb-2 text-sm font-semibold uppercase tracking-wider text-blue-400">Documentos Legais</legend>

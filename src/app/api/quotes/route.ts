@@ -3,6 +3,7 @@ import { getSession } from "@/lib/auth/session";
 import prisma from "@/lib/db/prisma";
 import { UserRole } from "@prisma/client";
 import { sanitizeHtml, stripHtml } from "@/lib/security/sanitize";
+import { sendO2OCodeEmail, sendO2OStoreEmail } from "@/lib/email/templates";
 
 // GET: Lista orçamentos baseado no papel do usuário logado
 export async function GET(request: NextRequest) {
@@ -67,7 +68,57 @@ export async function POST(request: NextRequest) {
       },
     });
 
-    return NextResponse.json(quote, { status: 201 });
+    // -------------------------------------------------------------------------
+    // O2O Queue System: Generate 5-character Code (4 digits + 1 uppercase letter)
+    // -------------------------------------------------------------------------
+    let code = "";
+    let isUnique = false;
+    
+    while (!isUnique) {
+      const numbers = Math.floor(1000 + Math.random() * 9000).toString(); // 4 digits
+      const letter = String.fromCharCode(65 + Math.floor(Math.random() * 26)); // A-Z
+      code = numbers + letter;
+      
+      const existing = await prisma.orderQueue.findFirst({
+        where: {
+          storeId: sanitizedStoreId,
+          code,
+          OR: [
+            { status: "PENDING" },
+            { expiresAt: { gt: new Date() } } // Still locked
+          ]
+        }
+      });
+      if (!existing) isUnique = true;
+    }
+
+    const orderQueue = await prisma.orderQueue.create({
+      data: {
+        storeId: sanitizedStoreId,
+        customerId: session.userId,
+        code,
+        partDescription: `${sanitizedVehicle} - Peça: ${sanitizedPart}`,
+        status: "PENDING"
+      }
+    });
+
+    // Fetch store and user details for emails
+    const [store, customer] = await Promise.all([
+      prisma.store.findUnique({ where: { id: sanitizedStoreId }, include: { owner: true } }),
+      prisma.user.findUnique({ where: { id: session.userId } })
+    ]);
+
+    if (store && customer) {
+      const mapsLink = `https://www.google.com/maps?q=${encodeURIComponent(`${store.address}, ${store.city} - ${store.state}`)}`;
+      
+      // Send Email to Customer with the Code
+      sendO2OCodeEmail(customer.email, customer.name, store.name, code, mapsLink).catch(console.error);
+      
+      // Send Email to Store notifying them of the new Lead
+      sendO2OStoreEmail(store.owner.email, store.name, customer.name, sanitizedVehicle, sanitizedPart).catch(console.error);
+    }
+
+    return NextResponse.json({ ...quote, o2oCode: code }, { status: 201 });
   } catch (error) {
     console.error("POST /api/quotes ERROR", error);
     return NextResponse.json({ error: "Erro interno ao processar solicitação" }, { status: 500 });

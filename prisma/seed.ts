@@ -10,12 +10,12 @@ const prisma = new PrismaClient();
 async function main() {
   console.log("🌱 Iniciando seed do banco de dados...\n");
 
-  const passwordHash = await bcrypt.hash("admin123", 12);
+  const passwordHash = await bcrypt.hash("agury123", 12);
 
   // Admin da plataforma
   const admin = await prisma.user.upsert({
     where: { email: "admin@agury.com.br" },
-    update: {},
+    update: { passwordHash },
     create: {
       username: "admin_agury",
       email: "admin@agury.com.br",
@@ -25,7 +25,7 @@ async function main() {
       phone: "(11) 90000-0000",
     },
   });
-  console.log("✓ Admin:", admin.email, "| senha: admin123");
+  console.log("✓ Admin:", admin.email, "| senha: agury123");
 
   // Planos de assinatura
   const plans = [
@@ -73,10 +73,10 @@ async function main() {
   const proPlan = await prisma.subscriptionPlan.findUnique({ where: { slug: "professional" } });
 
   // Dono de loja demo
-  const storeOwnerHash = await bcrypt.hash("loja123", 12);
+  const storeOwnerHash = await bcrypt.hash("agury123", 12);
   const storeOwner = await prisma.user.upsert({
     where: { email: "loja@agurydemo.com.br" },
-    update: {},
+    update: { passwordHash: storeOwnerHash },
     create: {
       username: "loja_demo",
       email: "loja@agurydemo.com.br",
@@ -86,7 +86,7 @@ async function main() {
       phone: "(11) 98888-7777",
     },
   });
-  console.log("✓ Lojista:", storeOwner.email, "| senha: loja123");
+  console.log("✓ Lojista:", storeOwner.email, "| senha: agury123");
 
   // Loja demo
   const store = await prisma.store.upsert({
@@ -162,10 +162,10 @@ async function main() {
   console.log("✓", products.length, "produtos demo");
 
   // Cliente demo
-  const customerHash = await bcrypt.hash("cliente123", 12);
+  const customerHash = await bcrypt.hash("agury123", 12);
   const customer = await prisma.user.upsert({
     where: { email: "cliente@email.com" },
-    update: {},
+    update: { passwordHash: customerHash },
     create: {
       username: "cliente_demo",
       email: "cliente@email.com",
@@ -175,19 +175,19 @@ async function main() {
       phone: "(11) 97777-6666",
     },
   });
-  console.log("✓ Cliente:", customer.email, "| senha: cliente123");
+  console.log("✓ Cliente:", customer.email, "| senha: agury123");
 
   console.log("\n✅ Seed concluído!\n");
 
   // Plano de Consultas avulso (Usuários)
   const consultaPlan = await prisma.placaQueryPlan.upsert({
     where: { slug: "consulta-placas" },
-    update: {},
+    update: { price: 20.00 },
     create: {
       name: "Consulta Placas",
       slug: "consulta-placas",
       description: "Pacote de 20 consultas de placas na base nacional.",
-      price: 4.40,
+      price: 20.00,
       credits: 20,
       features: JSON.stringify(["Consulta nacional instantânea", "Descubra Chassi e Motor", "Adicione os veículos na garagem"]),
       sortOrder: 1,
@@ -279,9 +279,9 @@ async function main() {
   });
 
   console.log("Contas de teste:");
-  console.log("  Admin:    admin@agury.com.br / admin123");
-  console.log("  Lojista:  loja@agurydemo.com.br / loja123");
-  console.log("  Cliente:  cliente@email.com / cliente123");
+  console.log("  Admin:    admin@agury.com.br / agury123");
+  console.log("  Lojista:  loja@agurydemo.com.br / agury123");
+  console.log("  Cliente:  cliente@email.com / agury123");
   console.log("  Loja demo: http://localhost:3000/loja/diamond-car\n");
 }
 

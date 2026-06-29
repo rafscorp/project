@@ -1,11 +1,11 @@
 import { NextRequest, NextResponse } from "next/server";
 import prisma from "@/lib/db/prisma";
-import { getAdminSession } from "@/lib/auth/admin-session";
+import { getSession } from "@/lib/auth/session";
 import { sendOfferEmail } from "@/lib/email/templates";
 
 export async function POST(request: NextRequest) {
-  const session = await getAdminSession();
-  if (!session) return NextResponse.json({ success: false, error: "Não autorizado" }, { status: 401 });
+  const session = await getSession();
+  if (!session || session.role !== "ADMIN") return NextResponse.json({ success: false, error: "Não autorizado" }, { status: 401 });
 
   try {
     const { storeId, discount, validDays } = await request.json();

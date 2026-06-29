@@ -53,7 +53,8 @@ export async function GET(
       );
     }
 
-    const creditStatus = await checkPlacaCredits(session.userId);
+    const ip = getClientIp(request.headers);
+    const creditStatus = await checkPlacaCredits(session.userId, ip);
     if (!creditStatus.allowed) {
       return NextResponse.json(
         { 
@@ -66,7 +67,6 @@ export async function GET(
     }
 
     // 2. Rate limiting — 10 consultas/hora por IP
-    const ip = getClientIp(request.headers);
     const rateLimit = checkRateLimit(`placa:${ip}`, {
       maxRequests: 10,
       windowSeconds: 3600,
@@ -168,7 +168,7 @@ export async function GET(
         await recordSuccess("placa-api");
 
         // Debita o crédito do usuário (somente se consultou a API externa de fato)
-        await debitPlacaCredit(session.userId, creditStatus.isFreeQuota!);
+        await debitPlacaCredit(session.userId, creditStatus.isFreeQuota!, ip);
 
         // Salva no cache (fire-and-forget, sem bloquear a resposta)
         const expiresAt = new Date(Date.now() + CACHE_TTL_HOURS * 3600 * 1000);

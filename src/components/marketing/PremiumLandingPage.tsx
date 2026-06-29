@@ -83,10 +83,10 @@ export default function PremiumLandingPage({ topStores, plans, mostChosenPlanId 
   const [showPlans, setShowPlans] = useState(false);
 
   const faqs = [
-    { q: "Eu pago algo para usar a plataforma?", a: "Não. A plataforma é 100% gratuita para clientes que buscam peças e orçamentos." },
-    { q: "Como recebo minhas peças?", a: "Você negocia diretamente com a loja. Pode combinar a retirada no balcão ou entrega, dependendo da disponibilidade do lojista." },
-    { q: "Meus dados estão seguros?", a: "Totalmente. Nosso chat protege sua privacidade e você decide quando passar informações adicionais ao lojista." },
-    { q: "Posso fazer orçamentos com várias lojas?", a: "Sim! Você pode enviar solicitações e receber propostas de diferentes lojas da sua região para comparar o melhor preço." }
+    { q: "A plataforma é realmente gratuita?", a: "Sim, 100% gratuita para clientes que estão buscando peças. Você pode fazer quantos orçamentos quiser sem pagar nada." },
+    { q: "Como recebo minhas peças?", a: "Após fechar negócio pelo nosso chat, você combina diretamente com a loja. Pode ser retirada no balcão ou entrega na sua oficina/casa." },
+    { q: "Meus dados estão seguros?", a: "Totalmente. Nosso chat protege sua privacidade e suas informações só são passadas para a loja quando você decide compartilhar." },
+    { q: "Posso comparar preços?", a: "Com certeza! É o nosso forte. Você pode solicitar orçamentos para várias lojas da sua região e escolher a oferta que melhor te atende." }
   ];
 
   return (
@@ -133,54 +133,54 @@ export default function PremiumLandingPage({ topStores, plans, mostChosenPlanId 
           initial="hidden"
           animate="visible"
           variants={staggerContainer}
-          className="mt-16 grid w-full max-w-5xl gap-6 sm:grid-cols-2"
+          className="mt-16 grid w-full max-w-5xl gap-8 sm:grid-cols-2 relative z-20"
         >
           {/* Card Cliente */}
-          <motion.div variants={fadeUp} className="h-full">
-            <Link href="/login" className="block h-full group outline-none">
-              <div className="glass-panel glass-panel-hover relative flex h-full flex-col sm:flex-row items-center sm:items-start text-center sm:text-left rounded-[2rem] p-6 sm:p-10 transition-all border border-border-subtle bg-panel/60 hover:bg-panel/90 shadow-[0_0_40px_rgba(59,130,246,0.15)] group-hover:shadow-[0_0_60px_rgba(59,130,246,0.3)] group-hover:-translate-y-2">
-                <div className="absolute inset-0 bg-gradient-to-br from-blue-600/20 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity rounded-[2rem] pointer-events-none" />
+          <motion.div variants={fadeUp} className="h-full relative group">
+            <Link href="/login" className="block h-full relative outline-none">
+              <div className="relative flex h-full flex-col sm:flex-row items-center sm:items-start text-center sm:text-left rounded-[2rem] p-8 sm:p-10 transition-all bg-card hover:bg-accent/10 border border-border overflow-hidden shadow-sm hover:shadow-md hover:border-blue-500/30 dark:hover:border-blue-400/50">
+                <div className="absolute inset-0 bg-gradient-to-br from-blue-500/5 via-transparent to-transparent opacity-0 group-hover:opacity-100 rounded-[2rem] pointer-events-none transition-opacity duration-500" />
                 
-                <div className="mb-6 sm:mb-0 sm:mr-8 shrink-0 rounded-[1.5rem] bg-background p-6 shadow-inner ring-1 ring-blue-500/40 group-hover:ring-blue-400 group-hover:bg-blue-500/10 transition-all">
-                  <CarFront className="h-10 w-10 sm:h-12 sm:w-12 text-blue-400 group-hover:text-blue-300" />
+                <div className="mb-6 sm:mb-0 sm:mr-8 shrink-0 rounded-3xl bg-blue-100 dark:bg-blue-900/30 p-6 shadow-inner ring-1 ring-blue-500/20 group-hover:ring-blue-500/40 transition-all relative overflow-hidden">
+                  <User className="h-12 w-12 sm:h-14 sm:w-14 text-blue-600 dark:text-blue-400 relative z-10 transition-transform group-hover:scale-110 duration-500" />
                 </div>
                 
-                <div className="flex-1 flex flex-col items-center sm:items-start">
-                  <h2 className="font-display text-2xl sm:text-3xl font-black text-foreground mb-3">Sou Cliente</h2>
-                  <p className="text-muted-foreground text-base sm:text-lg mb-8 font-medium leading-relaxed">
-                    Ache a peça exata, conecte-se com o lojista e negocie com segurança.
+                <div className="flex-1 flex flex-col items-center sm:items-start z-10">
+                  <h2 className="font-display text-3xl sm:text-4xl font-black text-foreground mb-4">Sou Cliente</h2>
+                  <p className="text-muted-foreground text-lg mb-8 font-medium leading-relaxed">
+                    Ache a peça exata instantaneamente. Conecte-se com os melhores lojistas da região e negocie com total segurança.
                   </p>
-                  <div className="mt-auto inline-flex items-center text-blue-400 font-black text-lg group-hover:text-white transition-colors bg-blue-500/10 px-6 py-3 rounded-xl border border-blue-500/20 group-hover:bg-blue-500/30 btn-shimmer btn-shimmer-blue">
-                  Entrar na Plataforma <ArrowRight className="ml-2 h-6 w-6 transition-transform group-hover:translate-x-2 relative z-20" />
-                </div>
+                  <div className="mt-auto inline-flex items-center justify-center w-full sm:w-auto font-black text-lg text-white bg-blue-600 hover:bg-blue-500 px-8 py-4 rounded-xl shadow-sm hover:shadow-md transition-all group-hover:-translate-y-1">
+                    Entrar na Plataforma <ArrowRight className="ml-2 h-6 w-6 transition-transform group-hover:translate-x-2" />
+                  </div>
                 </div>
               </div>
             </Link>
           </motion.div>
 
           {/* Card Lojista */}
-          <motion.div variants={fadeUp} className="h-full">
-            <div className="block h-full group outline-none">
-              <div className="glass-panel glass-panel-hover relative flex h-full flex-col sm:flex-row items-center sm:items-start text-center sm:text-left rounded-[2rem] p-6 sm:p-10 transition-all border border-border-subtle bg-panel/60 hover:bg-panel/90 shadow-[0_0_40px_rgba(139,92,246,0.15)] group-hover:shadow-[0_0_60px_rgba(139,92,246,0.3)] group-hover:-translate-y-2">
-                <div className="absolute inset-0 bg-gradient-to-bl from-violet-600/20 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity rounded-[2rem] pointer-events-none" />
+          <motion.div variants={fadeUp} className="h-full relative group">
+            <div className="block h-full relative outline-none">
+              <div className="relative flex h-full flex-col sm:flex-row items-center sm:items-start text-center sm:text-left rounded-[2rem] p-8 sm:p-10 transition-all bg-card hover:bg-accent/10 border border-border overflow-hidden shadow-sm hover:shadow-md hover:border-violet-500/30 dark:hover:border-violet-400/50">
+                <div className="absolute inset-0 bg-gradient-to-bl from-violet-500/5 via-transparent to-transparent opacity-0 group-hover:opacity-100 rounded-[2rem] pointer-events-none transition-opacity duration-500" />
                 
-                <div className="mb-6 sm:mb-0 sm:mr-8 shrink-0 rounded-[1.5rem] bg-background p-6 shadow-inner ring-1 ring-violet-500/40 group-hover:ring-violet-400 group-hover:bg-violet-500/10 transition-all">
-                  <Store className="h-10 w-10 sm:h-12 sm:w-12 text-violet-400 group-hover:text-violet-300" />
+                <div className="mb-6 sm:mb-0 sm:mr-8 shrink-0 rounded-3xl bg-violet-100 dark:bg-violet-900/30 p-6 shadow-inner ring-1 ring-violet-500/20 group-hover:ring-violet-500/40 transition-all relative overflow-hidden">
+                  <Store className="h-12 w-12 sm:h-14 sm:w-14 text-violet-600 dark:text-violet-400 relative z-10 transition-transform group-hover:scale-110 duration-500" />
                 </div>
                 
-                <div className="flex-1 flex flex-col items-center sm:items-start">
-                  <h2 className="font-display text-2xl sm:text-3xl font-black text-foreground mb-3">Sou Lojista</h2>
-                  <p className="text-muted-foreground text-base sm:text-lg mb-8 font-medium leading-relaxed">
-                    Digitalize sua loja de autopeças. Conecte-se com clientes 24h por dia de forma segura e organizada.
+                <div className="flex-1 flex flex-col items-center sm:items-start z-10">
+                  <h2 className="font-display text-3xl sm:text-4xl font-black text-foreground mb-4">Sou Lojista</h2>
+                  <p className="text-muted-foreground text-lg mb-8 font-medium leading-relaxed">
+                    Digitalize o balcão da sua autopeças. Receba pedidos 24h por dia e aumente suas vendas sem complicação.
                   </p>
-                  <div className="mt-auto flex flex-col sm:flex-row gap-3 w-full relative z-10">
+                  <div className="mt-auto flex flex-col gap-3 w-full relative z-10">
                     <Link 
                       href="/planos"
-                      className="inline-flex items-center justify-center text-violet-400 font-black text-sm sm:text-base group-hover:text-white transition-colors bg-violet-500/10 px-4 py-3 rounded-xl border border-violet-500/20 group-hover:bg-violet-500/40 w-full sm:w-auto btn-shimmer"
+                      className="inline-flex items-center justify-center font-black text-lg text-white bg-violet-600 hover:bg-violet-500 px-8 py-4 rounded-xl shadow-sm hover:shadow-md transition-all group-hover:-translate-y-1 w-full"
                     >
-                      Conhecer Planos <ArrowRight className="ml-2 h-4 w-4 sm:h-5 sm:w-5 transition-transform group-hover:translate-x-1" />
+                      Conhecer Planos <ArrowRight className="ml-2 h-6 w-6 transition-transform group-hover:translate-x-2" />
                     </Link>
-                    <Link href="/login" className="inline-flex items-center justify-center text-zinc-500 dark:text-zinc-400 font-bold text-sm sm:text-base group-hover:text-foreground transition-colors bg-zinc-100 dark:bg-zinc-800/50 px-4 py-3 rounded-xl border border-border-subtle group-hover:bg-zinc-200 dark:group-hover:bg-zinc-800 w-full sm:w-auto">
+                    <Link href="/login" className="inline-flex items-center justify-center font-bold text-base text-foreground bg-background hover:bg-muted px-4 py-3 rounded-xl border border-border transition-colors w-full shadow-sm hover:shadow">
                       Já sou parceiro
                     </Link>
                   </div>
@@ -272,60 +272,57 @@ export default function PremiumLandingPage({ topStores, plans, mostChosenPlanId 
             
             {/* Feature 1: Placa */}
             <motion.div 
-              initial={{ opacity: 0, y: 30 }}
+              initial={{ opacity: 0, y: 40 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ duration: 0.5, delay: 0.1 }}
               className="relative group"
             >
-              <div className="absolute inset-0 bg-gradient-to-b from-blue-500/20 to-transparent rounded-[2.5rem] blur-xl opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
-              <div className="glass-panel p-10 rounded-[2.5rem] border border-border-subtle bg-panel/60 relative h-full flex flex-col group-hover:-translate-y-2 transition-transform duration-300">
-                <div className="w-16 h-16 rounded-2xl bg-blue-500/10 border border-blue-500/20 flex items-center justify-center mb-8">
-                  <Search className="h-8 w-8 text-blue-400" />
+              <div className="relative p-10 rounded-[2.5rem] border border-border bg-card h-full flex flex-col group-hover:-translate-y-2 transition-transform duration-500 overflow-hidden shadow-sm hover:shadow-md">
+                <div className="w-20 h-20 rounded-3xl bg-blue-100 dark:bg-blue-900/30 border border-blue-200 dark:border-blue-800 flex items-center justify-center mb-8 group-hover:scale-110 transition-transform duration-500">
+                  <Search className="h-10 w-10 text-blue-600 dark:text-blue-400" />
                 </div>
-                <h3 className="text-2xl font-black text-foreground mb-4">Busca Inteligente por Placa</h3>
-                <p className="text-muted-foreground leading-relaxed font-medium flex-1">
-                  Sem achismos. Não sabe o modelo exato da peça? Digite a placa do seu carro e nós direcionamos a busca com a ficha técnica completa do Detran para evitar compras erradas.
+                <h3 className="text-2xl font-black text-foreground mb-4">Busca Inteligente</h3>
+                <p className="text-muted-foreground text-lg leading-relaxed font-medium flex-1">
+                  Não sabe o modelo exato da peça? Digite a <span className="text-foreground font-bold">placa do seu carro</span> e nós trazemos a ficha técnica completa do Detran para evitar compras erradas e garantir 100% de precisão.
                 </p>
               </div>
             </motion.div>
 
             {/* Feature 2: Chat FOMO */}
             <motion.div 
-              initial={{ opacity: 0, y: 30 }}
+              initial={{ opacity: 0, y: 40 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ duration: 0.5, delay: 0.2 }}
               className="relative group"
             >
-              <div className="absolute inset-0 bg-gradient-to-b from-emerald-500/20 to-transparent rounded-[2.5rem] blur-xl opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
-              <div className="glass-panel p-10 rounded-[2.5rem] border border-border-subtle bg-panel/60 relative h-full flex flex-col group-hover:-translate-y-2 transition-transform duration-300">
-                <div className="w-16 h-16 rounded-2xl bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center mb-8">
-                  <MessageCircle className="h-8 w-8 text-emerald-400" />
+              <div className="relative p-10 rounded-[2.5rem] border border-border bg-card h-full flex flex-col group-hover:-translate-y-2 transition-transform duration-500 overflow-hidden shadow-sm hover:shadow-md">
+                <div className="w-20 h-20 rounded-3xl bg-emerald-100 dark:bg-emerald-900/30 border border-emerald-200 dark:border-emerald-800 flex items-center justify-center mb-8 group-hover:scale-110 transition-transform duration-500">
+                  <MessageCircle className="h-10 w-10 text-emerald-600 dark:text-emerald-400" />
                 </div>
                 <h3 className="text-2xl font-black text-foreground mb-4">Comunicação Segura</h3>
-                <p className="text-muted-foreground leading-relaxed font-medium flex-1">
-                  Negocie direto pelo nosso chat focado em privacidade. Fale com os lojistas, receba orçamentos detalhados e feche negócio de forma rápida e organizada.
+                <p className="text-muted-foreground text-lg leading-relaxed font-medium flex-1">
+                  Negocie direto pelo nosso chat criptografado. Privacidade em primeiro lugar. Tire dúvidas, receba fotos reais das peças e feche negócio sem expor seus dados pessoais.
                 </p>
               </div>
             </motion.div>
 
             {/* Feature 3: Faturamento */}
             <motion.div 
-              initial={{ opacity: 0, y: 30 }}
+              initial={{ opacity: 0, y: 40 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ duration: 0.5, delay: 0.3 }}
               className="relative group"
             >
-              <div className="absolute inset-0 bg-gradient-to-b from-amber-500/20 to-transparent rounded-[2.5rem] blur-xl opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
-              <div className="glass-panel p-10 rounded-[2.5rem] border border-border-subtle bg-panel/60 relative h-full flex flex-col group-hover:-translate-y-2 transition-transform duration-300">
-                <div className="w-16 h-16 rounded-2xl bg-amber-500/10 border border-amber-500/20 flex items-center justify-center mb-8">
-                  <ShieldCheck className="h-8 w-8 text-amber-400" />
+              <div className="relative p-10 rounded-[2.5rem] border border-border bg-card h-full flex flex-col group-hover:-translate-y-2 transition-transform duration-500 overflow-hidden shadow-sm hover:shadow-md">
+                <div className="w-20 h-20 rounded-3xl bg-amber-100 dark:bg-amber-900/30 border border-amber-200 dark:border-amber-800 flex items-center justify-center mb-8 group-hover:scale-110 transition-transform duration-500">
+                  <ShieldCheck className="h-10 w-10 text-amber-600 dark:text-amber-400" />
                 </div>
-                <h3 className="text-2xl font-black text-foreground mb-4">Conexões Confiáveis</h3>
-                <p className="text-muted-foreground leading-relaxed font-medium flex-1">
-                  Nós criamos a ponte entre você e as melhores lojas. Compre com segurança, tire suas dúvidas em tempo real e construa um relacionamento de confiança com o comércio local.
+                <h3 className="text-2xl font-black text-foreground mb-4">Conexão Confiável</h3>
+                <p className="text-muted-foreground text-lg leading-relaxed font-medium flex-1">
+                  A ponte de confiança entre você e o mercado automotivo local. Trabalhamos apenas com lojistas validados para garantir a melhor experiência na sua compra.
                 </p>
               </div>
             </motion.div>
@@ -454,36 +451,66 @@ export default function PremiumLandingPage({ topStores, plans, mostChosenPlanId 
       )}
 
       {/* FAQ */}
+      {/* FAQ */}
       <motion.section 
         initial={{ opacity: 0, y: 80 }} 
         whileInView={{ opacity: 1, y: 0 }} 
         viewport={{ once: true, margin: "-100px" }}
         transition={{ duration: 0.8, ease: [0.22, 1, 0.36, 1] }}
-        className="relative z-10 py-32 border-t border-border-subtle bg-background/50 backdrop-blur-3xl"
+        className="relative z-10 py-32 border-t border-border bg-background"
       >
-        <div className="mx-auto max-w-3xl px-4 sm:px-6 lg:px-8">
+        <div className="relative z-10 mx-auto max-w-4xl px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-16">
-            <h2 className="font-display text-3xl font-extrabold tracking-tight sm:text-4xl lg:text-5xl text-foreground">
+            <h2 className="font-display text-4xl font-black tracking-tight sm:text-5xl text-foreground mb-4">
               Perguntas Frequentes
             </h2>
+            <p className="text-xl text-muted-foreground font-medium">
+              Tudo o que você precisa saber para começar a usar a ConectaParts.
+            </p>
           </div>
-          <div className="space-y-4">
+          
+          <div className="space-y-4 mb-16">
             {faqs.map((faq, idx) => (
-              <div key={idx} className="glass-panel border-violet-500/20 bg-panel/60 rounded-2xl overflow-hidden transition-all">
+              <div key={idx} className="bg-card border border-border rounded-2xl overflow-hidden hover:border-violet-500/30 transition-colors shadow-sm">
                 <button 
                   onClick={() => setOpenFaq(openFaq === idx ? null : idx)}
-                  className="w-full text-left p-6 flex items-center justify-between font-bold text-lg text-foreground hover:text-violet-400 transition-colors"
+                  className="w-full text-left p-6 flex items-center justify-between font-black text-xl text-foreground hover:text-violet-600 dark:hover:text-violet-400 transition-colors"
                 >
                   {faq.q}
-                  <ChevronDown className={`h-5 w-5 transition-transform duration-300 ${openFaq === idx ? "rotate-180" : ""}`} />
+                  <ChevronDown className={`h-6 w-6 text-muted-foreground transition-transform duration-300 ${openFaq === idx ? "rotate-180 text-violet-600 dark:text-violet-400" : ""}`} />
                 </button>
                 {openFaq === idx && (
-                  <div className="px-6 pb-6 text-foreground/80 font-medium leading-relaxed">
+                  <div className="px-6 pb-6 text-muted-foreground text-lg font-medium leading-relaxed">
                     {faq.a}
                   </div>
                 )}
               </div>
             ))}
+          </div>
+          
+          {/* SESSÃO SOU LOJISTA E QUERO PARCERIA */}
+          <div className="mt-12 p-8 sm:p-12 relative overflow-hidden rounded-3xl group bg-card border border-border shadow-md">
+            <div className="absolute inset-0 bg-gradient-to-br from-violet-500/5 to-transparent opacity-100 pointer-events-none" />
+            
+            <div className="relative flex flex-col items-center text-center z-10">
+              <Store className="h-16 w-16 text-violet-600 dark:text-violet-400 mb-6 transition-transform group-hover:scale-110 duration-500" />
+              <h3 className="text-3xl sm:text-4xl font-black text-foreground mb-4">Tem uma Loja de Autopeças?</h3>
+              <p className="text-muted-foreground text-lg sm:text-xl font-medium max-w-2xl mx-auto mb-8">
+                As perguntas acima são para os clientes que vão comprar de você. Se você quer ser a loja que eles encontram, faça nossa parceria agora.
+              </p>
+              <div className="flex flex-col sm:flex-row items-center gap-4 w-full justify-center">
+                <Link href="/cadastro/empresa" className="w-full sm:w-auto">
+                  <Button className="h-14 px-8 text-lg rounded-xl bg-violet-600 text-white hover:bg-violet-500 font-black shadow-sm hover:shadow-md transition-all transform hover:-translate-y-1 w-full">
+                    Sou lojista e quero uma parceria
+                  </Button>
+                </Link>
+                <Link href="/login" className="w-full sm:w-auto">
+                  <Button variant="outline" className="h-14 px-8 text-lg rounded-xl border-border bg-background text-foreground hover:bg-muted font-bold transition-all shadow-sm w-full">
+                    Já sou parceiro
+                  </Button>
+                </Link>
+              </div>
+            </div>
           </div>
         </div>
       </motion.section>

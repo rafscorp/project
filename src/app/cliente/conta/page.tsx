@@ -2,7 +2,7 @@ import { getSession } from "@/lib/auth/session";
 import { redirect } from "next/navigation";
 import prisma from "@/lib/db/prisma";
 import Link from "next/link";
-import { ArrowLeft, User, Shield, Lock, Smartphone } from "lucide-react";
+import { ArrowLeft, User, Shield, Lock, Smartphone, Search, CarFront } from "lucide-react";
 import { AccountForm } from "./AccountForm";
 
 export default async function CustomerAccountPage() {
@@ -15,11 +15,17 @@ export default async function CustomerAccountPage() {
       name: true,
       email: true,
       phone: true,
-      createdAt: true
+      createdAt: true,
+      placaFreeUsed: true,
+      placaCredits: true,
     }
   });
 
   if (!user) redirect("/login");
+
+  const FREE_LIMIT = 10;
+  const freeRemaining = Math.max(0, FREE_LIMIT - user.placaFreeUsed);
+  const totalCredits = freeRemaining + user.placaCredits;
 
   return (
     <div className="min-h-screen bg-background text-zinc-100 flex flex-col">
@@ -77,32 +83,36 @@ export default async function CustomerAccountPage() {
             <div className="glass-panel border border-border-subtle bg-panel/40 p-1 rounded-3xl">
               <div className="bg-panel/60 rounded-[1.4rem] p-6 sm:p-8 border border-white/5 dark:border-white/5">
                 <h3 className="text-xl font-bold text-foreground mb-1 flex items-center gap-2">
-                  <Lock className="h-5 w-5 text-amber-400" /> Segurança
+                  <CarFront className="h-5 w-5 text-emerald-400" /> Meu Plano
                 </h3>
-                <p className="text-sm text-muted-foreground mb-8">Proteja sua conta alterando a senha regularmente.</p>
+                <p className="text-sm text-muted-foreground mb-8">Gerencie suas consultas de placa disponíveis.</p>
                 
-                {/* Aqui seria um PasswordForm, podemos simplificar criando ambos no AccountForm com abas ou separando */}
-                <form className="space-y-4">
-                  <div className="space-y-2">
-                    <label className="text-sm font-bold text-muted-foreground">Nova Senha</label>
-                    <input 
-                      type="password" 
-                      placeholder="••••••••"
-                      className="w-full bg-zinc-900/50 border border-border-subtle rounded-xl px-4 py-3 text-foreground focus:ring-2 focus:ring-amber-500/50 focus:border-amber-500 outline-none transition-all"
-                    />
+                <div className="bg-zinc-900/50 border border-border-subtle rounded-xl p-6">
+                  <div className="flex justify-between items-center mb-4">
+                    <div>
+                      <h4 className="font-bold text-lg text-foreground">Consultas Disponíveis</h4>
+                      <p className="text-sm text-muted-foreground">O saldo não expira.</p>
+                    </div>
+                    <div className="bg-emerald-500/10 text-emerald-400 font-black text-3xl px-4 py-2 rounded-lg border border-emerald-500/20">
+                      {totalCredits}
+                    </div>
                   </div>
-                  <div className="space-y-2">
-                    <label className="text-sm font-bold text-muted-foreground">Confirmar Nova Senha</label>
-                    <input 
-                      type="password" 
-                      placeholder="••••••••"
-                      className="w-full bg-zinc-900/50 border border-border-subtle rounded-xl px-4 py-3 text-foreground focus:ring-2 focus:ring-amber-500/50 focus:border-amber-500 outline-none transition-all"
-                    />
+                  
+                  <div className="space-y-2 text-sm text-muted-foreground border-t border-border-subtle pt-4">
+                    <div className="flex justify-between">
+                      <span>Plano Inicial (Grátis):</span>
+                      <span className="font-medium text-foreground">{freeRemaining} restantes</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span>Consultas Adquiridas:</span>
+                      <span className="font-medium text-foreground">{user.placaCredits} restantes</span>
+                    </div>
                   </div>
-                  <button type="button" className="bg-amber-500/10 hover:bg-amber-500/20 text-amber-400 border border-amber-500/20 font-bold px-6 py-3 rounded-xl transition-colors w-full sm:w-auto">
-                    Atualizar Senha
-                  </button>
-                </form>
+
+                  <Link href="/cliente/garagem" className="mt-6 block text-center bg-blue-600 hover:bg-blue-500 text-white font-bold py-3 rounded-xl transition-colors">
+                    Fazer uma Consulta
+                  </Link>
+                </div>
               </div>
             </div>
           </div>

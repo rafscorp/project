@@ -2,13 +2,15 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 import { getSession } from "@/lib/auth/session";
 import { StoreService } from "@/services/store.service";
+import { SidebarNav } from "@/components/store/SidebarNav";
 import {
-  LayoutDashboard, Package, ShoppingBag, CreditCard, Settings, LogOut, Car,
+  LayoutDashboard, Package, ShoppingBag, CreditCard, Settings, LogOut, Car, AlertTriangle, Users
 } from "lucide-react";
 
 const nav = [
   { href: "/loja/painel", label: "Dashboard", icon: LayoutDashboard },
   { href: "/loja/painel/pedidos", label: "Pedidos", icon: ShoppingBag },
+  { href: "/loja/painel/fila", label: "Fila de Clientes", icon: Users },
   { href: "/loja/painel/produtos", label: "Produtos", icon: Package },
   { href: "/loja/painel/assinatura", label: "Assinatura", icon: CreditCard },
   { href: "/loja/painel/configuracoes", label: "Configurações", icon: Settings },
@@ -27,17 +29,7 @@ export default async function AppLayout({ children }: { children: React.ReactNod
           <Car className="h-6 w-6 text-amber-400" />
           <span className="font-display font-bold text-foreground">Agury</span>
         </div>
-        <nav className="p-4 space-y-1">
-          {nav.map(({ href, label, icon: Icon }) => (
-            <Link
-              key={href}
-              href={href}
-              className="flex items-center gap-3 rounded-xl px-4 py-2.5 text-sm font-medium text-muted-foreground transition hover:bg-zinc-800/50 hover:text-white"
-            >
-              <Icon className="h-4 w-4" /> {label}
-            </Link>
-          ))}
-        </nav>
+        <SidebarNav items={nav} />
         <div className="absolute bottom-4 left-4 right-4 lg:w-56">
           <form action="/api/auth/logout" method="POST">
             <button type="submit" className="flex w-full items-center gap-2 rounded-xl px-4 py-2 text-sm text-muted-foreground hover:text-red-400">
@@ -50,6 +42,19 @@ export default async function AppLayout({ children }: { children: React.ReactNod
         <div className="border-b border-border-subtle px-6 py-4 lg:hidden">
           <p className="font-display font-bold text-foreground">{store?.name || "Painel"}</p>
         </div>
+        {store?.subscription && !["ACTIVE", "TRIAL"].includes(store.subscription.status) && (
+          <div className="bg-amber-500/10 border-b border-amber-500/20 px-6 py-3 flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <AlertTriangle className="h-5 w-5 text-amber-500" />
+              <p className="text-sm font-medium text-amber-200">
+                <strong className="text-amber-500">Modo Vitrine:</strong> Você está visualizando o painel em modo leitura. Assine um plano para liberar vendas e cadastro de produtos.
+              </p>
+            </div>
+            <Link href="/loja/painel/assinatura" className="text-xs bg-amber-500 text-amber-950 font-bold px-3 py-1.5 rounded-md hover:bg-amber-400 transition">
+              Ver Planos
+            </Link>
+          </div>
+        )}
         <div className="p-6 lg:p-8">{children}</div>
       </main>
     </div>

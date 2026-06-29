@@ -1,7 +1,7 @@
 "use client";
 import { useState } from "react";
 import { CreditCard, Search, Zap } from "lucide-react";
-import { PlacaPurchaseModal } from "./PlacaPurchaseModal";
+import { useRouter } from "next/navigation";
 
 interface PlacaCreditBannerProps {
   creditStatus: {
@@ -15,12 +15,7 @@ interface PlacaCreditBannerProps {
 }
 
 export function PlacaCreditBanner({ creditStatus, onRefreshCredits }: PlacaCreditBannerProps) {
-  const [isModalOpen, setIsModalOpen] = useState(false);
-
-  const handleSuccess = () => {
-    setIsModalOpen(false);
-    onRefreshCredits();
-  };
+  const router = useRouter();
 
   if (!creditStatus) return null;
 
@@ -44,20 +39,20 @@ export function PlacaCreditBanner({ creditStatus, onRefreshCredits }: PlacaCredi
             </h3>
             <p className="text-sm text-muted-foreground mt-1">
               {creditStatus.isFreeQuota && (
-                <>Você tem <strong className="text-foreground">{creditStatus.remaining} consultas gratuitas</strong> restantes.</>
+                <>Você já usou <strong className="text-foreground">{creditStatus.freeUsed}</strong> de suas <strong className="text-foreground">10 consultas gratuitas</strong>. (Restam {creditStatus.remaining})</>
               )}
               {creditStatus.allowed && !creditStatus.isFreeQuota && (
-                <>Você possui <strong className="text-blue-400 font-bold">{creditStatus.remaining} créditos</strong> de consulta.</>
+                <>Você possui <strong className="text-blue-400 font-bold">{creditStatus.remaining} créditos</strong> pagos restantes.</>
               )}
               {!creditStatus.allowed && creditStatus.reason === "no_credits" && (
-                <>Suas consultas gratuitas acabaram. Compre créditos para continuar.</>
+                <>Suas 10 consultas gratuitas acabaram. Adquira o pacote de 20 consultas por R$20,00 para continuar.</>
               )}
             </p>
           </div>
         </div>
 
         <button 
-          onClick={() => setIsModalOpen(true)}
+          onClick={() => router.push("/planos#placas")}
           className={`shrink-0 font-bold px-6 py-3 rounded-lg transition-colors flex items-center gap-2 ${
             creditStatus.allowed && creditStatus.isFreeQuota
               ? 'bg-zinc-800 hover:bg-zinc-700 text-zinc-300'
@@ -68,12 +63,6 @@ export function PlacaCreditBanner({ creditStatus, onRefreshCredits }: PlacaCredi
           {creditStatus.allowed && creditStatus.isFreeQuota ? "Aumentar Limite" : "Comprar Créditos"}
         </button>
       </div>
-
-      <PlacaPurchaseModal 
-        isOpen={isModalOpen} 
-        onClose={() => setIsModalOpen(false)} 
-        onSuccess={handleSuccess} 
-      />
     </>
   );
 }

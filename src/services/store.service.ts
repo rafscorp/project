@@ -54,9 +54,17 @@ export class StoreService {
     zipCode: string;
     logoUrl: string;
     bannerUrl: string;
-    latitude: number;
-    longitude: number;
+    galleryUrls: any;
   }>) {
+    const store = await prisma.store.findUnique({
+      where: { id: storeId },
+      include: { subscription: true }
+    });
+
+    if (store && store.subscription && !["ACTIVE", "TRIAL"].includes(store.subscription.status)) {
+      throw new Error("Modo Vitrine: Assine um plano para editar as configurações da loja.");
+    }
+
     return prisma.store.update({ where: { id: storeId }, data });
   }
 

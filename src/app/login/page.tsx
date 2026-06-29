@@ -11,8 +11,8 @@ export const dynamic = 'force-dynamic';
 export default function LoginPage() {
   return (
     <div className="flex min-h-screen flex-col bg-background selection:bg-violet-600/30">
-      <div className="fixed inset-0 z-0 bg-mesh-dark pointer-events-none" />
-      <div className="fixed inset-0 z-0 bg-grid-dark opacity-20 pointer-events-none" />
+      <div className="fixed inset-0 z-0 bg-mesh-premium pointer-events-none" />
+      <div className="fixed inset-0 z-0 bg-grid-premium opacity-20 pointer-events-none" />
       
       {/* Botão Global de Voltar */}
       <BackButton />
@@ -62,17 +62,17 @@ export default function LoginPage() {
           <li className="flex flex-col">
             <span className="font-black text-zinc-100">Admin</span>
             <span className="font-mono text-zinc-400">admin@agury.com.br</span>
-            <span className="font-mono text-zinc-500">Senha: admin123</span>
+            <span className="font-mono text-zinc-500">Senha: agury123</span>
           </li>
           <li className="flex flex-col">
             <span className="font-black text-zinc-100">Loja</span>
             <span className="font-mono text-zinc-400">loja@agurydemo.com.br</span>
-            <span className="font-mono text-zinc-500">Senha: loja123</span>
+            <span className="font-mono text-zinc-500">Senha: agury123</span>
           </li>
           <li className="flex flex-col">
             <span className="font-black text-zinc-100">Cliente</span>
             <span className="font-mono text-zinc-400">cliente@email.com</span>
-            <span className="font-mono text-zinc-500">Senha: cliente123</span>
+            <span className="font-mono text-zinc-500">Senha: agury123</span>
           </li>
         </ul>
       </div>
