@@ -4,7 +4,7 @@
   "private": true,
   "description": "Plataforma SaaS de e-commerce para oficinas e lojas automotivas — estilo Trinks/SalonSoft",
   "scripts": {
-    "dev": "next dev -H 0.0.0.0",
+    "dev": "next dev -H 0.0.0.0 --turbo",
     "build": "prisma generate && next build",
     "start": "next start",
     "lint": "next lint",
@@ -18,8 +18,10 @@
   "dependencies": {
     "@aws-sdk/client-s3": "^3.750.0",
     "@aws-sdk/s3-request-presigner": "^3.750.0",
+    "@google/genai": "^2.10.0",
     "@prisma/client": "^6.9.0",
     "@sentry/nextjs": "^9.0.0",
+    "@types/nodemailer": "^8.0.1",
     "@types/papaparse": "^5.5.2",
     "@types/qrcode": "^1.5.6",
     "bcryptjs": "^3.0.2",
@@ -28,20 +30,24 @@
     "framer-motion": "^12.42.0",
     "jose": "^6.0.11",
     "lucide-react": "^0.525.0",
+    "meilisearch": "^0.58.0",
     "mercadopago": "^3.1.0",
     "next": "^15.3.4",
     "next-themes": "^0.4.6",
     "node-cron": "^3.0.3",
+    "nodemailer": "^9.0.1",
     "otplib": "^13.4.1",
     "papaparse": "^5.5.4",
     "qrcode": "^1.5.4",
     "react": "^19.1.0",
     "react-dom": "^19.1.0",
+    "react-hot-toast": "^2.5.2",
     "recharts": "^3.9.0",
+    "socket.io": "^4.8.3",
+    "socket.io-client": "^4.8.3",
     "stripe": "^22.3.0",
     "tailwind-merge": "^3.3.1",
-    "zod": "^3.25.67",
-    "react-hot-toast": "^2.5.2"
+    "zod": "^3.25.67"
   },
   "prisma": {
     "seed": "tsx prisma/seed.ts"

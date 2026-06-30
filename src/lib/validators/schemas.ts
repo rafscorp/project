@@ -15,6 +15,8 @@ export const registerCustomerSchema = z.object({
   email: z.string().email("E-mail inválido"),
   phone: z.string().regex(/^\d{10,11}$/, "Telefone deve conter DDD + Número (apenas dígitos)"),
   password: z.string().min(6, "Senha deve ter no mínimo 6 caracteres"),
+  birthDate: z.string().optional(),
+  city: z.string().min(2, "Cidade é obrigatória"),
 });
 
 export const registerStoreSchema = z.object({

@@ -6,9 +6,6 @@ import { isCurrentlyBlocked, incrementRateLimit, RATE_LIMITS } from "@/lib/auth/
 
 /** POST /api/auth/login */
 export async function POST(request: NextRequest) {
-  // Atraso artificial de 2 segundos para dificultar brute-force sem dar erro explícito 
-  await new Promise((resolve) => setTimeout(resolve, 2000));
-
   try {
     const body = await request.json().catch(() => null);
     if (!body || typeof body !== "object") {

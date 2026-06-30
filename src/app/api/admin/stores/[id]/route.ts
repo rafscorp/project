@@ -4,7 +4,7 @@ import { getSession } from "@/lib/auth/session";
 
 export async function PATCH(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const session = await getSession();
@@ -18,8 +18,9 @@ export async function PATCH(
       return new NextResponse(JSON.stringify({ error: "Invalid payload" }), { status: 400 });
     }
 
+    const resolvedParams = await params;
     const store = await prisma.store.update({
-      where: { id: params.id },
+      where: { id: resolvedParams.id },
       data: { active }
     });
 

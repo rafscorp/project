@@ -5,6 +5,8 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Badge } from "@/components/ui/Badge";
 import { Button } from "@/components/ui/Button";
 
+import { CreateAdminModal } from "./CreateAdminModal";
+
 export default async function AdminUsuariosPage() {
   const session = await getSession();
   if (!session || session.role !== "PLATFORM_ADMIN") redirect("/");
@@ -27,6 +29,7 @@ export default async function AdminUsuariosPage() {
           <h1 className="font-display text-2xl font-bold text-foreground">Usuários</h1>
           <p className="text-muted-foreground">Gerencie os usuários da plataforma</p>
         </div>
+        <CreateAdminModal />
       </div>
 
       <Table>

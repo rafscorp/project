@@ -4,15 +4,16 @@ import { getSession } from "@/lib/auth/session";
 
 export async function PATCH(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const session = await getSession();
     if (!session || session.role !== "PLATFORM_ADMIN") {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+      return new NextResponse(JSON.stringify({ error: "Unauthorized" }), { status: 401 });
     }
 
-    const subscriptionId = params.id;
+    const resolvedParams = await params;
+    const subscriptionId = resolvedParams.id;
     const body = await request.json();
 
     const { customPrice, discountPercentage, discountReason } = body;

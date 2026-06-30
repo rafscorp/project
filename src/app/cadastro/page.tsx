@@ -20,7 +20,7 @@ export default function CadastroSelectorPage() {
       <header className="relative z-10 p-6 flex justify-end items-center max-w-7xl mx-auto w-full">
         <Link href="/" className="flex items-center gap-2">
           <CarFront className="h-8 w-8 text-violet-500" />
-          <span className="font-display font-bold text-2xl tracking-tight text-foreground hidden sm:block">Agury</span>
+          <span className="font-display font-bold text-2xl tracking-tight text-foreground hidden sm:block">ConectaParts</span>
         </Link>
       </header>
 

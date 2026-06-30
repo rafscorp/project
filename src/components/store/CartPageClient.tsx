@@ -12,7 +12,7 @@ import { Footer } from "@/components/layout/Footer";
 export function CartPageClient({
   store,
 }: {
-  store: { slug: string; name: string; city: string; state: string; phone: string; address: string };
+  store: { id?: string; slug: string; name: string; city: string; state: string; phone: string; address: string };
 }) {
   const router = useRouter();
   const { items, updateQty, removeItem, total, count, loaded } = useCart(store.slug);

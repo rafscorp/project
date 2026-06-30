@@ -11,7 +11,7 @@ export function Footer() {
               <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-violet-600 text-white">
                 <Sparkles className="h-4 w-4" />
               </span>
-              <p className="font-display text-lg font-bold text-foreground">Agury Auto</p>
+              <p className="font-display text-lg font-bold text-foreground">ConectaParts</p>
             </div>
             <p className="mt-3 max-w-sm text-sm text-muted-foreground">
               Plataforma SaaS para oficinas e lojas automotivas. Sua loja online, seus clientes, retirada na loja e mais presença digital.
@@ -33,7 +33,7 @@ export function Footer() {
           </div>
         </div>
         <div className="mt-10 flex flex-wrap justify-between gap-4 border-t border-border-subtle pt-6 text-xs text-muted-foreground">
-          <span>© {new Date().getFullYear()} Agury Auto. Todos os direitos reservados.</span>
+          <span>© {new Date().getFullYear()} ConectaParts. Todos os direitos reservados.</span>
           <span>Estética & Mecânica Automotiva</span>
         </div>
       </div>

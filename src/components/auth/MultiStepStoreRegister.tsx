@@ -8,6 +8,8 @@ import { Input } from "@/components/ui/Input";
 import { PasswordInput, evaluatePassword } from "@/components/ui/PasswordInput";
 import { slugify } from "@/lib/utils/format";
 import { ArrowRight, ChevronLeft, Store, ShieldCheck, Zap, HelpCircle } from "lucide-react";
+import { fetchCnpjData } from "@/app/actions/cnpj";
+import toast from "react-hot-toast";
 
 type FormState = {
   // Step 1
@@ -91,6 +93,34 @@ export function MultiStepStoreRegister() {
       return;
     }
     nextStep();
+  };
+
+  const buscarCnpj = async () => {
+    const cnpj = form.cnpj.replace(/\D/g, "");
+    if (cnpj.length !== 14) return;
+    
+    setLoading(true);
+    try {
+      const res = await fetchCnpjData(cnpj);
+      if (res.success && res.data) {
+        setForm(f => ({
+          ...f,
+          storeName: res.data.name,
+          slug: slugify(res.data.name),
+          zipCode: res.data.zipCode,
+          address: res.data.address,
+          city: res.data.city,
+          state: res.data.state,
+        }));
+        toast.success("Dados do CNPJ preenchidos automaticamente!");
+      } else if (res.error) {
+        toast.error(res.error);
+      }
+    } catch (err) {
+      console.error("Erro na busca de CNPJ:", err);
+    } finally {
+      setLoading(false);
+    }
   };
 
   const buscarCep = async () => {
@@ -202,7 +232,13 @@ export function MultiStepStoreRegister() {
             <p className="text-muted-foreground mb-8">Apresente sua marca para o mercado.</p>
             
             <div className="space-y-4">
-              <Input label="CNPJ" value={form.cnpj} onChange={e => update("cnpj", e.target.value)} placeholder="00.000.000/0001-00" />
+              <Input 
+                label="CNPJ" 
+                value={form.cnpj} 
+                onChange={e => update("cnpj", e.target.value)} 
+                onBlur={buscarCnpj}
+                placeholder="00.000.000/0001-00" 
+              />
               <Input label="Nome da Loja" value={form.storeName} onChange={e => update("storeName", e.target.value)} required />
               <Input label="E-mail da Loja" type="email" value={form.email} onChange={e => update("email", e.target.value)} required />
               <Input label="Telefone da Loja" value={form.phone} onChange={e => update("phone", e.target.value)} required />

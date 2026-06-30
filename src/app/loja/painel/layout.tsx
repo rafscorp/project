@@ -8,12 +8,13 @@ import {
 } from "lucide-react";
 
 const nav = [
-  { href: "/loja/painel", label: "Dashboard", icon: LayoutDashboard },
-  { href: "/loja/painel/pedidos", label: "Pedidos", icon: ShoppingBag },
-  { href: "/loja/painel/fila", label: "Fila de Clientes", icon: Users },
-  { href: "/loja/painel/produtos", label: "Produtos", icon: Package },
-  { href: "/loja/painel/assinatura", label: "Assinatura", icon: CreditCard },
-  { href: "/loja/painel/configuracoes", label: "Configurações", icon: Settings },
+  { href: "/loja/painel", label: "Dashboard", iconName: "LayoutDashboard" },
+  { href: "/loja/painel/chat", label: "Mensagens", iconName: "MessageSquare" },
+  { href: "/loja/painel/pedidos", label: "Pedidos", iconName: "ShoppingBag" },
+  { href: "/loja/painel/fila", label: "Fila de Clientes", iconName: "Users" },
+  { href: "/loja/painel/produtos", label: "Produtos", iconName: "Package" },
+  { href: "/loja/painel/assinatura", label: "Assinatura", iconName: "CreditCard" },
+  { href: "/loja/painel/configuracoes", label: "Configurações", iconName: "Settings" },
 ];
 
 export default async function AppLayout({ children }: { children: React.ReactNode }) {

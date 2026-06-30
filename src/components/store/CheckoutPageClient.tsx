@@ -14,7 +14,7 @@ import { CheckCircle2, Package, CalendarCheck, MapPin, Copy, ArrowLeft } from "l
 export function CheckoutPageClient({
   store,
 }: {
-  store: { slug: string; name: string; city: string; state: string; phone: string; address: string };
+  store: { id?: string; slug: string; name: string; city: string; state: string; phone: string; address: string };
 }) {
   const router = useRouter();
   const { items, total, count, clear, loaded } = useCart(store.slug);

@@ -1,25 +1,16 @@
-"use client";
-
-import { Loader2 } from "lucide-react";
+import { CarFront } from "lucide-react";
 
 export default function GlobalLoading() {
   return (
-    <div className="fixed inset-0 z-[100] flex min-h-screen items-center justify-center bg-background/80 backdrop-blur-md">
+    <div className="min-h-screen flex items-center justify-center bg-background/50 backdrop-blur-sm z-50">
       <div className="flex flex-col items-center gap-6">
-        <div className="relative flex items-center justify-center">
-          <div className="absolute h-16 w-16 animate-ping rounded-full bg-violet-500/20"></div>
-          <Loader2 className="h-12 w-12 animate-spin text-violet-500 relative z-10" />
+        <div className="relative flex items-center justify-center w-24 h-24 rounded-full bg-violet-600/10 border border-violet-500/20 shadow-[0_0_50px_rgba(139,92,246,0.15)] animate-pulse">
+          <CarFront className="w-10 h-10 text-violet-500 animate-bounce" style={{ animationDuration: '2s' }} />
+          <div className="absolute inset-0 rounded-full border-t-2 border-violet-500 animate-spin" style={{ animationDuration: '1.5s' }} />
         </div>
-        <div className="flex flex-col items-center">
-          <h2 className="text-xl font-black text-foreground tracking-wide font-display">Carregando ConectaParts...</h2>
-          <p className="text-sm text-muted-foreground mt-2 animate-pulse">Preparando seu ambiente seguro</p>
-        </div>
-        
-        {/* Esqueletos ilustrativos para dar impressao de carregamento de UI */}
-        <div className="mt-8 grid grid-cols-1 gap-4 sm:grid-cols-3 w-[80vw] max-w-4xl mx-auto opacity-50">
-          <div className="h-32 rounded-2xl bg-zinc-800/50 animate-pulse border border-border-subtle" />
-          <div className="h-32 rounded-2xl bg-zinc-800/50 animate-pulse border border-border-subtle hidden sm:block" />
-          <div className="h-32 rounded-2xl bg-zinc-800/50 animate-pulse border border-border-subtle hidden sm:block" />
+        <div className="flex flex-col items-center gap-2">
+          <h2 className="text-xl font-display font-bold text-foreground tracking-tight">Carregando Plataforma...</h2>
+          <p className="text-sm text-muted-foreground font-medium animate-pulse">Conectando aos servidores</p>
         </div>
       </div>
     </div>

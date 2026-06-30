@@ -2,9 +2,10 @@ import prisma from "@/lib/db/prisma";
 import { redirect } from "next/navigation";
 import { GodModeClient } from "./GodModeClient";
 
-export default async function GodModePage({ params }: { params: { id: string } }) {
+export default async function GodModePage({ params }: { params: Promise<{ id: string }> }) {
+  const resolvedParams = await params;
   const store = await prisma.store.findUnique({
-    where: { id: params.id },
+    where: { id: resolvedParams.id },
     include: {
       owner: true,
       subscription: { include: { plan: true } },

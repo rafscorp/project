@@ -141,6 +141,8 @@ model User {
   name               String
   phone              String?
   avatarUrl          String?
+  birthDate          DateTime?
+  city               String?
   loginCode          String?
   loginCodeExpiresAt DateTime?
   role               UserRole  @default(CUSTOMER)
@@ -175,6 +177,8 @@ model User {
   vehicles            Vehicle[]            // Garagem Virtual
   placaPurchases      PlacaQueryPurchase[]
   orderQueues         OrderQueue[]
+  chatRooms           ChatRoom[]           @relation("CustomerChatRooms")
+  sentMessages        Message[]            @relation("UserSentMessages")
 
   @@index([email])
   @@index([username])
@@ -389,6 +393,7 @@ model Store {
   offers        StoreOffer[]
   coupons       Coupon[]
   orderQueues   OrderQueue[]
+  chatRooms     ChatRoom[]     @relation("StoreChatRooms")
 
   @@index([ownerId])
   @@index([slug])
@@ -464,6 +469,7 @@ model Product {
   comparePrice Float? // Preço "de" para promoção
   stock        Int              @default(0)
   imageUrl     String?
+  vehicleTags  String[]         @default([]) // Motor de busca: tags do veículo compatível
   condition    ProductCondition @default(NEW)
   active       Boolean          @default(true)
   featured     Boolean          @default(false)
@@ -474,6 +480,7 @@ model Product {
   store      Store       @relation(fields: [storeId], references: [id], onDelete: Cascade)
   category   Category?   @relation(fields: [categoryId], references: [id], onDelete: SetNull)
   orderItems OrderItem[]
+  chatRooms  ChatRoom[]  @relation("ProductChatRooms")
 
   @@unique([storeId, slug])
   @@index([storeId, active, deletedAt])
@@ -890,4 +897,42 @@ model PlacaFreeQuotaIP {
   count     Int      @default(0)
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+}
+
+// -----------------------------------------------------------------------------
+// Central de Mensagens (Chat em tempo real)
+// -----------------------------------------------------------------------------
+
+model ChatRoom {
+  id         String    @id @default(cuid())
+  customerId String
+  storeId    String
+  productId  String?   // A peça sobre a qual estão conversando
+  createdAt  DateTime  @default(now())
+  updatedAt  DateTime  @updatedAt
+
+  customer User     @relation("CustomerChatRooms", fields: [customerId], references: [id], onDelete: Cascade)
+  store    Store    @relation("StoreChatRooms", fields: [storeId], references: [id], onDelete: Cascade)
+  product  Product? @relation("ProductChatRooms", fields: [productId], references: [id], onDelete: SetNull)
+  messages Message[]
+
+  @@index([customerId])
+  @@index([storeId])
+  @@map("chat_rooms")
+}
+
+model Message {
+  id        String   @id @default(cuid())
+  roomId    String
+  senderId  String
+  content   String
+  isRead    Boolean  @default(false)
+  createdAt DateTime @default(now())
+
+  room   ChatRoom @relation(fields: [roomId], references: [id], onDelete: Cascade)
+  sender User     @relation("UserSentMessages", fields: [senderId], references: [id], onDelete: Cascade)
+
+  @@index([roomId])
+  @@index([senderId])
+  @@map("messages")
 }

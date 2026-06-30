@@ -14,6 +14,7 @@ export default async function CartPage({ params }: { params: Promise<{ slug: str
   }
 
   return <CartPageClient store={{
+    id: store.id,
     slug: store.slug,
     name: store.name,
     city: store.city,

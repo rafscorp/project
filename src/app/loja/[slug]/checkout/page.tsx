@@ -8,6 +8,7 @@ export default async function CheckoutPage({ params }: { params: Promise<{ slug:
   if (!store) notFound();
 
   return <CheckoutPageClient store={{
+    id: store.id,
     slug: store.slug,
     name: store.name,
     city: store.city,

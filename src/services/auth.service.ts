@@ -64,6 +64,8 @@ export class AuthService {
         email: input.email.toLowerCase(),
         phone: input.phone,
         passwordHash: await hashPassword(input.password),
+        birthDate: input.birthDate ? new Date(input.birthDate) : null,
+        city: input.city || null,
         role: UserRole.CUSTOMER,
       },
     });

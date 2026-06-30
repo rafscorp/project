@@ -1,16 +1,17 @@
+
 "use client";
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import Link from "next/link";
 import { Button } from "@/components/ui/Button";
 import { Card, CardBody } from "@/components/ui/Card";
-import { CheckCircle2, Clock, AlertTriangle, Loader2 } from "lucide-react";
+import { CheckCircle2, Clock, AlertTriangle, Loader2, MessageSquare } from "lucide-react";
 import { formatDate } from "@/lib/utils/format";
 
 export function FilaClient({ initialQueues, storeId }: { initialQueues: any[], storeId: string }) {
   const router = useRouter();
   const [queues, setQueues] = useState(initialQueues);
-  const [code, setCode] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
@@ -32,7 +33,6 @@ export function FilaClient({ initialQueues, storeId }: { initialQueues: any[], s
 
       setSuccess(`Venda finalizada com sucesso! (Código: ${queueCode})`);
       setQueues(q => q.filter(item => item.id !== id));
-      setCode("");
       router.refresh();
     } catch (err: any) {
       setError(err.message);
@@ -41,53 +41,12 @@ export function FilaClient({ initialQueues, storeId }: { initialQueues: any[], s
     }
   };
 
-  const handleManualCodeSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    const cleanCode = code.trim().toUpperCase();
-    
-    // Find the queue by code
-    const queueItem = queues.find(q => q.code === cleanCode);
-    if (queueItem) {
-      handleFinalizeCode(queueItem.id, cleanCode);
-    } else {
-      setError("Código não encontrado na sua fila de pendentes.");
-    }
-  };
-
   const twoHoursAgo = new Date(Date.now() - 2 * 60 * 60 * 1000);
 
   return (
     <div className="space-y-6">
-      <Card>
-        <CardBody className="p-6 bg-zinc-900/50">
-          <form onSubmit={handleManualCodeSubmit} className="flex gap-4 items-end">
-            <div className="flex-1 max-w-sm">
-              <label className="text-xs font-bold text-foreground/80 mb-2 block uppercase tracking-wider">
-                Código de Compra (5 caracteres)
-              </label>
-              <input
-                type="text"
-                placeholder="Ex: 1234X"
-                value={code}
-                onChange={e => setCode(e.target.value.toUpperCase())}
-                maxLength={5}
-                required
-                className="w-full bg-background border border-border-subtle rounded-xl px-4 py-3 text-foreground focus:ring-2 focus:ring-emerald-500/50 outline-none uppercase font-mono tracking-widest"
-              />
-            </div>
-            <Button 
-              type="submit" 
-              disabled={loading || code.length < 5} 
-              className="bg-emerald-600 hover:bg-emerald-500 text-white font-bold h-[50px] px-8 rounded-xl"
-            >
-              {loading ? <Loader2 className="h-5 w-5 animate-spin" /> : "Validar e Finalizar Venda"}
-            </Button>
-          </form>
-
-          {error && <div className="mt-4 p-3 rounded-xl bg-red-500/10 border border-red-500/20 text-red-400 text-sm font-medium flex items-center gap-2"><AlertTriangle className="h-4 w-4" /> {error}</div>}
-          {success && <div className="mt-4 p-3 rounded-xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-sm font-medium flex items-center gap-2"><CheckCircle2 className="h-4 w-4" /> {success}</div>}
-        </CardBody>
-      </Card>
+      {error && <div className="p-4 rounded-xl bg-red-500/10 border border-red-500/20 text-red-400 text-sm font-medium flex items-center gap-2"><AlertTriangle className="h-4 w-4" /> {error}</div>}
+      {success && <div className="p-4 rounded-xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-sm font-medium flex items-center gap-2"><CheckCircle2 className="h-4 w-4" /> {success}</div>}
 
       <div className="space-y-4">
         <h2 className="font-display text-lg font-bold text-foreground">Clientes Aguardando ({queues.length})</h2>
@@ -98,50 +57,99 @@ export function FilaClient({ initialQueues, storeId }: { initialQueues: any[], s
           </div>
         )}
 
-        <div className="grid gap-4">
-          {queues.map((q) => {
-            const isLate = new Date(q.createdAt) < twoHoursAgo;
-            
-            return (
-              <Card key={q.id} className={isLate ? "border-red-500/30 bg-red-500/5" : ""}>
-                <CardBody className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 p-5">
-                  <div>
-                    <div className="flex items-center gap-3 mb-1">
-                      <h3 className="font-bold text-foreground">{q.customer.name}</h3>
-                      <span className="text-xs text-muted-foreground">{q.customer.phone || "Sem telefone"}</span>
-                    </div>
-                    <p className="text-sm text-muted-foreground">
-                      <strong>Peça Solicitada:</strong> {q.partDescription}
-                    </p>
-                    <div className="flex items-center gap-2 mt-2">
-                      <Clock className={`h-3 w-3 ${isLate ? "text-red-400" : "text-muted-foreground"}`} />
-                      <span className={`text-xs ${isLate ? "text-red-400 font-bold" : "text-muted-foreground"}`}>
-                        Gerado em {formatDate(q.createdAt)} {isLate && "(+2 horas)"}
-                      </span>
-                    </div>
-                  </div>
-                  
-                  <div className="flex items-center gap-4 w-full sm:w-auto">
-                    <div className="bg-zinc-800 border border-border-subtle rounded-lg px-4 py-2 text-center">
-                      <p className="text-[10px] text-muted-foreground uppercase font-bold tracking-wider mb-0.5">Código</p>
-                      <p className="font-mono text-lg font-black tracking-widest text-emerald-400">{q.code}</p>
-                    </div>
-                    
-                    <Button 
-                      onClick={() => handleFinalizeCode(q.id, q.code)}
-                      disabled={loading}
-                      variant="outline"
-                      className="border-emerald-500/30 text-emerald-400 hover:bg-emerald-500 hover:text-white"
-                    >
-                      Finalizar
-                    </Button>
-                  </div>
-                </CardBody>
-              </Card>
-            );
-          })}
+        <div className="grid gap-6">
+          {queues.map((q) => (
+            <FilaItemCard 
+              key={q.id} 
+              q={q} 
+              onFinalize={handleFinalizeCode} 
+              loading={loading} 
+              isLate={new Date(q.createdAt) < twoHoursAgo} 
+            />
+          ))}
         </div>
       </div>
     </div>
+  );
+}
+
+function FilaItemCard({ 
+  q, 
+  onFinalize, 
+  loading, 
+  isLate 
+}: { 
+  q: any; 
+  onFinalize: (id: string, code: string) => Promise<void>; 
+  loading: boolean; 
+  isLate: boolean;
+}) {
+  const [localCode, setLocalCode] = useState("");
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (localCode.trim().length === 5) {
+      onFinalize(q.id, localCode.trim().toUpperCase());
+    }
+  };
+
+  return (
+    <Card className={isLate ? "border-red-500/30 bg-red-500/5" : "border-border-subtle bg-panel/20"}>
+      <CardBody className="p-6 space-y-6">
+        <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 border-b border-border-subtle/50 pb-4">
+          <div className="space-y-1">
+            <div className="flex items-center gap-3">
+              <h3 className="font-bold text-lg text-foreground">{q.customer.name}</h3>
+              <span className="text-xs text-zinc-500 font-mono">@{q.customer.username}</span>
+              <span className="text-xs text-muted-foreground">{q.customer.phone || "Sem telefone"}</span>
+            </div>
+            <p className="text-sm text-muted-foreground">
+              <strong>Peça Reservada:</strong> <span className="text-white font-medium">{q.partDescription}</span>
+            </p>
+          </div>
+          
+          <div className="flex items-center gap-2">
+            <Clock className={`h-4 w-4 ${isLate ? "text-red-400" : "text-muted-foreground"}`} />
+            <span className={`text-xs ${isLate ? "text-red-400 font-bold" : "text-muted-foreground"}`}>
+              Fila iniciada em {formatDate(q.createdAt)} {isLate && "(+2 horas)"}
+            </span>
+          </div>
+        </div>
+
+        <div className="flex flex-col sm:flex-row items-end sm:items-center justify-between gap-6">
+          <form onSubmit={handleSubmit} className="flex flex-wrap items-end gap-3 flex-1 max-w-lg">
+            <div className="flex-1 min-w-[150px]">
+              <label className="text-[10px] font-bold text-foreground/75 mb-1.5 block uppercase tracking-wider">
+                Inserir Código do Cliente
+              </label>
+              <input
+                type="text"
+                placeholder="EX: 123X5"
+                value={localCode}
+                onChange={e => setLocalCode(e.target.value.toUpperCase())}
+                maxLength={5}
+                required
+                className="w-full bg-zinc-950 border border-border-subtle rounded-xl px-4 py-2 text-foreground focus:ring-2 focus:ring-emerald-500/50 outline-none uppercase font-mono tracking-widest text-sm"
+              />
+            </div>
+            
+            <Button 
+              type="submit" 
+              disabled={loading || localCode.trim().length < 5} 
+              className="bg-emerald-600 hover:bg-emerald-500 text-white font-bold h-10 px-6 rounded-xl text-sm"
+            >
+              {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : "Validar e Efetivar"}
+            </Button>
+          </form>
+
+          <Link
+            href={`/loja/painel/chat?customerId=${q.customer.id}`}
+            className="flex items-center gap-2 rounded-xl bg-zinc-900 border border-zinc-800 px-4 py-2.5 text-xs font-semibold text-foreground hover:bg-zinc-800 transition-colors shrink-0"
+          >
+            <MessageSquare className="w-3.5 h-3.5 text-violet-400" /> Falar no Chat
+          </Link>
+        </div>
+      </CardBody>
+    </Card>
   );
 }

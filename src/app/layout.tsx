@@ -22,7 +22,23 @@ export const metadata: Metadata = {
     template: "%s | ConectaParts",
   },
   description:
-    "Plataforma SaaS para lojas de peças e componentes automotivos. O melhor ambiente para organizar seus clientes com privacidade e segurança.",
+    "A Plataforma Definitiva para Lojas de Autopeças. Organize orçamentos, vendas e estoque com tecnologia e segurança.",
+  keywords: ["autopeças", "peças automotivas", "gestão de loja", "orçamentos", "catálogo", "B2B"],
+  authors: [{ name: "ConectaParts" }],
+  creator: "ConectaParts",
+  openGraph: {
+    type: "website",
+    locale: "pt_BR",
+    url: "https://conectaparts.com.br",
+    title: "ConectaParts — Acelere suas Vendas de Peças",
+    description: "Conectando lojas de autopeças e oficinas em um só lugar. Venda mais rápido sem pagar comissões absurdas.",
+    siteName: "ConectaParts",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "ConectaParts — Acelere suas Vendas de Peças",
+    description: "Plataforma SaaS de última geração para revolucionar a forma como você gerencia sua loja de autopeças.",
+  },
   icons: {
     icon: "/images/icon-conectaparts-transparent.png",
   },

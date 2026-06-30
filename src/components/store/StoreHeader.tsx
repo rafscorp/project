@@ -6,6 +6,7 @@ import { useCart } from "@/hooks/useCart";
 
 interface StoreHeaderProps {
   store: {
+    id?: string;
     slug: string;
     name: string;
     city: string;
@@ -37,15 +38,25 @@ export function StoreHeader({ store }: StoreHeaderProps) {
             </div>
           </div>
         </div>
-        <Link href={`/loja/${store.slug}/carrinho`} className="relative flex items-center gap-2 rounded-xl bg-amber-400 px-4 py-2 text-sm font-semibold text-zinc-950 hover:bg-amber-300 transition-colors shadow-[0_0_15px_rgba(245,158,11,0.2)]">
-          <CalendarCheck className="h-4 w-4" />
-          Agenda
-          {count > 0 && (
-            <span className="absolute -right-2 -top-2 flex h-5 w-5 items-center justify-center rounded-full bg-white text-xs font-bold text-zinc-950">
-              {count}
-            </span>
+        <div className="flex items-center gap-3">
+          {store.id && (
+            <Link 
+              href={`/conta/chat?storeId=${store.id}`} 
+              className="flex items-center gap-2 rounded-xl bg-zinc-900 border border-zinc-800 px-4 py-2 text-sm font-semibold text-foreground hover:bg-zinc-800 transition-colors"
+            >
+              Falar no Chat
+            </Link>
           )}
-        </Link>
+          <Link href={`/loja/${store.slug}/carrinho`} className="relative flex items-center gap-2 rounded-xl bg-amber-400 px-4 py-2 text-sm font-semibold text-zinc-950 hover:bg-amber-300 transition-colors shadow-[0_0_15px_rgba(245,158,11,0.2)]">
+            <CalendarCheck className="h-4 w-4" />
+            Agenda
+            {count > 0 && (
+              <span className="absolute -right-2 -top-2 flex h-5 w-5 items-center justify-center rounded-full bg-white text-xs font-bold text-zinc-950">
+                {count}
+              </span>
+            )}
+          </Link>
+        </div>
       </div>
     </header>
   );

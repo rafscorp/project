@@ -21,27 +21,17 @@ export default async function ContaSegurancaPage() {
       </div>
 
       <div className="rounded-2xl border border-border-subtle bg-panel/30 p-6">
-        <div className="flex items-center gap-4 mb-6">
-          <div className="p-3 bg-zinc-800 rounded-xl">
+        <div className="flex items-center gap-4">
+          <div className="p-3 bg-zinc-800/80 rounded-xl">
             <Shield className="w-6 h-6 text-amber-400" />
           </div>
           <div>
-            <h3 className="font-display font-bold text-foreground">Alterar Senha</h3>
-            <p className="text-sm text-muted-foreground">É recomendável usar uma senha forte e única.</p>
+            <h3 className="font-display font-bold text-foreground">Alteração de Senha Segura</h3>
+            <p className="text-sm text-muted-foreground mt-1">
+              Para sua segurança, a redefinição de senha deve ser feita através do fluxo seguro de recuperação de acesso na tela de login.
+            </p>
           </div>
         </div>
-        
-        <form className="space-y-4 max-w-md">
-          <div className="space-y-2">
-            <label className="text-sm font-medium text-foreground/80">Senha Atual</label>
-            <input type="password" placeholder="••••••••" className="w-full rounded-xl border border-border-subtle bg-panel px-4 py-2.5 text-foreground focus:border-amber-400 focus:outline-none" />
-          </div>
-          <div className="space-y-2">
-            <label className="text-sm font-medium text-foreground/80">Nova Senha</label>
-            <input type="password" placeholder="••••••••" className="w-full rounded-xl border border-border-subtle bg-panel px-4 py-2.5 text-foreground focus:border-amber-400 focus:outline-none" />
-          </div>
-          <Button type="button">Atualizar Senha</Button>
-        </form>
       </div>
 
       <div>

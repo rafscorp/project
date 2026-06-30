@@ -10,7 +10,16 @@ export default async function FilaDeClientesPage() {
   // Fetch pending items
   const pendingQueues = await prisma.orderQueue.findMany({
     where: { storeId: session.storeId, status: "PENDING" },
-    include: { customer: { select: { name: true, phone: true } } },
+    include: { 
+      customer: { 
+        select: { 
+          id: true,
+          name: true, 
+          username: true,
+          phone: true 
+        } 
+      } 
+    },
     orderBy: { createdAt: "asc" }
   });
 

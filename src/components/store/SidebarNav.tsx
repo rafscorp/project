@@ -2,13 +2,13 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { LucideIcon } from "lucide-react";
+import * as Icons from "lucide-react";
 import { cn } from "@/lib/utils/cn";
 
 interface NavItem {
   href: string;
   label: string;
-  icon: LucideIcon;
+  iconName: string;
 }
 
 export function SidebarNav({ items }: { items: NavItem[] }) {
@@ -16,8 +16,11 @@ export function SidebarNav({ items }: { items: NavItem[] }) {
 
   return (
     <nav className="p-4 space-y-1">
-      {items.map(({ href, label, icon: Icon }) => {
+      {items.map(({ href, label, iconName }) => {
         const isActive = pathname === href || (href !== "/loja/painel" && pathname.startsWith(href));
+        // Resolução dinâmica do ícone importado da biblioteca
+        const Icon = (Icons as any)[iconName] || Icons.HelpCircle;
+
         return (
           <Link
             key={href}

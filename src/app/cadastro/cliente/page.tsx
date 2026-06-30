@@ -14,7 +14,7 @@ export default function RegisterCustomerPage() {
       <header className="relative z-10 p-6 flex justify-between items-center max-w-7xl mx-auto w-full">
         <Link href="/" className="flex items-center gap-2">
           <CarFront className="h-8 w-8 text-blue-500" />
-          <span className="font-display font-bold text-2xl tracking-tight text-foreground">Agury Clientes</span>
+          <span className="font-display font-bold text-2xl tracking-tight text-foreground">ConectaParts Clientes</span>
         </Link>
         <Link href="/login" className="text-muted-foreground hover:text-foreground transition-colors font-medium">
           Já tem conta? <span className="text-blue-400">Entrar</span>

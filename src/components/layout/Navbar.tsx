@@ -12,8 +12,7 @@ export async function Navbar() {
     <header className="fixed inset-x-0 top-0 z-50 border-b border-slate-200 dark:border-zinc-800 bg-white/80 dark:bg-zinc-900/80 backdrop-blur-xl">
       <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-4 sm:px-6">
         <Link href="/" className="flex items-center gap-2.5 font-display text-lg font-bold text-slate-900 dark:text-white overflow-hidden">
-          <Car className="h-8 w-8 text-violet-600 dark:text-violet-400" />
-          <span>Agury Auto</span>
+          <img src="/images/logo-conectaparts-transparent.png" alt="ConectaParts" className="h-12 w-auto scale-125 rounded-[2rem] object-contain" />
         </Link>
 
         <nav className="hidden items-center gap-1 md:flex">

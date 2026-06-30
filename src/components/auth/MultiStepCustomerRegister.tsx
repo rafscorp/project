@@ -13,11 +13,13 @@ type FormState = {
   email: string;
   phone: string;
   password: string;
+  birthDate: string;
+  city: string;
   verificationToken: string;
 };
 
 const initialForm: FormState = {
-  name: "", email: "", phone: "", password: "", verificationToken: ""
+  name: "", email: "", phone: "", password: "", birthDate: "", city: "", verificationToken: ""
 };
 
 export function MultiStepCustomerRegister() {
@@ -41,7 +43,7 @@ export function MultiStepCustomerRegister() {
 
   // Enviar código de verificação
   const handleSendCode = async () => {
-    if (!form.name || !form.email || !form.password) {
+    if (!form.name || !form.email || !form.password || !form.birthDate || !form.city) {
       setError("Preencha os campos obrigatórios para avançar.");
       return;
     }
@@ -117,6 +119,21 @@ export function MultiStepCustomerRegister() {
             <div className="space-y-4">
               <Input label="Seu Nome" value={form.name} onChange={e => update("name", e.target.value)} required />
               <Input label="E-mail" type="email" value={form.email} onChange={e => update("email", e.target.value)} required />
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <Input 
+                  label="Data de Nascimento" 
+                  type="date" 
+                  value={form.birthDate} 
+                  onChange={e => update("birthDate", e.target.value)} 
+                  required 
+                />
+                <Input 
+                  label="Cidade de Residência" 
+                  value={form.city} 
+                  onChange={e => update("city", e.target.value)} 
+                  required 
+                />
+              </div>
               <Input label="Telefone / WhatsApp (Opcional)" value={form.phone} onChange={e => update("phone", e.target.value)} />
               <PasswordInput label="Crie uma Senha" value={form.password} onChange={e => update("password", e.target.value)} required />
               
