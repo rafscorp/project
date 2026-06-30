@@ -5,6 +5,7 @@ import { formatCurrency, formatDate } from "@/lib/utils/format";
 import { Card, CardBody } from "@/components/ui/Card";
 import { Badge } from "@/components/ui/Badge";
 import { SUBSCRIPTION_STATUS_LABELS } from "@/types";
+import { CheckoutButton } from "./CheckoutButton";
 
 export default async function SubscriptionPage() {
   const session = await getSession();
@@ -33,10 +34,16 @@ export default async function SubscriptionPage() {
             {sub.currentPeriodEnd && (
               <p className="text-sm text-muted-foreground">Próximo ciclo: {formatDate(sub.currentPeriodEnd)}</p>
             )}
-            <div className="rounded-xl bg-zinc-800/50 p-4 text-sm text-muted-foreground">
-              💳 Integração de pagamento automático (Mercado Pago / Stripe) — em breve.
-              Por enquanto entre em contato com admin@agury.com.br para ativar.
-            </div>
+            
+            {sub.status !== "ACTIVE" && (
+              <CheckoutButton planId={sub.plan.id} />
+            )}
+            
+            {sub.status === "ACTIVE" && (
+              <div className="rounded-xl bg-zinc-800/50 p-4 text-sm text-green-400 border border-green-500/20">
+                ✓ Sua assinatura está ativa. Obrigado por usar a Agury!
+              </div>
+            )}
           </CardBody>
         </Card>
       )}

@@ -1,8 +1,8 @@
 import { NextResponse } from "next/server";
 import { getSession } from "@/lib/auth/session";
 import { CouponService } from "@/services/coupon.service";
-import { PaymentService } from "@/services/payment.service";
 import { AffiliateService } from "@/services/affiliate.service";
+import { AsaasService } from "@/services/asaas.service";
 import prisma from "@/lib/db/prisma";
 
 export async function POST(req: Request) {
@@ -34,37 +34,67 @@ export async function POST(req: Request) {
       finalPrice = Math.max(0, finalPrice - discount);
       appliedCouponId = validation.coupon.id;
 
-      // Register usage early (in real app, do it after successful payment)
+      // Register usage early
       await CouponService.registerUsage(appliedCouponId, discount, session.userId);
     }
 
     // 2. Track Affiliate if present
     if (affiliateCode) {
       await AffiliateService.registerClick(affiliateCode);
-      // In real app: call AffiliateService.registerConversion after successful payment webhook
     }
 
-    // 3. Create Subscription & Payment
+    // 3. Create Subscription & Payment via Asaas
     const store = await prisma.store.findFirst({ where: { ownerId: session.userId } });
     if (!store) return new NextResponse("Store not found", { status: 404 });
 
-    const subscription = await prisma.subscription.upsert({
+    let customerId = store.asaasCustomerId;
+    if (!customerId) {
+      const customer = await AsaasService.createCustomer(
+        store.name, 
+        store.email, 
+        store.cnpj || undefined, 
+        store.phone
+      );
+      customerId = customer.id;
+      await prisma.store.update({
+        where: { id: store.id },
+        data: { asaasCustomerId: customerId }
+      });
+    }
+
+    // Data de vencimento: hoje/amanhã
+    const dueDate = new Date();
+    dueDate.setDate(dueDate.getDate() + 1);
+    const nextDueDate = dueDate.toISOString().split('T')[0];
+
+    const asaasSub = await AsaasService.createSubscription(
+      customerId as string,
+      finalPrice,
+      nextDueDate,
+      `Assinatura do Plano ${plan.name}`
+    );
+
+    await prisma.subscription.upsert({
       where: { storeId: store.id },
-      update: { planId: plan.id, status: "TRIAL" }, // Trial starts immediately
-      create: { storeId: store.id, planId: plan.id, status: "TRIAL" },
+      update: { planId: plan.id, asaasSubscriptionId: asaasSub.id },
+      create: { storeId: store.id, planId: plan.id, status: "TRIAL", asaasSubscriptionId: asaasSub.id },
     });
 
-    const paymentResult = await PaymentService.createSubscriptionPayment(
-      subscription.id,
-      finalPrice,
-      `Assinatura do Plano ${plan.name}`,
-      session.email,
-      session.name
-    );
+    // Pega o pagamento (fatura gerada)
+    const paymentsRes = await AsaasService.getSubscriptionPayments(asaasSub.id);
+    const firstPaymentId = paymentsRes.data?.[0]?.id;
+
+    if (!firstPaymentId) {
+      throw new Error("Não foi possível gerar a primeira cobrança da assinatura.");
+    }
+
+    // Obtém o QR Code do PIX
+    const pixData = await AsaasService.getPixQrCode(firstPaymentId);
 
     return NextResponse.json({
       success: true,
-      checkoutUrl: paymentResult.paymentUrl,
+      pixQrCode: pixData, // { encodedImage: base64, payload: brcode }
+      paymentId: firstPaymentId,
       finalPrice,
     });
   } catch (error) {

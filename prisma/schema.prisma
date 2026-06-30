@@ -313,6 +313,7 @@ model Subscription {
   // Payment gateway references
   stripeSubscriptionId      String?
   mercadoPagoSubscriptionId String?
+  asaasSubscriptionId       String?
   
   // Custom Pricing / Discounts
   customPrice               Float?   // Preço negociado fixo (ignora o valor do plano)
@@ -374,6 +375,7 @@ model Store {
   city          String
   state         String
   zipCode       String?
+  asaasCustomerId String?
   active        Boolean   @default(true)
   deletedAt     DateTime? // Soft delete
   ownerId       String
